@@ -34,7 +34,7 @@ def hubble_elastodynamics(z, h0_base, om_base):
     """
     Vacuum Elastodynamics H(z).
     The model predicts a stiffness relaxation that effectively boosts H(z)
-    at late times (z < 0.7) to resolve the tension.
+    at late times (z < 0.65) to resolve the tension.
     """
     # Baseline expansion (Early Universe Physics)
     hz_base = hubble_lcdm(z, h0_base, om_base)
@@ -42,7 +42,7 @@ def hubble_elastodynamics(z, h0_base, om_base):
     # Lattice Relaxation Function (Sigmoidal Transition)
     # Transitions from 1.0 (High z) to ~1.083 (Low z) to bridge 67.4 -> 73.0
     delta_g = 0.19
-    z_trans = 0.7
+    z_trans = 0.65
     width = 0.15
 
     # The effective H(z) is boosted by the weakening of gravitational stiffness
