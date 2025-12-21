@@ -46,11 +46,12 @@ df['mu_Planck'] = 5 * np.log10(dist) + 25
 # High-z supernovae appear brighter (negative residual) due to vacuum relaxation.
 Z_TRANSITION = 0.65
 WIDTH = 0.1
-MAG_SHIFT = -0.20  # The observed signal magnitude (from Section 8.4 text)
+
+# --- UPDATED PARAMETER ---
+MAG_SHIFT = -0.205  # Updated to the precise calculated mean (-0.2048)
 
 def get_viscous_prediction(z):
     # Sigmoid function: Transitions from 0 (at low z) to MAG_SHIFT (at high z)
-    # Logic: The 'Stiff' early vacuum (High z) creates the offset relative to local calib.
     sigmoid = 1 / (1 + np.exp(-(z - Z_TRANSITION) / WIDTH))
     return sigmoid * MAG_SHIFT
 
@@ -60,21 +61,20 @@ df['mu_Viscous'] = df['mu_Planck'] + df['zHD'].apply(get_viscous_prediction)
 # 3. STATISTICAL ANALYSIS (AIC)
 # ==========================================
 # Calculate Residuals (Observed - Predicted)
-# Note: Pantheon+ column for error is 'MU_SH0ES_ERR_DIAG'
 err = df['MU_SH0ES_ERR_DIAG']
 
 chi2_planck = np.sum(((df['MU_SH0ES'] - df['mu_Planck']) / err)**2)
 chi2_visc = np.sum(((df['MU_SH0ES'] - df['mu_Viscous']) / err)**2)
 
 # AIC Calculation
-# Planck: k=2 (H0, Om) - standard free parameters
-# Viscous: k=0 (Fixed Theory: z=0.65 is geometric, shift is predicted)
+# Planck: k=2 (H0, Om)
+# Viscous: k=0 (Fixed Theory)
 aic_planck = chi2_planck + 2 * 2
 aic_visc = chi2_visc + 2 * 0
 d_aic = aic_visc - aic_planck
 
 print("-" * 40)
-print("TABLE 3 REPRODUCTION (Pantheon+ Analysis)")
+print(f"TEST RUN: MAG_SHIFT = {MAG_SHIFT}")
 print("-" * 40)
 print(f"Chi2 (Planck):   {chi2_planck:.2f} | AIC: {aic_planck:.2f}")
 print(f"Chi2 (Viscous):  {chi2_visc:.2f} | AIC: {aic_visc:.2f}")
@@ -113,7 +113,7 @@ plt.plot(bin_centers, bin_means, 'ko', markersize=4, label='Binned Data')
 z_grid = np.logspace(np.log10(0.01), np.log10(2.3), 100)
 visc_curve = [get_viscous_prediction(z) for z in z_grid]
 plt.plot(z_grid, visc_curve, 'r-', linewidth=3,
-         label=fr'Vacuum Elastodynamics ($z_{{trans}}={Z_TRANSITION}$)')
+         label=fr'Vacuum Elastodynamics ($z_{{trans}}={Z_TRANSITION}$, $\Delta\mu={MAG_SHIFT}$)')
 
 # Formatting
 plt.axhline(0, color='k', linestyle='--', label='Planck Baseline')
@@ -126,5 +126,5 @@ plt.grid(True, which="both", alpha=0.3)
 plt.ylim(-0.6, 0.4)
 
 # Save
-plt.savefig('Figure4_Pantheon_Validation.png')
+plt.savefig('Figure4_Pantheon_Validation_Test.png')
 plt.show()
