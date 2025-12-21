@@ -22,7 +22,7 @@ fs8_err = fs8_data[:, 2]
 Om0 = 0.315
 sigma8_0_planck = 0.811
 ETA_DRAG = 0.17
-Z_TRANS = 0.70
+Z_TRANS = 0.65
 WIDTH = 0.15
 
 def get_viscosity(z):
