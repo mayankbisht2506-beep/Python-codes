@@ -47,4 +47,6 @@ You can install the dependencies via pip:
 ```bash
 pip install numpy matplotlib pandas scipy requests astropy
 
+
+##Citation
 Bisht, M. (2025). "Vacuum Elastodynamics: Resolving the Hubble and S8 Tensions via Lattice Viscosity and Phantom Dark Energy." Physica Scripta (Submitted). DOI: 10.5281/zenodo.18014968
