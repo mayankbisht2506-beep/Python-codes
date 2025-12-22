@@ -21,15 +21,15 @@ TRANSITION_WIDTH = 0.1 # Width of the phase transition
 # ==========================================
 def effective_h0(z):
     """
-    Sigmoidal relaxation of the effective Hubble Constant.
-            
-    Physics:
-    - High z (> 0.65): Vacuum is 'Stiff', G is low, H0 matches Planck.
-    - Low z (< 0.65): Vacuum relaxes, G increases, H0 matches SHOES.
+        Sigmoidal relaxation of the effective Hubble Constant.
+
+        Physics:
+            - High z (> 0.65): Vacuum is 'Stiff', G is low, H0 matches Planck.
+            - Low z (< 0.65): Vacuum relaxes, G increases, H0 matches SHOES.
     """
     # Sigmoid function: 1 at low z, 0 at high z
     sigmoid = 1 / (1 + np.exp((z - Z_TRANSITION) / TRANSITION_WIDTH))
-            
+
     # Interpolate between Late and Early values
     h0_eff = H0_PLANCK + (H0_SHOES - H0_PLANCK) * sigmoid
     return h0_eff
@@ -45,12 +45,12 @@ plt.figure(figsize=(10, 6))
 
 # A. Error Bands (Constraints)
 # Late Universe (SHOES) - Red Band
-plt.fill_between(z_values, H0_SHOES - ERR_SHOES, H0_SHOES + ERR_SHOES, 
+plt.fill_between(z_values, H0_SHOES - ERR_SHOES, H0_SHOES + ERR_SHOES,
                  color='red', alpha=0.15, label='SH0ES (Late Universe) Measurement')
 plt.axhline(H0_SHOES, color='red', linestyle='--', alpha=0.5, linewidth=1)
 
 # Early Universe (Planck) - Blue Band
-plt.fill_between(z_values, H0_PLANCK - ERR_PLANCK, H0_PLANCK + ERR_PLANCK, 
+plt.fill_between(z_values, H0_PLANCK - ERR_PLANCK, H0_PLANCK + ERR_PLANCK,
                  color='blue', alpha=0.15, label='Planck (Early Universe) Measurement')
 plt.axhline(H0_PLANCK, color='blue', linestyle='--', alpha=0.5, linewidth=1)
 
@@ -69,7 +69,7 @@ plt.xlim(0, 2.0)
 plt.ylim(65, 75)
 plt.xlabel('Redshift ($z$)', fontsize=12)
 plt.ylabel('Effective Hubble Constant $H_0$ (km/s/Mpc)', fontsize=12)
-plt.title(Resolution of the Hubble Tension via Vacuum Relaxation', fontsize=14)
+plt.title('Resolution of the Hubble Tension via Vacuum Relaxation', fontsize=14)
 plt.legend(loc='center right')
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
