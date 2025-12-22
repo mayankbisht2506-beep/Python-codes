@@ -33,6 +33,10 @@ The code provided here reproduces the theoretical models, numerical simulations,
     * **Physics:** Solves the differential equations for linear structure growth, including a term for Lattice Viscosity ($\eta \approx 0.17$).
     * **Key Result:** Demonstrates that vacuum viscosity dynamically suppresses the growth rate ($f\sigma_8$), resolving the clustering tension ($\Delta \chi^2 < 0$) without modifying General Relativity.
 
+###Citation
+Bisht, M. (2025). "Vacuum Elastodynamics: Resolving the Hubble and S8 Tensions via Lattice Viscosity and Phantom Dark Energy." Physica Scripta (Submitted). DOI: 10.5281/zenodo.18014968
+
+
 ## Requirements
 To run these scripts, you will need a standard Python 3 environment with the following libraries:
 
@@ -46,7 +50,3 @@ To run these scripts, you will need a standard Python 3 environment with the fol
 You can install the dependencies via pip:
 ```bash
 pip install numpy matplotlib pandas scipy requests astropy
-
-
-##Citation
-Bisht, M. (2025). "Vacuum Elastodynamics: Resolving the Hubble and S8 Tensions via Lattice Viscosity and Phantom Dark Energy." Physica Scripta (Submitted). DOI: 10.5281/zenodo.18014968
