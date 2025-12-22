@@ -21,11 +21,11 @@ TRANSITION_WIDTH = 0.1 # Width of the phase transition
 # ==========================================
 def effective_h0(z):
     """
-        Sigmoidal relaxation of the effective Hubble Constant.
+    Sigmoidal relaxation of the effective Hubble Constant.
 
-        Physics:
-            - High z (> 0.65): Vacuum is 'Stiff', G is low, H0 matches Planck.
-            - Low z (< 0.65): Vacuum relaxes, G increases, H0 matches SHOES.
+    Physics:
+    - High z (> 0.65): Vacuum is 'Stiff', G is low, H0 matches Planck.
+    - Low z (< 0.65): Vacuum relaxes, G increases, H0 matches SHOES.
     """
     # Sigmoid function: 1 at low z, 0 at high z
     sigmoid = 1 / (1 + np.exp((z - Z_TRANSITION) / TRANSITION_WIDTH))
