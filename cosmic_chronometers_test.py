@@ -45,8 +45,9 @@ def hubble_elastodynamics(z, h0_base, om_base):
     z_trans = 0.65
     width = 0.15
 
-    # The effective H(z) is boosted by the weakening of gravitational stiffness
-    # Factor ~ sqrt(G_early / G(z))
+    # The effective H(z) matches the Vacuum Hardening phase transition.
+    # Physics: Stiffness Increases (Soft -> Stiff), Gravity Weakens (High G -> Low G).
+    # This relaxation bridges the gap from Planck (Early) to SHOES (Late).
     # We model the effective H0 boost directly:
     boost_factor = 1 + ( (H0_SHOES/H0_PLANCK - 1) / (1 + np.exp((z - z_trans)/width)) )
 
