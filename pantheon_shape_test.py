@@ -59,8 +59,8 @@ OL = 1.0 - OM
 # Transition Parameters (Fixed by Theory)
 Z_TRANS = 0.65
 WIDTH = 0.1
-H0_LATE = 73.04   # SH0ES (Soft Vacuum)
-H0_EARLY = 67.4   # Planck (Stiff Vacuum)
+H0_LATE = 73.04   # SH0ES (Stiff Vacuum/Crystal)
+H0_EARLY = 67.4   # Planck (Soft Vacuum/Fluid)
 
 # --- HELPER: VECTORIZED INTEGRATION ---
 def integrate_distance_vectorized(z_values, h_func):
