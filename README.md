@@ -58,14 +58,3 @@ You can install all dependencies via pip:
 pip install numpy matplotlib pandas scipy requests
 
 
-cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
-authors:
-- family-names: "Bisht"
-  given-names: "Mayank"
-title: "Vacuum Elastodynamics: Code Repository"
-version: 1.0.0
-doi: 10.5281/zenodo.18014968
-date-released: 2025-12-25
-url: "https://github.com/mayankbisht2506-beep/Python-codes"
-
