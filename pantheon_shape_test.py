@@ -8,7 +8,6 @@ import os
 # 1. SETUP & DATA
 # ==========================================
 # This script reproduces the "Steel Man" test from Section 9.5 (Table 3)
-# Target Result: Delta Chi2 approx -0.57 (Validating Expansion Shape)
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
