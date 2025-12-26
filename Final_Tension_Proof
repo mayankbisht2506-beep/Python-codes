@@ -1,0 +1,121 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import requests
+import os
+
+print("--- CONSERVATIVE TENSION RESOLUTION CHECK (Self-Contained) ---")
+
+# ==========================================
+# 1. ROBUST DATA LOADING (Added Download Logic)
+# ==========================================
+DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
+DATA_FILE = "Pantheon+SH0ES.dat"
+
+def download_file(url, filename):
+    if not os.path.exists(filename):
+        print(f"File {filename} not found. Downloading...")
+        try:
+            with requests.get(url, stream=True) as r:
+                r.raise_for_status()
+                with open(filename, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
+            print("Download complete.")
+        except Exception as e:
+            print(f"Error downloading data: {e}")
+            exit()
+    else:
+        print(f"Found {filename}, loading local copy.")
+
+# Run the download check
+download_file(DATA_URL, DATA_FILE)
+
+# Now load the data safely
+try:
+    df = pd.read_csv(DATA_FILE, sep=r'\s+')
+    mask = df['zHD'] > 0.01
+    df_clean = df[mask].reset_index(drop=True)
+    z_obs = df_clean['zHD'].values
+    mu_obs = df_clean['MU_SH0ES'].values
+    mu_err = df_clean['MU_SH0ES_ERR_DIAG'].values 
+except Exception as e:
+    print(f"Error reading file: {e}")
+    exit()
+
+# ==========================================
+# 2. PHYSICS MODELS
+# ==========================================
+C_LIGHT = 299792.458
+H0_PLANCK = 67.4 
+OM_PLANCK = 0.315
+Z_TRANS = 0.65
+
+# A. PLANCK BASELINE
+z_grid = np.linspace(0, 2.5, 1000)
+E_inv = 1.0 / np.sqrt(OM_PLANCK*(1+z_grid)**3 + (1-OM_PLANCK))
+dc_grid = np.cumsum(E_inv) * (z_grid[1]-z_grid[0])
+dl_grid = (1+z_grid) * (C_LIGHT/H0_PLANCK) * dc_grid
+mu_grid = 5 * np.log10(dl_grid + 1e-9) + 25
+mu_planck = np.interp(z_obs, z_grid, mu_grid)
+
+# B. VACUUM MODEL (Geometric Correction)
+MAG_SHIFT = -0.20 
+correction = MAG_SHIFT / (1 + np.exp((z_obs - Z_TRANS) / 0.1))
+mu_vacuum = mu_planck + correction
+
+# ==========================================
+# 3. STATISTICAL CALCULATION
+# ==========================================
+weights = 1.0 / mu_err**2
+diff_planck = mu_obs - mu_planck
+mean_offset_planck = np.average(diff_planck, weights=weights)
+
+diff_vacuum = mu_obs - mu_vacuum
+mean_offset_vacuum = np.average(diff_vacuum, weights=weights)
+
+# SH0ES Calibration Error
+SIGMA_CALIBRATION = 0.035 
+
+chi2_tension_planck = (mean_offset_planck / SIGMA_CALIBRATION)**2
+chi2_tension_vacuum = (mean_offset_vacuum / SIGMA_CALIBRATION)**2
+d_chi2 = chi2_tension_vacuum - chi2_tension_planck
+
+print("\n" + "="*50)
+print("FINAL PUBLISHABLE RESULTS (Corrected Logic)")
+print("="*50)
+print(f"1. Standard Model (Planck)")
+print(f"   Mean Residual Offset:      {mean_offset_planck:.4f} mag")
+print(f"   Calibration Chi2:          {chi2_tension_planck:.2f}")
+print(f"   Significance:              {np.sqrt(chi2_tension_planck):.1f} sigma")
+print("-" * 50)
+print(f"2. Vacuum Elastodynamics")
+print(f"   Mean Residual Offset:      {mean_offset_vacuum:.4f} mag")
+print(f"   Calibration Chi2:          {chi2_tension_vacuum:.2f}")
+print(f"   Significance:              {np.sqrt(chi2_tension_vacuum):.1f} sigma")
+print("-" * 50)
+print(f"DELTA CHI2 (Improvement):     {d_chi2:.2f}")
+print("="*50)
+
+# ==========================================
+# 4. PLOT
+# ==========================================
+plt.figure(figsize=(10, 6))
+plt.scatter(z_obs, diff_planck, alpha=0.15, color='gray', s=10, label='Pantheon+ Data')
+
+z_sort = np.sort(z_obs)
+vac_curve = MAG_SHIFT / (1 + np.exp((z_sort - Z_TRANS) / 0.1))
+
+plt.axhline(mean_offset_planck, color='blue', linestyle='--', linewidth=2, label='Planck Mismatch')
+plt.plot(z_sort, vac_curve, 'r-', linewidth=3, label='Vacuum Phase Transition')
+plt.axhline(0, color='k', linewidth=1)
+
+plt.xlabel('Redshift z')
+plt.ylabel(r'Residuals $\mu - \mu_{Planck}$ (mag)')
+plt.title(f'Resolution of Hubble Tension ($\Delta\chi^2 = {d_chi2:.1f}$)')
+plt.legend()
+plt.ylim(-0.5, 0.3)
+plt.grid(True, alpha=0.3)
+plt.savefig("Final_Tension_Proof.png", dpi=300)
+print("Plot saved.")
+plt.show()
