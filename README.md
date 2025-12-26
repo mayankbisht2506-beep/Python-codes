@@ -1,9 +1,3 @@
-Below is a **clean, ready-to-paste `README.md` file** in **GitHub-flavored Markdown**.
-You can copy **everything exactly as-is** and paste it into your GitHub repository.
-
----
-
-````markdown
 # Vacuum Elastodynamics — Python Codes
 
 This repository contains the Python scripts and numerical analysis tools used in the research work  
@@ -149,16 +143,3 @@ You may add a `LICENSE` file (MIT, Apache-2.0, etc.) as appropriate.
 
 **Mayank Bisht**
 Research code supporting Vacuum Elastodynamics cosmological framework.
-
-```
-
----
-
-If you want, I can also:
-- Add **DOI / Zenodo badges**
-- Align README language with **journal supplementary material**
-- Create a **`requirements.txt`**
-- Refactor the repo into a **reproducibility-friendly structure**
-
-Just say the word.
-```
