@@ -45,6 +45,8 @@ The repository supports investigations into:
   Comparison with cosmic chronometer H(z) data.
 - `BAO_DATA.py`  
   BAO dataset handling and consistency testing.
+  test_tension_strict_planck_prior.py
+A rigorous "Stress Test" comparing Vacuum Elastodynamics against a Standard $\Lambda$CDM model fixed strictly to Planck 2018 parameters ($H_0=67.4$). Unlike the conservative analysis in the paper (which allows parameters to float), this test enforces strict early-universe consistency, revealing a catastrophic failure of the standard model ($\chi^2 \approx 7022$) and a decisive preference for the vacuum transition ($\Delta\chi^2 \approx -4850$).
 
 ---
 
