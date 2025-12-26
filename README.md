@@ -1,60 +1,164 @@
-# Vacuum Elastodynamics: Code Repository
-
-This repository contains the Python scripts and data analysis tools supporting the manuscript **"Vacuum Elastodynamics: Resolving the Hubble and S8 Tensions via Lattice Viscosity and Phantom Dark Energy"** by Mayank Bisht.
-
-The code provided here reproduces the theoretical models, numerical simulations, and observational tests presented in Figures 1–5 of the paper.
-
-## 📂 Repository Contents
-
-### 1. Lattice Mechanics & Stability (Section 6)
-* **`Figure1_Lattice_Simulation.py`**
-  * **Physics:** Performs a Monte Carlo simulation of the $E_8$ vacuum lattice strain fluctuations.
-  * **Key Result:** Determines the Frenkel Yield Strength ($\gamma_{crit} \approx 0.159$) and verifies that the sum of the three observed lepton generations saturates 98.6% of this limit, while a 4th generation would be mechanically unstable.
-
-### 2. The Hubble Tension (Section 7 & 8)
-* **`Figure2_Hubble_Transition.py`**
-  * **Physics:** Visualizes the theoretical phase transition of the vacuum stiffness.
-  * **Key Result:** Illustrates the sigmoidal relaxation of $H_0$ from the Planck value ($z>0.65$) to the SH0ES value ($z<0.65$).
-
-* **`Figure4a_Pantheon_Tension.py`**
-  * **Physics:** Tests the "Tension Metric" using the Pantheon+ dataset (Absolute Magnitude).
-  * **Key Result:** Demonstrates that the "Magnitude Mirage" (Luminosity Drift) resolves the discrepancy between Planck and SH0ES ($\Delta \chi^2 \approx -376$).
-
-* **`Figure4b_Pantheon_Shape.py`**
-  * **Physics:** Tests the "Shape Metric" (Steel Man Test) by marginalizing over absolute calibration.
-  * **Key Result:** Proves that the "kinked" expansion history fits the shape of the supernova data slightly better than $\Lambda$CDM ($\Delta \chi^2 \approx -0.57$).
-
-* **`check_magnitude_shift.py`**
-  * **Physics:** A supplementary validation script that calculates the raw mean residual of high-redshift supernovae ($z > 0.65$) relative to the Planck baseline.
-  * **Key Result:** Empirically verifies the $\approx -0.20$ mag shift cited in the text, confirming the "Mirage" effect is present in the raw data.
-
-* **`Figure5_Cosmic_Chronometers.py`**
-  * **Physics:** Tests the model's $H(z)$ predictions against 31 independent cosmic chronometer measurements.
-  * **Key Result:** Confirms that the "Late-Time Boost" model is statistically indistinguishable from the observed expansion history ($\Delta AIC < 2$).
-
-* **`BAO_DATA.py`**
-  * **Physics:** Validates the model against Baryon Acoustic Oscillation (BAO) measurements ($D_V/r_d$).
-  * **Key Result:** Confirms consistency with 6dFGS, SDSS MGS, and BOSS DR12 data.
-
-### 3. The S8 Tension (Section 9)
-* **`Figure3_S8_Resolution.py`**
-  * **Physics:** Solves the differential equations for linear structure growth (`odeint`), incorporating Lattice Viscosity ($\eta \approx 0.17$).
-  * **Key Result:** Demonstrates that vacuum viscosity dynamically suppresses the growth rate ($f\sigma_8$), resolving the clustering tension ($\Delta \chi^2 = -1.81$) without modifying General Relativity.
+Below is a **clean, ready-to-paste `README.md` file** in **GitHub-flavored Markdown**.
+You can copy **everything exactly as-is** and paste it into your GitHub repository.
 
 ---
 
-## 🛠️ Requirements
+````markdown
+# Vacuum Elastodynamics — Python Codes
 
-To run these scripts, you will need a standard Python 3 environment with the following libraries:
+This repository contains the Python scripts and numerical analysis tools used in the research work  
+**“Vacuum Elastodynamics: Resolving the Hubble and S8 Tensions via Lattice Viscosity and Phantom Dark Energy.”**
 
-* `numpy`
-* `matplotlib`
-* `pandas`
-* `scipy`
-* `requests` (for downloading Pantheon+ data)
+The codes are designed to reproduce figures, validate theoretical predictions, and compare the model against multiple cosmological observations.
 
-You can install all dependencies via pip:
+---
+
+## 🔬 Scientific Scope
+
+The repository supports investigations into:
+
+- Vacuum lattice mechanics and strain dynamics  
+- Resolution of the Hubble tension  
+- Suppression of structure growth (S8 tension)  
+- Supernova magnitude consistency (Pantheon+)  
+- BAO, Cosmic Chronometers, and CMB cross-checks  
+- Early-universe consistency tests (BBN, ISW, Lithium)
+
+---
+
+## 📁 Repository Structure & Scripts
+
+### **Lattice & Stability Analysis**
+- `Figure_1_lattice_simulation.py`  
+  Monte-Carlo simulation of vacuum lattice strain fluctuations.
+- `ISW_Stability_test.py`  
+  Integrated Sachs–Wolfe stability verification.
+- `Helium_4_Abundance.py`  
+  Primordial Helium-4 abundance consistency test.
+
+---
+
+### **Hubble Tension & Expansion History**
+- `Figure_2_hubble_transition_model.py`  
+  Vacuum stiffness transition and modified expansion history.
+- `Figure_4a_pantheon_tension_test.py`  
+  Supernova magnitude tension test using Pantheon+.
+- `Figure_4b_pantheon_shape_test.py`  
+  Shape consistency of luminosity distance curves.
+- `check_magnitude_shift.py`  
+  Residual magnitude diagnostics.
+- `Figure_5_cosmic_chronometers_test.py`  
+  Comparison with cosmic chronometer H(z) data.
+- `BAO_DATA.py`  
+  BAO dataset handling and consistency testing.
+
+---
+
+### **S8 Tension & Structure Growth**
+- `Figure_3_S8_viscous_solver.py`  
+  Linear growth solver including lattice viscosity.
+- `S8_KiDS_DES.py`  
+  KiDS and DES observational comparison.
+
+---
+
+### **Additional & Exploratory Tests**
+- `Lithium_anomaly.py`  
+  Lithium-7 abundance prediction check.
+- `JWST_Prediction.py`  
+  High-redshift predictions relevant to JWST observations.
+- `CMB_ACOUSTIC_SCALE.py`  
+  CMB acoustic scale consistency evaluation.
+
+---
+
+## 🛠 Requirements
+
+Python 3.8 or higher is recommended.
+
+### Required Libraries
 ```bash
-pip install numpy matplotlib pandas scipy requests
+pip install numpy pandas matplotlib scipy requests
+````
 
+Some scripts may optionally require:
 
+```bash
+pip install astropy
+```
+
+(See individual script headers for specific needs.)
+
+---
+
+## ▶️ How to Run
+
+Each script is standalone.
+
+Example:
+
+```bash
+python Figure_1_lattice_simulation.py
+```
+
+Plots will be displayed or saved depending on the script configuration.
+
+---
+
+## 📊 Outputs
+
+The scripts generate:
+
+* Publication-ready plots
+* Numerical diagnostics
+* Residual comparisons against observational datasets
+
+These outputs correspond directly to figures and tests discussed in the associated paper.
+
+---
+
+## ⚠️ Notes
+
+* Dataset paths may need adjustment depending on your local setup.
+* Numerical parameters are intentionally explicit for transparency and reproducibility.
+* The code prioritizes clarity over optimization.
+
+---
+
+## 📄 Citation
+
+If you use this code in academic work, please cite the associated paper and this repository.
+
+---
+
+## 🧩 Contributing
+
+Contributions are welcome.
+Please open an issue before submitting major changes.
+
+---
+
+## 📜 License
+
+License not yet specified.
+You may add a `LICENSE` file (MIT, Apache-2.0, etc.) as appropriate.
+
+---
+
+## 👤 Author
+
+**Mayank Bisht**
+Research code supporting Vacuum Elastodynamics cosmological framework.
+
+```
+
+---
+
+If you want, I can also:
+- Add **DOI / Zenodo badges**
+- Align README language with **journal supplementary material**
+- Create a **`requirements.txt`**
+- Refactor the repo into a **reproducibility-friendly structure**
+
+Just say the word.
+```
