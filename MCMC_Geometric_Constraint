@@ -88,7 +88,7 @@ if __name__ == "__main__":
     
     fig = corner.corner(flat_samples, labels=labels, quantiles=[0.16, 0.5, 0.84],
                         show_titles=True, color="darkblue")
-    fig.suptitle(f"Geometric Constraints (Fixed $z_{{trans}}={FIXED_Z_TRANS}$)", fontsize=16)
+    fig.suptitle(f"Geometric Constraints (Fixed $z_{{trans}}={FIXED_Z_TRANS}$)", fontsize=12)
     plt.savefig("MCMC_Geometric_Constraint.png")
     
     print("-" * 40)
