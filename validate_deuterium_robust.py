@@ -5,22 +5,22 @@ import matplotlib.pyplot as plt
 # 1. PARAMETERS & GEOMETRIC SCALINGS
 # ==========================================
 # Observation (Particle Data Group)
-OBS_DH = 2.547e-5 
+OBS_DH = 2.547e-5
 
 # Vacuum Physics (From Section 7.1)
-[span_4](start_span)G_BOOST = 1.23  # G_early / G_0[span_4](end_span)
+G_BOOST = 1.23  # G_early / G_0
 
 # A. Density Scaling (Section 7.9.3, Eq. 99)
 # rho ~ T^3 ~ (G^-0.5)^3 = G^-1.5
-[span_5](start_span)RHO_SCALE = G_BOOST**(-1.5)  # ~0.73[span_5](end_span)
+RHO_SCALE = G_BOOST**(-1.5)  # ~0.73
 
 # B. Time Scaling (Section 7.9.2, Eq. 97)
 # t ~ 1/H ~ G^0.5
-[span_6](start_span)TIME_SCALE = G_BOOST**(0.5)  # ~1.11[span_6](end_span)
+TIME_SCALE = G_BOOST**(0.5)  # ~1.11
 
 # C. Cross-Section Scaling (Section 7.9.3, Eq. 100)
 # sigma ~ lambda^2 ~ 1/m^2 ~ 1/(G^-0.5)^2 = G^1.0
-[span_7](start_span)SIGMA_SCALE = G_BOOST**(1.0) # ~1.23[span_7](end_span)
+SIGMA_SCALE = G_BOOST**(1.0) # ~1.23
 
 # ==========================================
 # 2. ROBUST BURNING MODEL (BBN INVARIANCE)
@@ -30,22 +30,22 @@ def run_simulation():
     # We define the "Target Exponent" required to burn initial D down to observed levels.
     Y0 = 2.0e-4
     target_exponent = np.log(Y0 / OBS_DH) # Approx 2.06
-    
+
     # Standard Model Final Abundance
     Y_final_std = Y0 * np.exp(-target_exponent)
-    
+
     # Vacuum Model Calculation
     # The exponent in the rate equation (Gamma * t) scales as:
     # Exponent ~ Density * Cross-Section * Velocity * Time
     # Note: Velocity v is thermal, assumed invariant in cancelling T frame.
-    
+
     # Net Scaling Factor (The Cancellation Theorem, Eq. 102)
     # Factor = G^-1.5 * G^1.0 * G^0.5 = 1.0
     net_scaling = RHO_SCALE * SIGMA_SCALE * TIME_SCALE
-    
+
     vac_exponent = target_exponent * net_scaling
     Y_final_vac = Y0 * np.exp(-vac_exponent)
-    
+
     return Y_final_std, Y_final_vac, net_scaling
 
 # ==========================================
@@ -78,7 +78,7 @@ else:
     print("VERDICT: FAIL. Invariance broken.")
 
 plt.figure(figsize=(6,5))
-bars = plt.bar(['Standard $\Lambda$CDM', 'Vacuum Elastodynamics'], 
+bars = plt.bar([r'Standard $\Lambda$CDM', 'Vacuum Elastodynamics'],
                [final_std*1e5, final_vac*1e5], color=['gray', 'green'])
 
 plt.axhline(OBS_DH*1e5, color='red', linestyle='--', label='Observation')
@@ -94,4 +94,3 @@ for bar in bars:
 plt.tight_layout()
 plt.savefig('BBN_Invariance_Check.png')
 plt.show()
-
