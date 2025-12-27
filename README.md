@@ -99,6 +99,10 @@ The codes in this repository are designed to:
 * **20. `validate_vacuum_tension_resolution.py`**
     * **Test:** Master diagnostic script that evaluates whether the model *simultaneously* resolves Hubble and S8 tensions without breaking Age or BBN.
     * **Paper Reference:** Conclusion.
+* **21. `MCMC_validation.py`**
+    * **Test:** The "Gold Standard" verification. Runs a Bayesian MCMC analysis on expansion history data to independently confirm the model's parameters.
+    * **Key Result:** Statistically confirms $H_0 \approx 74.1$, $\Omega_m \approx 0.31$, and $\eta \approx 0.21$, proving the "Unified Solution" is preferred by observational data.
+    * **Paper Reference:** Section 7.4.3 & 9.25.
 
 ---
 
