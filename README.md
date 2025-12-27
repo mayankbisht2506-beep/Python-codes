@@ -1,5 +1,3 @@
-I apologize for the omission. You are correct—there are 20 distinct validation tests in the full suite that we have discussed or referenced in the repository structure.
-Here is the complete, 20-script README covering every single test.
 # Vacuum Elastodynamics: Validation Suite
 
 ### Numerical & Observational Tests for Vacuum Elastodynamics Cosmology
