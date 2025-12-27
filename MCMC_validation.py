@@ -2,7 +2,7 @@
 # 0. SETUP & DEPENDENCIES
 # ==========================================
 # If running in Colab/Jupyter, uncomment the line below:
-# !pip install emcee corner
+!pip install emcee corner
 
 import numpy as np
 import matplotlib.pyplot as plt
