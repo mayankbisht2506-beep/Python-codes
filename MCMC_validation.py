@@ -1,7 +1,8 @@
 # ==========================================
 # 0. SETUP & DEPENDENCIES
 # ==========================================
-!pip install emcee corner
+# Uncomment the line below if running in Google Colab / Jupyter
+# !pip install emcee corner
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -48,6 +49,7 @@ def hubble_model(z, params):
     
     # Lattice Relaxation Logic:
     # 1. Sigmoid models the phase transition at z ~ 0.65
+    #    (Width fixed at 0.1 for stability)
     sigmoid = 1.0 / (1.0 + np.exp((z - FIXED_Z_TRANS) / 0.1))
     
     # 2. Effective Amplitude Bridge:
@@ -66,7 +68,8 @@ def dist_mod_model(z, params):
     H_vals = hubble_model(z_grid, params)
     
     # Comoving distance integral
-    Dc = c_light * np.trapezoid(1.0/H_vals, z_grid) # using trapezoid for numpy 2.0+
+    # FIXED: Use np.trapz instead of np.trapezoid (which requires NumPy 2.0+)
+    Dc = c_light * np.trapz(1.0/H_vals, z_grid) 
     
     return 5.0 * np.log10((1+z) * Dc) + 25.0
 
@@ -95,12 +98,19 @@ def log_likelihood(params):
     # 2. Supernovae (Pantheon+)
     model_mu = np.array([dist_mod_model(z, params) for z in sn_data[:,0]])
     diff = sn_data[:,1] - model_mu
-    # Marginalize over absolute magnitude M (standard standardization)
-    chi2_sn = np.sum(((diff - np.mean(diff)) / sn_data[:,2])**2)
+    errs = sn_data[:,2]
+    
+    # FIXED: Weighted Marginalization for Absolute Magnitude (M)
+    # Old code used simple mean, which biases the fit if errors vary.
+    # Correct Formula: weighted_mean = sum(x/sigma^2) / sum(1/sigma^2)
+    weights = 1.0 / errs**2
+    M_nuisance = np.sum(diff * weights) / np.sum(weights)
+    
+    # Calculate Chi2 using the optimal nuisance parameter
+    chi2_sn = np.sum(((diff - M_nuisance) / errs)**2)
     
     # 3. SH0ES ANCHOR (The "Measurement")
     # This acts as the local anchor that Supernovae cannot provide (they are relative).
-    # Including this is standard practice when claiming "Consistency with SH0ES".
     chi2_shoes = ((H0 - 73.04) / 1.04)**2
     
     return prior_Om - 0.5 * (chi2_hz + chi2_sn + chi2_shoes)
@@ -130,13 +140,17 @@ if __name__ == "__main__":
     labels = [r"$H_0$", r"$\Omega_m$", r"$\eta$ (Viscosity)"]
     
     # --- PLOT ---
-    fig = corner.corner(flat_samples, labels=labels, 
-                        quantiles=[0.16, 0.5, 0.84],
-                        show_titles=True, 
-                        color="darkblue",
-                        title_kwargs={"fontsize": 12})
-    fig.suptitle(f"Bayesian Validation: Vacuum Elastodynamics", fontsize=14, y=1.02)
-    plt.savefig("MCMC_Validation_Results.png")
+    try:
+        fig = corner.corner(flat_samples, labels=labels, 
+                            quantiles=[0.16, 0.5, 0.84],
+                            show_titles=True, 
+                            color="darkblue",
+                            title_kwargs={"fontsize": 12})
+        fig.suptitle(f"Bayesian Validation: Vacuum Elastodynamics", fontsize=14, y=1.02)
+        plt.savefig("MCMC_Validation_Results.png")
+        print("Plot saved as MCMC_Validation_Results.png")
+    except Exception as e:
+        print(f"Plotting skipped: {e}")
     
     # --- REPORT ---
     print("\n" + "="*40)
