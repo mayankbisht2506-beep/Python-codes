@@ -114,7 +114,7 @@ MAG_SHIFT = -0.205
 Z_TRANS = 0.65
 WIDTH = 0.1
 
-viscous_correction = MAG_SHIFT / (1 + np.exp(-(df_clean['zHD'].values - Z_TRANS) / WIDTH))
+viscous_correction = MAG_SHIFT / (1 + np.exp((df_clean['zHD'].values - Z_TRANS) / WIDTH))
 mu_viscous = mu_planck + viscous_correction
 
 # ==========================================
