@@ -8,7 +8,7 @@ import os
 # 1. SETUP & DATA DOWNLOAD
 # ==========================================
 print("--- RUNNING PANTHEON+ TENSION TEST (QUADRUPLE CONCORDANCE) ---")
-print("Objective: Verify Metric 1 (Absolute Magnitude) for H0 = 73.4")
+print("Objective: Verify Metric 1 (Absolute Magnitude) for H0 = 74.5")
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
