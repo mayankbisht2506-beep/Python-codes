@@ -13,10 +13,10 @@ OM_PLANCK = 0.315
 OL_PLANCK = 1.0 - OM_PLANCK
 C_LIGHT = 299792.458
 
-# Vacuum Elastodynamics Anchor (Quadruple Concordance)
-H0_MODEL = 73.74 
-# The theoretical shift required to reach 73.74 from 67.4
-MODEL_SHIFT = -5 * np.log10(H0_MODEL / H0_PLANCK) # approx -0.195
+# --- CORRECTED PARAMETERS (Matches Add 31.pdf) ---
+# Derived from Lepton Viscosity (eta=0.21)
+H0_MODEL = 73.40  
+MODEL_SHIFT = -5 * np.log10(H0_MODEL / H0_PLANCK) # Result: -0.1852
 
 def get_planck_mu(z):
     """Standard LCDM Distance Modulus (Planck 2018)"""
