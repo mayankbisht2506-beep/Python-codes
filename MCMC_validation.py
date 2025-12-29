@@ -135,3 +135,27 @@ if __name__ == "__main__":
         print("VERDICT: SUCCESS. Model predicts H0 consistent with SH0ES/Leptons.")
     else:
         print("VERDICT: FAILURE.")
+
+
+    # ==========================================
+    # 5. VISUALIZATION (CORNER PLOT)
+    # ==========================================
+    print("Generating Corner Plot...")
+    
+    # Create the triangle plot
+    fig = corner.corner(
+        flat_samples, 
+        labels=labels,
+        truths=[74.5, 0.315, 0.21], # The Theoretical Predictions
+        truth_color="#ff4444",
+        quantiles=[0.16, 0.5, 0.84],
+        show_titles=True,
+        title_kwargs={"fontsize": 12},
+        color="#0077cc"
+    )
+    
+    # Add a title
+    plt.suptitle(r'MCMC Validation\n(theory prediction in red)", fontsize=16)
+    plt.savefig("Figure5_MCMC_Corner.png", dpi=300)
+    plt.show()
+    print("Corner plot saved as 'Figure5_MCMC_Corner.png'.")
