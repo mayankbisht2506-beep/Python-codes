@@ -21,7 +21,7 @@ Yp_ERR = 0.003       # Error margin
 # 2. VACUUM ELASTODYNAMICS PARAMETERS
 # ==========================================
 # Derived in Section 7.1 (Eq. 72)
-G_BOOST = 1.23       # Early Gravity (G_early / G_0)
+G_BOOST = 1.22       # Early Gravity (G_early / G_0)
 
 # Geometric Scaling Laws (Section 7.9)
 # 1. Mass Scales: m ~ G^-0.5  (Eq. 82)
