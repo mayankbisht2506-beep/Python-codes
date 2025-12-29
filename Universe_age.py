@@ -11,7 +11,7 @@ H0_PLANCK = 67.4
 OM_PLANCK = 0.315
 
 # [span_3](start_span)[span_4](start_span)Vacuum Model[span_3](end_span)[span_4](end_span)
-H0_VAC = 73.0       # Late Universe H0
+H0_VAC = 74.5       # Late Universe H0
 OM_VAC = 0.315      # Assumed similar for shape consistency
 Z_TRANS = 0.65      # Transition Redshift
 WIDTH = 0.1         # Smoothness (Implied by Fig 2)
@@ -25,7 +25,7 @@ def E(z):
 
 def H_effective(z):
     """
-    Model: Effective H0 relaxes from 73 (z=0) to ~67.4 (z>0.65).
+    Model: Effective H0 relaxes from 74.5 (z=0) to ~67.4 (z>0.65).
     Ref: Section 7.1, Figure 2 "Effective Hubble Constant relaxes..."
     """
     # Sigmoid weighting: 1.0 at z=0, 0.0 at high z
@@ -60,7 +60,7 @@ print(f"Vacuum Model (Fig 2):    {age_vac:.2f} Gyr (Paper: 13.05 Gyr)")
 # ==========================================
 # 4. VERDICT
 # ==========================================
-# [span_5](start_span)Paper Reference[span_5](end_span): 
+# Paper Reference: 
 # "consistent with the lower limit set by globular cluster ages (~12.5 Gyr)"
 if age_vac > 12.5:
     print("VERDICT: PASS. Consistent with Globular Clusters (>12.5 Gyr).")
