@@ -155,7 +155,7 @@ if __name__ == "__main__":
     )
     
     # Add a title
-    plt.suptitle(r'MCMC Validation\n(theory prediction in red)", fontsize=16)
+    plt.suptitle("MCMC Validation\n(theory prediction in red)", fontsize=16)
     plt.savefig("Figure5_MCMC_Corner.png", dpi=300)
     plt.show()
     print("Corner plot saved as 'Figure5_MCMC_Corner.png'.")
