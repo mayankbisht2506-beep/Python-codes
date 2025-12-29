@@ -1,0 +1,122 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import odeint
+
+print("--- UNIFIED PREDICTION TEST (QUADRATIC MODEL) ---")
+print("Objective: Consistency check - Does the S8 solution predict the fsigma8 dip?")
+
+# ==========================================
+# 1. OBSERVATIONAL DATA (BOSS DR12)
+# ==========================================
+data_rsd = np.array([
+    [0.38, 0.448, 0.038],  # BOSS Low-z
+    [0.51, 0.455, 0.038],  # BOSS Mid-z
+    [0.61, 0.410, 0.034],  # BOSS High-z
+    [1.48, 0.382, 0.026]   # eBOSS
+])
+
+SIGMA8_0_LCDM = 0.811
+OM = 0.315
+
+# ==========================================
+# 2. PHYSICS PARAMETERS (Intrinsic Vacuum)
+# ==========================================
+# No "SCALING" variable needed anymore.
+ETA_FLOOR = 0.21      # Lepton Sum Rule
+ETA_PEAK  = 0.31      # Percolation Threshold
+Z_TRANS   = 0.65        
+WIDTH     = 0.15
+
+def get_intrinsic_viscosity(z):
+    # 1. Activation Function
+    arg = np.clip((z - Z_TRANS) / WIDTH, -50, 50)
+    late_trigger = 1.0 / (1.0 + np.exp(arg))
+    
+    # 2. Floor + Peak Profile
+    base_visc = ETA_FLOOR * late_trigger
+    spike_amp = ETA_PEAK - ETA_FLOOR
+    spike = spike_amp * np.exp(-0.5 * ((z - Z_TRANS)/0.15)**2)
+    
+    return base_visc + spike
+
+def growth_ode_quadratic(y, a, model='lcdm'):
+    delta, delta_prime = y
+    z = 1.0/a - 1.0
+    E = np.sqrt(OM*(1+z)**3 + (1-OM))
+    
+    dE_da = -1.5 * OM * (a**-4) / E
+    hubble_friction = 3.0/a + dE_da/E
+    source = 1.5 * OM / (a**5 * E**2)
+    
+    if model == 'viscous':
+        eta = get_intrinsic_viscosity(z)
+        # --- THE KEY PHYSICS CHANGE ---
+        # Using Equation 89: Quadratic Scaling (1+eta)^2
+        # No arbitrary scaling factor!
+        friction = hubble_friction * (1.0 + eta)**2.0
+    else:
+        friction = hubble_friction
+        
+    return [delta_prime, -friction * delta_prime + source * delta]
+
+# ==========================================
+# 3. RUN SIMULATION
+# ==========================================
+z_start = 100.0
+a_grid = np.linspace(1.0/(1+z_start), 1.0, 500)
+y0 = [a_grid[0], 1.0]
+
+sol_lcdm = odeint(growth_ode_quadratic, y0, a_grid, args=('lcdm',))
+sol_vac  = odeint(growth_ode_quadratic, y0, a_grid, args=('viscous',))
+
+delta_lcdm = sol_lcdm[:, 0]; d_delta_lcdm = sol_lcdm[:, 1]
+delta_vac  = sol_vac[:, 0];  d_delta_vac  = sol_vac[:, 1]
+
+# Calculate f and Sigma8
+f_lcdm = (a_grid / delta_lcdm) * d_delta_lcdm
+f_vac  = (a_grid / delta_vac) * d_delta_vac
+
+sig8_lcdm = SIGMA8_0_LCDM * (delta_lcdm / delta_lcdm[-1])
+# Normalize vacuum growth to start from same early universe condition
+norm_vac = (sig8_lcdm[0] / delta_vac[0]) 
+sig8_vac = norm_vac * delta_vac
+
+fs8_lcdm = f_lcdm * sig8_lcdm
+fs8_vac  = f_vac * sig8_vac
+
+# ==========================================
+# 4. RESULTS
+# ==========================================
+z_axis = 1.0/a_grid - 1.0
+prediction_z = 0.38
+prediction_val = np.interp(prediction_z, np.flip(z_axis), np.flip(fs8_vac))
+
+print(f"\n{'Redshift':<10} | {'Data':<15} | {'LCDM':<8} | {'Vacuum (Quad)':<12}")
+print("-" * 65)
+
+for row in data_rsd:
+    z_val, y_val, err = row
+    pred_l = np.interp(z_val, np.flip(z_axis), np.flip(fs8_lcdm))
+    pred_v = np.interp(z_val, np.flip(z_axis), np.flip(fs8_vac))
+    print(f"{z_val:<10} | {y_val:.3f} +/-{err:.3f} | {pred_l:.3f}    | {pred_v:.3f}")
+
+print("-" * 65)
+print(f"PREDICTION for z=0.38: {prediction_val:.3f}")
+
+# Plot
+plt.figure(figsize=(9,6))
+plt.plot(z_axis, fs8_lcdm, 'k--', label=r'Standard $\Lambda$CDM')
+plt.plot(z_axis, fs8_vac, 'r-', linewidth=2, label=r'Vacuum (Eq. 89 Quadratic)')
+plt.errorbar(data_rsd[:,0], data_rsd[:,1], yerr=data_rsd[:,2], fmt='o', color='blue', label='BOSS Data')
+
+plt.annotate(f'Prediction: {prediction_val:.2f}', 
+             xy=(0.38, prediction_val), xytext=(0.2, 0.2),
+             arrowprops=dict(facecolor='red', shrink=0.05))
+
+plt.xlim(0, 1.6)
+plt.xlabel('Redshift z')
+plt.ylabel(r'$f\sigma_8(z)$')
+plt.title(r'Consistency Check: Quadratic Model Prediction')
+plt.legend()
+plt.grid(alpha=0.3)
+plt.show()
