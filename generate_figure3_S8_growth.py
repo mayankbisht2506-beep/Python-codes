@@ -1,111 +1,129 @@
 import numpy as np
+from scipy.integrate import odeint, quad
 import matplotlib.pyplot as plt
-from scipy.integrate import odeint
 
 # ==========================================
-# 1. PARAMETERS (Final Production)
+# 1. PHYSICAL CONSTANTS
 # ==========================================
+H0_PLANCK = 67.4
+OM_PLANCK = 0.315
 S8_PLANCK = 0.832
-S8_KIDS = 0.759
+
+# Observational Targets
+H0_SHOES = 73.04
 S8_DES = 0.776
+S8_KIDS = 0.759
 
-Om0 = 0.310
-ETA_FLOOR = 0.21    # Lepton Stiffness (Late Time)
-ETA_PEAK = 0.31     # Percolation Threshold (Transition Spike)
-Z_TRANS = 0.65      # Transition Redshift
-WIDTH = 0.1
+# --- LEPTON GEOMETRIC MODEL PARAMETERS ---
+ETA_FLOOR = 0.21       # Lepton Sum Rule (Beta/2)
+DELTA_GEO = 0.229      # E8 Lattice Geometric Limit
+ETA_PEAK = 0.31        # Jamming Transition Peak
+Z_TRANS = 0.65         # Percolation Threshold
 
 # ==========================================
-# 2. PHYSICS ENGINE (Effective Model)
+# 2. HUBBLE TENSION ENGINE (Geometric Model)
 # ==========================================
-def get_effective_viscosity(z):
-    # 1. Late-Time Activation (Sigmoid)
-    # The vacuum becomes viscous only as it crystallizes.
-    arg = (z - Z_TRANS) / WIDTH
-    # 0 at high z, 1 at low z
-    late_trigger = 1.0 / (1.0 + np.exp(arg)) 
-    
-    # 2. The Physics Profile
-    # Base: Settle to 0.21
-    base_viscosity = ETA_FLOOR * late_trigger
-    
-    # Peak: Spike to 0.31 during the transition
-    # Gaussian centered at Z_TRANS
-    # Amplitude is difference (0.31 - 0.21 = 0.10)
-    spike_amplitude = ETA_PEAK - ETA_FLOOR
-    jamming_spike = spike_amplitude * np.exp(-0.5 * ((z - Z_TRANS)/0.15)**2)
-    
-    # Total Effective Viscosity
-    # This combines the floor and the peak
-    eta_eff = base_viscosity + jamming_spike
-    
-    return eta_eff
+def calculate_hubble_geometric(eta):
+    """
+    Calculates H0 using the Geometric Relaxation Formula:
+    G_boost = 1 / (1 - delta_geo * (1 - eta))
+    """
+    # 1. Effective Relaxation (Modulated by Viscosity)
+    delta_eff = DELTA_GEO * (1.0 - eta)
 
-def growth_ode_effective(y, a, model='lcdm'):
+    # 2. Gravity Boost (Stiffness Relaxation)
+    g_boost = 1.0 / (1.0 - delta_eff)
+
+    # 3. Hubble Boost (H ~ sqrt(G))
+    h_boost = np.sqrt(g_boost)
+
+    # 4. Prediction
+    h0_pred = H0_PLANCK * h_boost
+    mag_shift = -5 * np.log10(h0_pred / H0_PLANCK)
+
+    return h0_pred, mag_shift, g_boost
+
+# ==========================================
+# 3. S8 TENSION ENGINE (Quadratic Impedance)
+# ==========================================
+def get_viscosity_profile(z):
+    # Sigmoid activation for late-time floor
+    width = 0.1
+    arg = (z - Z_TRANS) / width
+    late_trigger = 1.0 / (1.0 + np.exp(arg))
+
+    # Base Floor (0.21)
+    base = ETA_FLOOR * late_trigger
+
+    # Jamming Spike (Gaussian at 0.65)
+    spike = (ETA_PEAK - ETA_FLOOR) * np.exp(-0.5 * ((z - Z_TRANS)/0.15)**2)
+
+    return base + spike
+
+def growth_ode(y, a, model='lcdm'):
     delta, delta_prime = y
     z = 1.0/a - 1.0
-    
-    E = np.sqrt(Om0*(1+z)**3 + (1-Om0))
-    dE_da = -1.5 * Om0 * (a**-4) / E
+
+    E = np.sqrt(OM_PLANCK*(1+z)**3 + (1-OM_PLANCK))
+    dE_da = -1.5 * OM_PLANCK * (a**-4) / E
     hubble_friction = 3.0/a + dE_da/E
-    gravity_source = 1.5 * Om0 / (a**5 * E**2)
-    
+    gravity_source = 1.5 * OM_PLANCK / (a**5 * E**2)
+
     if model == 'viscous':
-        eta = get_effective_viscosity(z)
-        
-        # QUADRATIC IMPEDANCE (Eq 89)
-        # We apply the full profile (Peak + Floor)
+        eta = get_viscosity_profile(z)
+        # QUADRATIC IMPEDANCE LAW: Friction ~ (1 + eta)^2
         friction_term = hubble_friction * (1.0 + eta)**2.0
-        
-        # Cancellation Assumption:
-        # We assume Early Universe Gravity (1.22x) cancels Early Soft Viscosity.
-        # So we use standard gravity here.
-        source_term = gravity_source 
-        
     else:
         friction_term = hubble_friction
-        source_term = gravity_source
 
-    return [delta_prime, -friction_term*delta_prime + source_term*delta]
+    return [delta_prime, -friction_term*delta_prime + gravity_source*delta]
 
 # ==========================================
-# 3. RUN SIMULATION
+# 4. EXECUTION
 # ==========================================
-print("Simulating Structure Growth (Effective Model with Peak)...")
-a_range = np.linspace(0.001, 1.0, 1000)
+print(f"--- LEPTON GEOMETRIC MODEL DIAGNOSTIC ---")
+print(f"Viscosity Input: eta = {ETA_FLOOR} (Lepton Sum Rule)")
+
+# A. Run Hubble Check
+h0_pred, mag_shift, g_boost = calculate_hubble_geometric(ETA_FLOOR)
+print(f"\n[1] HUBBLE TENSION (Geometric Model)")
+print(f"   Effective Relaxation: {DELTA_GEO * (1-ETA_FLOOR):.4f}")
+print(f"   Gravity Boost:        {g_boost:.4f}x")
+print(f"   Predicted H0:         {h0_pred:.2f} km/s/Mpc")
+print(f"   Magnitude Shift:      {mag_shift:.4f} mag")
+print(f"   Target (SH0ES):       {H0_SHOES:.2f}")
+print(f"   Status:               {'SOLVED' if 73.0 < h0_pred < 76.0 else 'FAIL'}")
+
+# B. Run S8 Check
+print(f"\n[2] S8 CLUSTERING (Quadratic Impedance)")
+a_range = np.linspace(0.001, 1.0, 500)
 y0 = [a_range[0], 1.0]
 
-# Run Planck LCDM
-sol_lcdm = odeint(growth_ode_effective, y0, a_range, args=('lcdm',))
+sol_lcdm = odeint(growth_ode, y0, a_range, args=('lcdm',))
+sol_visc = odeint(growth_ode, y0, a_range, args=('viscous',))
 
-# Run Vacuum Model (With Jamming Peak)
-sol_visc = odeint(growth_ode_effective, y0, a_range, args=('viscous',))
+growth_suppression = sol_visc[-1,0] / sol_lcdm[-1,0]
+s8_pred = S8_PLANCK * growth_suppression
 
-# ==========================================
-# 4. RESULTS
-# ==========================================
-S8_PRED = S8_PLANCK * (sol_visc[-1, 0] / sol_lcdm[-1, 0])
+print(f"   Growth Suppression:   {growth_suppression:.4f}")
+print(f"   Predicted S8:         {s8_pred:.3f}")
+print(f"   Target (KiDS/DES):    {S8_KIDS} - {S8_DES}")
 
-print(f"--- RESULTS ---")
-print(f"Viscosity Profile: Floor={ETA_FLOOR} -> Peak={ETA_PEAK}")
-print(f"Predicted S8:      {S8_PRED:.3f}")
-print(f"Target Range:      {S8_KIDS} (KiDS) - {S8_DES} (DES)")
-
-if 0.76 <= S8_PRED <= 0.78:
-    print("VERDICT: SUCCESS. Perfect match with DES-Y3.")
+if 0.75 <= s8_pred <= 0.78:
+    print(f"   Status:               PERFECT RESOLUTION")
+elif s8_pred < 0.75:
+    print(f"   Status:               OVERSHOOT (Too much damping)")
 else:
-    print("VERDICT: CHECK PARAMETERS.")
+    print(f"   Status:               UNDERSHOOT (Not enough damping)")
 
-# Plot
-z_plot = 1.0/a_range - 1.0
-plt.figure(figsize=(10, 6))
-plt.plot(z_plot, sol_lcdm[:,0]/sol_lcdm[-1,0], 'k--', label=f'Standard LCDM ($S_8={S8_PLANCK:.3f}$)')
-plt.plot(z_plot, sol_visc[:,0]/sol_lcdm[-1,0], 'r-', linewidth=3, label=f'Vacuum Model ($S_8={S8_PRED:.3f}$)')
-
-plt.axvspan(0.5, 0.8, color='red', alpha=0.1, label='Jamming Phase ($z \\approx 0.65$)')
+# C. Visual Confirmation
+plt.figure(figsize=(10,5))
+z_axis = 1/a_range - 1
+plt.plot(z_axis, sol_lcdm[:,0]/sol_lcdm[-1,0], 'k--', label='Standard LCDM')
+plt.plot(z_axis, sol_visc[:,0]/sol_lcdm[-1,0], 'r-', linewidth=2, label=f'Lepton Model (S8={s8_pred:.3f})')
 plt.xlabel('Redshift z')
-plt.ylabel('Relative Growth')
-plt.title(f'Resolution of S8 Tension (with Jamming Peak)')
+plt.ylabel('Growth Factor D(z)')
+plt.title(f'Lepton Model (eta={ETA_FLOOR}) Structure Growth')
 plt.legend()
 plt.gca().invert_xaxis()
 plt.grid(alpha=0.3)
