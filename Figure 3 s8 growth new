@@ -15,7 +15,7 @@ S8_DES_TARGET = 0.776
 # --- SCIENTIFIC INPUTS (What we HAVE) ---
 # We use the Observed Proton Load (0.16), NOT the theoretical limit (0.21).
 # Source: Section 7.4.2
-ETA_PHYSICAL = 0.16    # The Honest Value
+ETA_PHYSICAL = 0.1569    # The Honest Value
 ETA_PEAK     = 0.31    # The Jamming Spike (Geometric Constant)
 Z_TRANS      = 0.65    # Percolation Threshold
 
