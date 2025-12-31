@@ -10,7 +10,7 @@ Om0 = 0.315
 
 # PHYSICS INPUTS (Geometric Unity)
 # Using the OBSERVED value (0.16) + Jamming Spike (0.31)
-ETA_FLOOR = 0.16       # Observed Proton Load
+ETA_FLOOR = 0.1569       # Observed Proton Load
 ETA_PEAK  = 0.31       # Percolation Threshold
 Z_TRANS   = 0.65       # Transition Redshift
 WIDTH     = 0.1        # Phase Transition Width
