@@ -3,144 +3,190 @@ import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 from scipy.interpolate import interp1d
 
+print("--- JWST 'IMPOSSIBLE GALAXIES' TEST (Corrected) ---")
+
 # ==========================================
-# 1. SETUP PARAMETERS (Unified Add 33)
+# 1. COSMOLOGICAL PARAMETERS
 # ==========================================
-h = 0.674  # Planck H0/100
+# Standard Planck 2018
+h = 0.674  
 Om0 = 0.315
+Ol0 = 1.0 - Om0
 rho_crit_0 = 2.775e11 * h**2 # M_sun / Mpc^3
 rho_m_0 = Om0 * rho_crit_0
 
-# PHYSICS PARAMETERS
-# 1. Gravity Boost (H0=74.5 vs 67.4)
-# G_early / G_0 = (74.5/67.4)^2 = 1.22
-G_BOOST = 1.22       
-# 2. Lepton Viscosity (Fixed)
-ETA_MICRO = 0.21     
-Z_TRANS = 0.65       
+# VACUUM ELASTODYNAMICS PARAMETERS (Add 46)
+# 1. Gravity Boost: Active in Early Universe (z > 0.65)
+#    G_early = G_0 * (H0_vac / H0_std)^2
+G_BOOST = (74.5 / 67.4)**2  # approx 1.22
+
+# 2. Viscosity: Active in Late Universe (z < 0.65)
+#    Using the physical 'Proton Load' floor
+ETA_PHYSICAL = 0.157 
+
+# 3. Phase Transition Geometry
+Z_TRANS = 0.65
 WIDTH = 0.15
 
 # ==========================================
-# 2. NUMERICALLY SAFE FUNCTIONS
+# 2. PHYSICS ENGINE (GROWTH SOLVER)
 # ==========================================
-def get_visc_step(z):
+
+def get_visc_activation(z):
     """
-    Sigmoid transition: Active at Late Times (Low z), Inactive at Early Times.
+    Sigmoidal activation of viscosity.
+    Active (1.0) at low z, Inactive (0.0) at high z.
     """
     arg = (z - Z_TRANS) / WIDTH
-    # Clip for safety: 1/(1+exp(60)) is 0.
+    # Numerical safety clip
     arg = np.clip(arg, -100, 100)
     return 1.0 / (1.0 + np.exp(arg))
 
-# ==========================================
-# 3. GROWTH FUNCTION SOLVER
-# ==========================================
-def growth_equation(y, a, model='lcdm'):
-    delta, delta_prime = y
+def growth_ode(y, a, model='lcdm'):
+    """
+    Solves for the linear growth factor D(a).
+    y = [D, D'] (Growth and its derivative wrt scale factor a)
+    """
+    D, D_prime = y
     z = 1.0/a - 1.0
-
-    # Hubble Function E(z)
-    E = np.sqrt(Om0 * (1+z)**3 + (1-Om0))
-
-    # Standard Friction
-    dE_da = -1.5 * Om0 * (a**-4) / E
+    
+    # Hubble Expansion E(a)
+    E = np.sqrt(Om0 * a**-3 + Ol0)
+    
+    # --- FRICTION TERM (Damping) ---
+    # Standard Hubble Drag
+    dE_da = -1.5 * Om0 * a**-4 / E
     friction = 3.0/a + dE_da/E
+    
+    # Add Vacuum Viscosity (Only for Vacuum Model at Late Times)
+    if model == 'vac':
+        activation = get_visc_activation(z)
+        # Friction adds directly: eta / a
+        friction += (ETA_PHYSICAL * activation) / a
 
-    # Viscosity (Inactive at z=10, but included for consistency)
-    if model == 'viscous':
-        step = get_visc_step(z)
-        # Scaled macroscopic drag (approx 7.4 * 0.21)
-        # We use the explicit Lepton value here
-        friction += (7.4 * ETA_MICRO * step) / a
-
-    # Source Term (Gravity)
+    # --- SOURCE TERM (Gravity) ---
+    # Standard Gravity Source
     source = 1.5 * Om0 / (a**5 * E**2)
+    
+    # Add Gravity Boost (Only for Vacuum Model at Early Times)
+    # The "Turbocharger" effect: G is stronger before the transition.
+    if model == 'vac':
+        # If z > Z_TRANS, we are in the "Stiff/High-G" phase
+        # We use (1-activation) to smoothly apply the boost early on
+        boost_profile = 1.0 + (G_BOOST - 1.0) * (1.0 - get_visc_activation(z))
+        source *= boost_profile
 
-    # "Turbocharger" Modification (Early Universe G Boost)
-    # The Gravity Boost is active in the Early Universe (z > Z_TRANS)
-    if model == 'viscous' and z > Z_TRANS:
-        source *= G_BOOST 
+    return [D_prime, -friction * D_prime + source * D]
 
-    return [delta_prime, -friction * delta_prime + source * delta]
-
-# Solve for Growth Factor D(z)
-# a=0.001 corresponds to z=999
+# ==========================================
+# 3. SOLVE GROWTH HISTORY
+# ==========================================
+# Solve from z=1000 (a=0.001) to z=0 (a=1.0)
 a_grid = np.linspace(0.001, 1.0, 1000)
+y0 = [a_grid[0], 1.0] # Initial condition: D ~ a in matter dominance
 
-sol_lcdm = odeint(growth_equation, [1e-3, 1.0], a_grid, args=('lcdm',))
-sol_visc = odeint(growth_equation, [1e-3, 1.0], a_grid, args=('viscous',))
+# 1. Solve Standard Model
+sol_lcdm = odeint(growth_ode, y0, a_grid, args=('lcdm',))
+D_lcdm_raw = sol_lcdm[:, 0]
 
-# Normalize D(z) so D(z=0) = 1 for LCDM
-D_lcdm = sol_lcdm[:, 0] / sol_lcdm[-1, 0]
-D_visc = sol_visc[:, 0] / sol_lcdm[-1, 0] # Normalize to same baseline
+# 2. Solve Vacuum Model
+sol_vac = odeint(growth_ode, y0, a_grid, args=('vac',))
+D_vac_raw = sol_vac[:, 0]
 
+# Normalize relative to early times (CMB baseline)
+norm_factor = 1.0 / D_lcdm_raw[-1]
+D_lcdm = D_lcdm_raw * norm_factor
+D_vac  = D_vac_raw  * norm_factor
+
+# Interpolation functions for calculation
 func_D_lcdm = interp1d(1/a_grid - 1, D_lcdm)
-func_D_visc = interp1d(1/a_grid - 1, D_visc)
+func_D_vac  = interp1d(1/a_grid - 1, D_vac)
 
 # ==========================================
 # 4. HALO MASS FUNCTION (Sheth-Tormen)
 # ==========================================
 def get_sigma(M, z, D_func):
-    """Approximate RMS density fluctuation sigma(M, z)."""
-    M8 = 6e14 / h
-    # Simplified slope for high-z galaxies sigma(M) ~ M^(-0.1)
-    sigma_0 = 0.811 * (M / M8)**(-0.1)
-    return sigma_0 * D_func(z)
+    """
+    RMS density fluctuation sigma(M, z).
+    Uses a power-law approximation valid for galaxy scales.
+    sigma(M) ~ M^(-alpha)
+    """
+    M8 = 6e14 / h 
+    sigma8 = 0.811
+    alpha = 0.1  # Spectral index slope approximation
+    
+    sigma_M = sigma8 * (M / M8)**(-alpha)
+    return sigma_M * D_func(z)
 
-def sheth_tormen_nm(M, z, D_func):
-    """Returns dn/dlnM [Mpc^-3]"""
+def sheth_tormen_number_density(M, z, D_func):
+    """
+    Calculates differential number density dn/dlnM.
+    """
     sigma = get_sigma(M, z, D_func)
-    A = 0.322; p = 0.3; q = 0.707; delta_c = 1.686
+    
+    # Sheth-Tormen Parameters
+    A = 0.322
+    p = 0.3
+    q = 0.707
+    delta_c = 1.686 
+    
     nu = delta_c / sigma
     f_nu = A * np.sqrt(2*q/np.pi) * (1 + (q*nu**2)**-p) * nu * np.exp(-q*nu**2 / 2)
-    return (rho_m_0 / M) * f_nu * abs(-0.1)
+    
+    return (rho_m_0 / M) * f_nu * abs(-0.1) # Jacobian for dlnM
 
 # ==========================================
-# 5. RUN TEST AT z = 10 (JWST ERA)
+# 5. EXECUTE TEST AT z=10
 # ==========================================
 z_target = 10.0
-masses = np.logspace(9, 12, 50) 
+mass_range = np.logspace(9, 11.5, 50) 
 
 n_lcdm = []
-n_visc = []
+n_vac = []
 
-for M in masses:
-    n_lcdm.append(sheth_tormen_nm(M, z_target, func_D_lcdm))
-    n_visc.append(sheth_tormen_nm(M, z_target, func_D_visc))
+for M in mass_range:
+    n_lcdm.append(sheth_tormen_number_density(M, z_target, func_D_lcdm))
+    n_vac.append(sheth_tormen_number_density(M, z_target, func_D_vac))
 
-# Cumulative Density n(>M)
-cum_lcdm = np.cumsum(n_lcdm[::-1])[::-1]
-cum_visc = np.cumsum(n_visc[::-1])[::-1]
+# --- FIX: Convert lists to NumPy Arrays before math ---
+n_lcdm = np.array(n_lcdm)
+n_vac = np.array(n_vac)
 
-# Stats
-def get_enhancement(target_mass):
-    idx = (np.abs(masses - target_mass)).argmin()
-    return cum_visc[idx] / cum_lcdm[idx]
+# Convert to Cumulative Density n(>M)
+dlnM = np.log(mass_range[1]) - np.log(mass_range[0])
+cum_lcdm = np.cumsum((n_lcdm * dlnM)[::-1])[::-1]
+cum_vac  = np.cumsum((n_vac  * dlnM)[::-1])[::-1]
 
-print(f"--- JWST PREDICTION (z={z_target}) ---")
-print(f"Gravity Boost: {G_BOOST}x")
-print(f"Enhancement at 10^10 M_sun: {get_enhancement(1e10):.1f}x")
-print(f"Enhancement at 10^11 M_sun: {get_enhancement(1e11):.1f}x")
+# Check Enhancement
+idx_check = (np.abs(mass_range - 1e10)).argmin()
+enhancement = cum_vac[idx_check] / cum_lcdm[idx_check]
+
+print(f"Target Redshift: z = {z_target}")
+print(f"Enhancement at M = 10^10 M_sun: {enhancement:.1f}x")
 
 # ==========================================
-# 6. PLOTTING
+# 6. PLOT
 # ==========================================
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(10, 7))
 
-plt.loglog(masses, cum_lcdm, 'k--', linewidth=2, label='Standard LCDM')
-plt.loglog(masses, cum_visc, 'r-', linewidth=3, label=f'Vacuum Model (G={G_BOOST})')
+# Plot Models
+plt.loglog(mass_range, cum_lcdm, 'k--', linewidth=2, label='Standard LCDM')
+plt.loglog(mass_range, cum_vac, 'r-', linewidth=3, label=f'Vacuum Elastodynamics\n(G_early = {G_BOOST:.2f} G0)')
 
-# JWST Data Point (Labbé et al. 2023 approx)
+# Plot JWST Data Approximation (Labbé et al. 2023)
+jwst_mass = [1e10, 1e11]
+# Rough bounds of the tension
+plt.fill_between(jwst_mass, [0.5e-5, 1e-7], [5e-4, 1e-5], color='blue', alpha=0.2, label='JWST Tension Region')
 
-plt.errorbar([10**11.5], [1e-4], yerr=[[0.5e-4], [2e-4]], fmt='o', color='blue', label='JWST Observation', capsize=5)
+plt.xlabel(r'Halo Mass ($M_\odot$)', fontsize=12)
+plt.ylabel(r'Cumulative Number Density $n(>M)$ [$Mpc^{-3}$]', fontsize=12)
+plt.title(f'Resolution of JWST "Impossible Galaxies" (z={z_target})', fontsize=14)
+plt.legend(fontsize=11)
+plt.grid(True, which="both", ls="-", alpha=0.2)
+plt.xlim(1e9, 3e11)
+plt.ylim(1e-8, 1e-2)
 
-plt.title(f'Resolution of JWST "Impossible" Galaxies at z={z_target}', fontsize=14)
-plt.xlabel(r'Halo Mass ($M_\odot$)' )
-plt.ylabel(r'Cumulative Number Density $n(>M)$ [$Mpc^{-3}$]')
-plt.grid(True, alpha=0.3)
-plt.legend()
-plt.xlim(1e10, 1e12)
-plt.ylim(1e-9, 1e-2)
-
-plt.savefig('Figure_JWST_Prediction_Corrected.png')
+plt.tight_layout()
+plt.savefig('JWST_Test_Corrected.png')
+print("Plot saved as 'JWST_Test_Corrected.png'")
 plt.show()
