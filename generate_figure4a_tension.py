@@ -75,7 +75,7 @@ OL_PLANCK = 1.0 - OM_PLANCK
 # NEW PHYSICS (Section 7.1 & 7.3)
 # Gravity Boost (G_early = 1.22 G0) predicts H0 = 74.5
 H0_VACUUM = 74.5  
-MAG_SHIFT = -0.24 # Net shift from Dual-Nature Prediction
+MAG_SHIFT = -0.217 # Net shift from Dual-Nature Prediction
 
 Z_TRANS = 0.65    # Percolation Threshold
 WIDTH = 0.15      
