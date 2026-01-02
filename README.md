@@ -1,7 +1,8 @@
 ```markdown
 # Vacuum Elastodynamics: Verification & Validation Suite
 
-**Repository for the paper:** *"Add (73): A Unified Solution to Cosmological Tensions via Vacuum Elastodynamics"*
+**Repository for the paper:** *"Vacuum Elastodynamics: Resolving the Hubble and S8 Tensions via Lattice
+Viscosity"*
 
 ## 📂 Overview
 This repository contains the complete "Steel Man" validation suite for the Vacuum Elastodynamics model. It consists of **21 independent Python scripts** designed to strictly stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
