@@ -5,7 +5,7 @@
 Viscosity"*
 
 ## 📂 Overview
-This repository contains the complete "Steel Man" validation suite for the Vacuum Elastodynamics model. It consists of **21 independent Python scripts** designed to strictly stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+This repository contains the complete "Steel Man" validation suite for the Vacuum Elastodynamics model. It consists of **22 independent Python scripts** designed to strictly stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
 
 These scripts demonstrate that the model simultaneously resolves the **Hubble Tension**, **S8 Tension**, and **Lithium Problem** while preserving the successes of the Standard Model ($\Lambda$CDM) in BBN, CMB, and Cosmic Age.
 
@@ -60,6 +60,7 @@ Tests against specific dataset constraints.
 
 | Script Name | Objective | Key Result (Matches Paper) |
 | --- | --- | --- |
+| `validate_Pk_screening.py` | **CRITICAL:** Verify Environmental Screening preserves  shape. | **Turnover Shift: 0.00%** (Matches SDSS Shape) |
 | `validate_BAO_consistency.py` | Check BAO standard ruler contraction (). | **Tie** (Corrects ruler by 0.924x) |
 | `validate_BAO_ladder.py` | Verify Inverse Distance Ladder residuals. | **Residuals < 0.10** |
 | `validate_growth_numerical.py` | Verify Growth Rate () evolution. | **Global Tie** () |
@@ -86,12 +87,13 @@ Running `validate_global_stats.py` reproduces the paper's main conclusion:
 
 * **Supernovae (Pantheon+):** Decisive Resolution ()
 * **Structure Growth:** Statistical Tie (Resolves S8 Tension)
+* **Matter Power Spectrum:** Shape Preserved (via Screening)
 * **BBN:** Perfect Invariance (Resolves Li7, preserves D/He)
 * **CMB:** Geometric Resonance (Preserves Acoustic Scale)
 
 ## 📁 Repository Structure
 
-* `/src/`: Contains all 21 validation scripts listed above.
+* `/src/`: Contains all 22 validation scripts listed above.
 * `/figures/`: Outputs from plotting scripts (e.g., `Figure1_Stress_Strain.png`).
 * `/data/`: (Optional) Local cache for downloaded Pantheon+ data.
 
@@ -104,10 +106,10 @@ python src/validate_global_stats.py
 
 ```
 
-To verify the **Lithium Solution**:
+To verify the **Matter Power Spectrum Screening**:
 
 ```bash
-python src/validate_lithium_solution.py
+python src/validate_Pk_screening.py
 
 ```
 
