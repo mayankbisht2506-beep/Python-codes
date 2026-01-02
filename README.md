@@ -1,9 +1,3 @@
-Here is a professional, publication-ready `README.md` file for your GitHub repository. It organizes your 21 scripts into logical categories, making it easy for reviewers and researchers to verify your work.
-
-You can copy and paste the markdown code below directly into your GitHub repository's `README.md` file.
-
----
-
 ```markdown
 # Vacuum Elastodynamics: Verification & Validation Suite
 
