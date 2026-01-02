@@ -140,7 +140,7 @@ plt.axhline(1.0, color='k', linestyle='--', label='LCDM (j=1)')
 plt.axvline(Z_TRANS, color='gray', linestyle=':', label='Transition')
 plt.xlabel('Redshift z')
 plt.ylabel('Jerk Parameter j(z)')
-plt.title('Test 23: Cosmic Whiplash (Stability of Expansion)')
+plt.title('Cosmic Whiplash (Stability of Expansion)')
 plt.ylim(-5, 10) # Zoom in to see structure
 plt.legend()
 plt.grid(True, alpha=0.3)
