@@ -6,7 +6,7 @@ import io
 from scipy.integrate import quad
 
 print("--- PANTHEON+ THEORY VALIDATION (STRICT) ---")
-print("Objective: Verify Vacuum Prediction (-0.24 mag) against Deep Field Data")
+print("Objective: Verify Vacuum Prediction (-0.235 mag) against Deep Field Data")
 
 # ==========================================
 # 1. PHYSICS & COSMOLOGY SETUP
@@ -17,9 +17,10 @@ OM_PLANCK = 0.315
 OL_PLANCK = 1.0 - OM_PLANCK
 C_LIGHT   = 299792.458
 
-# --- YOUR THEORETICAL INPUTS ---
-# Prediction: H0=74.5 (from Lepton Sum Rule) -> -0.24 mag shift
-MODEL_SHIFT = -0.2400
+# --- UPDATED THEORETICAL INPUTS ---
+# Prediction corrected to exact derivation in Eq. 76:
+# -0.65 (Geo) + 0.16 (Lum) + 0.255 (Visc) = -0.235 mag
+MODEL_SHIFT = -0.2350
 
 # Observational Error Budget for Supernovae (approx 1.5-2.0%)
 # This is the standard "ruler error" for checking tension.
@@ -64,6 +65,7 @@ df['weights']   = 1.0 / (df['MU_SH0ES_ERR_DIAG']**2)
 obs_weighted = np.average(df['residual'], weights=df['weights'])
 
 # B. Deep Field Unweighted (The "Pure" Signal at z > 0.65)
+# Paper identifies z approx 0.65 as the transition threshold (Eq. 7)
 deep_data = df[df['zHD'] > 0.65]
 obs_deep_pure = deep_data['residual'].mean()
 
@@ -73,7 +75,7 @@ obs_deep_pure = deep_data['residual'].mean()
 print("\n" + "="*60)
 print("SCIENTIFIC VERIFICATION RESULTS")
 print("="*60)
-print(f"THEORY PREDICTION:            {MODEL_SHIFT:.4f} mag")
+print(f"THEORY PREDICTION (Eq. 76): {MODEL_SHIFT:.4f} mag")
 print(f"OBSERVATIONAL ERROR (Sigma):  {SIGMA_OBS:.3f} mag")
 print("-" * 60)
 print(f"1. Global Weighted Mean:      {obs_weighted:.4f} mag")
@@ -90,7 +92,7 @@ print(f"Z-Score (Sigma):              {z_score:.2f} σ")
 if z_score < 1.0:
     print("-" * 60)
     print(f"VERDICT: EXCELLENT MATCH (< 1 sigma)")
-    print("The Vacuum Lepton prediction is statistically indistinguishable")
+    print("The Vacuum prediction is statistically indistinguishable")
     print("from the Deep Field Pantheon+ data.")
     print("-" * 60)
 elif z_score < 2.0:
@@ -123,7 +125,7 @@ plt.fill_between([-0.1, 2.5], MODEL_SHIFT - SIGMA_OBS, MODEL_SHIFT + SIGMA_OBS,
 
 plt.xlabel('Redshift z', fontsize=12)
 plt.ylabel(r'$\mu_{obs} - \mu_{Planck}$ (mag)', fontsize=12)
-plt.title(rf'Verification: Theory (-0.24) vs Deep Field ({obs_deep_pure:.3f}) is a {z_score:.2f}$\sigma$ Match', fontsize=14)
+plt.title(rf'Verification: Theory ({MODEL_SHIFT}) vs Deep Field ({obs_deep_pure:.3f}) is a {z_score:.2f}$\sigma$ Match', fontsize=14)
 plt.legend(loc='lower left', frameon=True)
 plt.ylim(-0.6, 0.4)
 plt.xlim(0, 2.3)
