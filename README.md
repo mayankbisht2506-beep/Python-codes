@@ -1,11 +1,10 @@
 ```markdown
 # Vacuum Elastodynamics: Verification & Validation Suite
 
-**Repository for the paper:** *"Vacuum Elastodynamics: Resolving the Hubble and S8 Tensions via Lattice
-Viscosity"*
+**Repository for the paper:** *"Vacuum Elastodynamics: Resolving the Hubble and S8 Tensions via Lattice Viscosity"*
 
 ## 📂 Overview
-This repository contains the complete "Steel Man" validation suite for the Vacuum Elastodynamics model. It consists of **22 independent Python scripts** designed to strictly stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+This repository contains the complete "Steel Man" validation suite for the Vacuum Elastodynamics model. It consists of **23 independent Python scripts** designed to strictly stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
 
 These scripts demonstrate that the model simultaneously resolves the **Hubble Tension**, **S8 Tension**, and **Lithium Problem** while preserving the successes of the Standard Model ($\Lambda$CDM) in BBN, CMB, and Cosmic Age.
 
@@ -44,10 +43,11 @@ Tests validating the geometric origin of mass and the solution to the Lithium Pr
 
 ### 3. Consistency Checks (Safety Mechanisms)
 
-Tests ensuring the model does not break established physics (CMB, Age, Shapes).
+Tests ensuring the model does not break established physics (CMB, Age, Shapes, Kinematics).
 
 | Script Name | Objective | Key Result (Matches Paper) |
 | --- | --- | --- |
+| `validate_jerk_stability.py` | **NEW:** Check for "Cosmic Whiplash" (singularities). | **Max Jerk ** (Physically Stable) |
 | `validate_CMB_invariance.py` | Check stability of CMB Acoustic Scale (). | **Error < 0.7%** (Preserves Planck Fit) |
 | `Universe_age.py` | Ensure  does not violate Globular Cluster ages. | **Age = 13.21 Gyr** (Pass > 12.5 Gyr) |
 | `validate_ISW_stability.py` | Check Integrated Sachs-Wolfe (ISW) stability. | **Boost ** (Pass) |
@@ -90,10 +90,11 @@ Running `validate_global_stats.py` reproduces the paper's main conclusion:
 * **Matter Power Spectrum:** Shape Preserved (via Screening)
 * **BBN:** Perfect Invariance (Resolves Li7, preserves D/He)
 * **CMB:** Geometric Resonance (Preserves Acoustic Scale)
+* **Kinematics:** Smooth Transition (No Singularities, Jerk )
 
 ## 📁 Repository Structure
 
-* `/src/`: Contains all 22 validation scripts listed above.
+* `/src/`: Contains all 23 validation scripts listed above.
 * `/figures/`: Outputs from plotting scripts (e.g., `Figure1_Stress_Strain.png`).
 * `/data/`: (Optional) Local cache for downloaded Pantheon+ data.
 
@@ -113,17 +114,16 @@ python src/validate_Pk_screening.py
 
 ```
 
-To verify the **Hubble Tension Resolution**:
+To verify the **Kinematic Stability (Jerk Test)**:
 
 ```bash
-python src/Gravity_Boost.py
+python src/validate_jerk_stability.py
 
 ```
 
 ---
 
-*This codebase serves as the "Steel Man" verification for the manuscript "Vacuum Elastodynamics: Resolving the Hubble and S8 Tensions via Lattice
-Viscosity". All physics parameters used here are derived strictly from the theoretical constraints presented in the text.*
+*This codebase serves as the "Steel Man" verification for the manuscript "Vacuum Elastodynamics: Resolving the Hubble and S8 Tensions via Lattice Viscosity". All physics parameters used here are derived strictly from the theoretical constraints presented in the text.*
 
 ```
 
