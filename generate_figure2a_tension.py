@@ -78,7 +78,7 @@ H0_VACUUM = 74.5
 MAG_SHIFT = -0.217 # Net shift from Dual-Nature Prediction
 
 Z_TRANS = 0.65    # Percolation Threshold
-WIDTH = 0.15      
+WIDTH = 0.10      
 
 print(f"Physics Check:")
 print(f"  Target H0: {H0_VACUUM} (Matches Gravity Boost)")
