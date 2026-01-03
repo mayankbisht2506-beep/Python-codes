@@ -86,7 +86,7 @@ err = (diff / theta_target) * 100
 
 print(f"\nRESULTS:")
 print(f"Target Theta (Planck):      {theta_target:.6f}")
-print(f"Model Theta (74.5, 0.1569):   {theta_model:.6f}")
+print(f"Model Theta (74.5, 0.21):   {theta_model:.6f}")
 print(f"Error:                      {err:.4f}%")
 
 # ==========================================
