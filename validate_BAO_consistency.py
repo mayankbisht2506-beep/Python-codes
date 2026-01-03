@@ -34,7 +34,7 @@ RD_PLANCK_THEORY = 147.09
 # We test the derived prediction, not the SH0ES value.
 H0_THEORY = 74.5 
 Z_TRANS = 0.65
-WIDTH = 0.15
+WIDTH = 0.10
 
 # The Critical Shrinkage (Section 7.4.2)
 # Since G_early is higher, the sound horizon shrinks: rd_new = rd_old / sqrt(G_boost)
