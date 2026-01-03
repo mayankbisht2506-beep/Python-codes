@@ -13,7 +13,7 @@ WIDTH   = 0.10
 
 # Theoretical Predictions (Lepton Sum Rule & Gravity Boost)
 H0_THEORY = 74.5
-ETA_THEORY = 0.1569
+ETA_THEORY = 0.21
 
 # Planck Baseline Constants
 H0_PLANCK = 67.4
