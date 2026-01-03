@@ -27,7 +27,7 @@ data = {
     # 2. Growth: Matches Table VIII (-0.06)
     # 3. Chronometers: Updated from +5.0 to +8.6
     # 4. BAO: Updated from +5.6 to +2.6 (Reflects Full Elastodynamics)
-    "Delta Chi2": [-3566.6, -0.06, +8.6, +2.6],
+    "Delta Chi2": [-3577.6, -0.06, +9.7, +2.9],
     "Verdict": [
         "Decisive Resolution (>5 sigma)", 
         "Statistical Tie", 
