@@ -36,7 +36,7 @@ def hubble_model(z, h0, om, use_transition=False):
         # Vacuum Elastodynamics Boost
         # Transitions from Planck (Early) to Theory (Late)
         Z_TRANS = 0.65
-        WIDTH = 0.15
+        WIDTH = 0.10
         
         # Calculate the required local boost to hit H0_THEORY at z=0
         # But decay back to H0_PLANCK at z >> 0.65
