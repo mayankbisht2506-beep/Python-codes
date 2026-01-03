@@ -9,13 +9,13 @@ print("--- JWST 'IMPOSSIBLE GALAXIES' TEST (Corrected) ---")
 # 1. COSMOLOGICAL PARAMETERS
 # ==========================================
 # Standard Planck 2018
-h = 0.674  
+h = 0.674   
 Om0 = 0.315
 Ol0 = 1.0 - Om0
 rho_crit_0 = 2.775e11 * h**2 # M_sun / Mpc^3
 rho_m_0 = Om0 * rho_crit_0
 
-# VACUUM ELASTODYNAMICS PARAMETERS (Add 46)
+# VACUUM ELASTODYNAMICS PARAMETERS (Add 46 / Add 83)
 # 1. Gravity Boost: Active in Early Universe (z > 0.65)
 #    G_early = G_0 * (H0_vac / H0_std)^2
 G_BOOST = (74.5 / 67.4)**2  # approx 1.22
@@ -24,9 +24,9 @@ G_BOOST = (74.5 / 67.4)**2  # approx 1.22
 #    Using the physical 'Proton Load' floor
 ETA_PHYSICAL = 0.157 
 
-# 3. Phase Transition Geometry
+# 3. Phase Transition Geometry (Steel Man Standard)
 Z_TRANS = 0.65
-WIDTH = 0.10
+WIDTH = 0.10   # Strict Critical Jamming Limit
 
 # ==========================================
 # 2. PHYSICS ENGINE (GROWTH SOLVER)
@@ -157,12 +157,17 @@ dlnM = np.log(mass_range[1]) - np.log(mass_range[0])
 cum_lcdm = np.cumsum((n_lcdm * dlnM)[::-1])[::-1]
 cum_vac  = np.cumsum((n_vac  * dlnM)[::-1])[::-1]
 
-# Check Enhancement
+# Check Enhancement for 10^10
 idx_check = (np.abs(mass_range - 1e10)).argmin()
 enhancement = cum_vac[idx_check] / cum_lcdm[idx_check]
 
+# Check Enhancement for 10^11 (The Heavy Halo Check)
+idx_heavy = (np.abs(mass_range - 1e11)).argmin()
+enhancement_heavy = cum_vac[idx_heavy] / cum_lcdm[idx_heavy]
+
 print(f"Target Redshift: z = {z_target}")
-print(f"Enhancement at M = 10^10 M_sun: {enhancement:.1f}x")
+print(f"Enhancement at M = 10^10 M_sun: {enhancement:.1f}x (Paper Claim: ~2,450x)")
+print(f"Enhancement at M = 10^11 M_sun: {enhancement_heavy:.2e}x (Paper Claim: ~2.9e5x)")
 
 # ==========================================
 # 6. PLOT
