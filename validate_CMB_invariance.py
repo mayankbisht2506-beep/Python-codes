@@ -9,7 +9,7 @@ print("--- CMB GEOMETRIC RESONANCE: STRICT VALIDATION (CORRECTED) ---")
 c_0 = 299792.458
 G_RATIO = (74.5/67.4)**2  # ~1.22 (Gravity Boost)
 Z_TRANS = 0.65
-WIDTH   = 0.15
+WIDTH   = 0.10
 
 # Theoretical Predictions (Lepton Sum Rule & Gravity Boost)
 H0_THEORY = 74.5
