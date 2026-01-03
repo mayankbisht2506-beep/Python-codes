@@ -11,7 +11,7 @@ G_RATIO = (74.5/67.4)**2  # ~1.22 (Gravity Boost)
 Z_TRANS = 0.65
 WIDTH   = 0.10
 
-# Theoretical Predictions (Lepton Sum Rule & Gravity Boost)
+# Theoretical Predictions 
 H0_THEORY = 74.5
 ETA_THEORY = 0.21
 
