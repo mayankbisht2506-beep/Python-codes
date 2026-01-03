@@ -26,7 +26,7 @@ ETA_PHYSICAL = 0.157
 
 # 3. Phase Transition Geometry
 Z_TRANS = 0.65
-WIDTH = 0.15
+WIDTH = 0.10
 
 # ==========================================
 # 2. PHYSICS ENGINE (GROWTH SOLVER)
