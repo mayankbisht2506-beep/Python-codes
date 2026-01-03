@@ -53,7 +53,7 @@ C_LIGHT = 299792.458
 OM = 0.315
 OL = 1.0 - OM
 Z_TRANS = 0.65  
-WIDTH = 0.15    
+WIDTH = 0.10    
 
 # PARAMETER UPDATE: Match Paper Section 7.1
 H0_EARLY = 67.4  
