@@ -9,7 +9,7 @@ print("--- ISW STABILITY TEST (Scientifically Corrected) ---")
 # ==========================================
 Om0 = 0.315
 Z_TRANS = 0.65
-WIDTH = 0.15
+WIDTH = 0.10
 
 # "SCIENTIFICALLY CORRECT" PARAMETER SELECTION
 # 1. We remove the arbitrary 'S8_SCALING = 7.4'. It is unphysical.
