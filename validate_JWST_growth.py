@@ -166,8 +166,8 @@ idx_heavy = (np.abs(mass_range - 1e11)).argmin()
 enhancement_heavy = cum_vac[idx_heavy] / cum_lcdm[idx_heavy]
 
 print(f"Target Redshift: z = {z_target}")
-print(f"Enhancement at M = 10^10 M_sun: {enhancement:.1f}x (Paper Claim: ~2,450x)")
-print(f"Enhancement at M = 10^11 M_sun: {enhancement_heavy:.2e}x (Paper Claim: ~2.9e5x)")
+print(f"Enhancement at M = 10^10 M_sun: {enhancement:.1f}")
+print(f"Enhancement at M = 10^11 M_sun: {enhancement_heavy:.2e}")
 
 # ==========================================
 # 6. PLOT
