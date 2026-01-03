@@ -9,11 +9,11 @@ print("--- CMB GEOMETRIC RESONANCE: STRICT VALIDATION (CORRECTED) ---")
 c_0 = 299792.458
 G_RATIO = (74.5/67.4)**2  # ~1.22 (Gravity Boost)
 Z_TRANS = 0.65
-WIDTH   = 0.10
+WIDTH   = 0.15
 
-# Theoretical Predictions 
+# Theoretical Predictions (Lepton Sum Rule & Gravity Boost)
 H0_THEORY = 74.5
-ETA_THEORY = 0.21
+ETA_THEORY = 0.1569
 
 # Planck Baseline Constants
 H0_PLANCK = 67.4
@@ -86,7 +86,7 @@ err = (diff / theta_target) * 100
 
 print(f"\nRESULTS:")
 print(f"Target Theta (Planck):      {theta_target:.6f}")
-print(f"Model Theta (74.5, 0.21):   {theta_model:.6f}")
+print(f"Model Theta (74.5, 0.1569):   {theta_model:.6f}")
 print(f"Error:                      {err:.4f}%")
 
 # ==========================================
