@@ -36,10 +36,9 @@ H0_THEORY = 74.5
 Z_TRANS = 0.65
 WIDTH = 0.10
 
-# The Critical Shrinkage (Section 7.4.2)
-# Since G_early is higher, the sound horizon shrinks: rd_new = rd_old / sqrt(G_boost)
-# Match Equation 86 (Source 3276): Viscous Horizon Contraction factor 0.924
-RD_VISCOUS = RD_PLANCK_THEORY * 0.924
+# UPDATED: Match Equation 85 (Section 7.11.2)
+# Contraction factor 0.919 (8.1% Lepton Load)
+RD_VISCOUS = RD_PLANCK_THEORY * 0.919  # Changed from 0.924
 
 print(f"--- PHYSICS CHECK ---")
 print(f"H0 Target: {H0_THEORY} km/s/Mpc")
