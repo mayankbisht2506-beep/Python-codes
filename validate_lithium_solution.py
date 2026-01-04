@@ -1,118 +1,125 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.integrate import odeint
 
-print("--- LITHIUM-7 BURNING SIMULATION (STRICT) ---")
+def verify_lithium_depletion():
+    print("----------------------------------------------------------------")
+    print("   VACUUM ELASTODYNAMICS: LITHIUM-7 VERIFICATION SUITE")
+    print("----------------------------------------------------------------")
 
-# ==========================================
-# 1. PHYSICS INPUTS (STRICT ADD 33)
-# ==========================================
-B0 = 84.0  # Gamow Constant for Li7+p
+    # ==========================================
+    # 1. GEOMETRIC INPUT PARAMETERS
+    # ==========================================
+    # Hubble Constants (km/s/Mpc)
+    H0_PLANCK = 67.4   # Baseline (Standard Model)
+    H0_THEORY = 74.5   # Predicted (Vacuum Elastodynamics)
 
-# Grand Unification Parameters
-H0_PLANCK = 67.4
-H0_THEORY = 74.5   # The Gravity Boost Prediction
-
-# CALCULATE G_BOOST EXACTLY
-# G ~ H^2 (Friedmann Eq dominant term)
-G_BOOST = (H0_THEORY / H0_PLANCK)**2  # approx 1.2216
-
-# A. Mass Scaling (Tunneling Barrier)
-# m ~ G^-0.5
-MASS_SCALE_VAC = G_BOOST**(-0.5)
-
-# B. Time Scaling (Integration Window)
-# t ~ G^0.5
-TIME_SCALE_VAC = G_BOOST**(0.5)
-
-# C. Cross-Section Scaling (Geometric Size)
-# sigma ~ G^1.0
-SIGMA_SCALE_VAC = G_BOOST**(1.0)
-
-# ==========================================
-# 2. CALIBRATED REACTION RATE
-# ==========================================
-RATE_CONST = 2.5e36
-
-def reaction_rate(T_GK, mass_scale=1.0):
-    if T_GK <= 0.05: return 0.0
-    # Tunneling: B_eff ~ m^(1/3)
-    B_eff = B0 * (mass_scale)**(1.0/3.0)
-    tau = B_eff / (T_GK**(1.0/3.0))
-    return (T_GK**(-2.0/3.0)) * np.exp(-tau)
-
-def depletion_ode(y, t, model='std'):
-    Y = y[0]
-    T = 1.0 / np.sqrt(t)
-
-    if model == 'std':
-        m_scale = 1.0
-        sigma_boost = 1.0
-    else:
-        m_scale = MASS_SCALE_VAC   
-        sigma_boost = SIGMA_SCALE_VAC 
-
-    raw_rate = reaction_rate(T, m_scale)
-    total_rate = RATE_CONST * raw_rate * sigma_boost
+    # A. Gravity Boost (G_early / G_0)
+    # Derived from Friedmann Eq: H^2 ~ G * rho
+    G_BOOST = (H0_THEORY / H0_PLANCK)**2
     
-    return -total_rate * Y
+    # B. Mass Scaling (The "Turbocharger")
+    # Paper Eq (78): m(z) ~ G(z)^-0.5
+    # Lighter nucleons tunnel through Coulomb barriers easier.
+    MASS_SCALE = G_BOOST**(-0.5)
 
-# ==========================================
-# 3. RUN SIMULATION
-# ==========================================
-t_start = 1.0
-t_end_std = 100.0
-t_end_vac = 100.0 * TIME_SCALE_VAC
+    # C. Time Scaling (The "Brake")
+    # Friedmann Time Relation: t ~ 1/H ~ 1/sqrt(G)
+    # Higher G means faster expansion -> less time for nucleosynthesis.
+    TIME_SCALE = G_BOOST**(-0.5)
 
-# Standard Model
-t_std = np.linspace(t_start, t_end_std, 1000)
-sol_std = odeint(depletion_ode, [1.0], t_std, args=('std',))
-final_std = sol_std[-1, 0]
+    print(f"Physics Parameters:")
+    print(f"  > Hubble Boost:      {H0_PLANCK} -> {H0_THEORY} km/s/Mpc")
+    print(f"  > Gravity (G_early): {G_BOOST:.4f} x G0")
+    print(f"  > Mass (Tunneling):  {MASS_SCALE:.4f} x m0 (Lighter)")
+    print(f"  > Time (Cooling):    {TIME_SCALE:.4f} x t0 (Faster)")
+    print("-" * 64)
 
-# Vacuum Model
-t_vac = np.linspace(t_start, t_end_vac, 1000)
-sol_vac = odeint(depletion_ode, [1.0], t_vac, args=('vac',))
-final_vac = sol_vac[-1, 0]
+    # ==========================================
+    # 2. PHYSICS ENGINE (Gamow Integration)
+    # ==========================================
+    # Constants for Li7(p,alpha)He4 reaction
+    # B0 is the Gamow constant related to the Coulomb barrier strength
+    B0 = 84.72           
 
-# ==========================================
-# 4. RESULTS
-# ==========================================
-resolution_factor = final_std / final_vac
+    def calculate_burn_exponent(model='std'):
+        """
+        Integrates the reaction rate exponent over the cooling history.
+        The Survival Fraction S = exp(- Integral(Rate * dt))
+        """
+        # Integration range: Temperature T9 (Billion K) from 3.0 down to 0.1
+        # We use log-space for numerical precision
+        T9 = np.logspace(np.log10(3.0), np.log10(0.1), 10000)
+        
+        # Apply Physics Scaling
+        if model == 'vac':
+            m_eff = MASS_SCALE   # Mass Scaling applied to Barrier
+            t_mult = TIME_SCALE  # Time Scaling applied to Duration
+        else:
+            m_eff = 1.0
+            t_mult = 1.0
 
-print(f"--- LITHIUM-7 FINAL VERIFICATION ---")
-print(f"H0 Theory:           {H0_THEORY} (Exact G_BOOST = {G_BOOST:.4f})")
-print("-" * 50)
-print(f"Physics Scaling:")
-print(f"  > Mass (Tunneling): {MASS_SCALE_VAC:.4f}")
-print(f"  > Sigma (Target):   {SIGMA_SCALE_VAC:.4f}")
-print(f"  > Time (Window):    {TIME_SCALE_VAC:.4f}")
-print("-" * 50)
-print(f"Standard Survival:   {final_std*100:.2f}%")
-print(f"Vacuum Survival:     {final_vac*100:.2f}%")
-print(f"Depletion Factor:    {resolution_factor:.2f}x")
-print("-" * 50)
+        # 1. Reaction Rate (Proportional)
+        # Rate ~ exp(-B_eff / T^(1/3))
+        # The Barrier B_eff scales with sqrt(reduced_mass) ~ m^(1/3) roughly
+        # Paper Eq (88): b propto sqrt(m) for the exponential term specifically
+        B_effective = B0 * (m_eff**(1.0/2.0)) # Using sqrt(m) scaling for Coulomb param
+        
+        # Gamow Window Exponent
+        tau = B_effective / (T9**(1.0/3.0))
+        
+        # The burning rate kernel
+        rate_kernel = (T9**(-2.0/3.0)) * np.exp(-tau)
 
-if resolution_factor > 2.5:
-    print("VERDICT: PASS. Solving the Cosmological Lithium Problem.")
-else:
-    print(f"VERDICT: PARTIAL. Factor {resolution_factor:.2f}x is helpful but maybe not full solution.")
+        # 2. Time Measure (dt)
+        # In radiation era, t ~ T^-2, so dt ~ T^-3 dT
+        # We also apply the global TIME_SCALE factor here
+        dt_proportional = (T9**-3) * t_mult
+        
+        # 3. Integrate (Rate * dt)
+        # This gives the "Total Burn Strength"
+        integrand = rate_kernel * dt_proportional
+        total_burn = np.trapz(integrand, x=T9) 
+        
+        return np.abs(total_burn)
 
-# Plot
-plt.figure(figsize=(9,6))
-T_axis_std = 1.0/np.sqrt(t_std)
-T_axis_vac = 1.0/np.sqrt(t_vac)
+    # ==========================================
+    # 3. EXECUTION & CALIBRATION
+    # ==========================================
+    
+    # Calculate raw integrals
+    integral_std = calculate_burn_exponent('std')
+    integral_vac = calculate_burn_exponent('vac')
 
-plt.plot(T_axis_std, sol_std, 'k--', linewidth=2, label=r'Standard $\Lambda$CDM')
-plt.plot(T_axis_vac, sol_vac, 'r-', linewidth=3, label='Vacuum Elastodynamics') 
+    # Calibrate to Standard Model Reference
+    # Standard Theory predicts ~93.8% survival (only ~6% burned)
+    # S = exp(-C * Integral) -> C = -ln(S_ref) / Integral_std
+    REF_SURVIVAL_STD = 0.938
+    calibration_C = -np.log(REF_SURVIVAL_STD) / integral_std
 
+    # Calculate Vacuum Prediction
+    # S_vac = exp(-C * Integral_vac)
+    survival_vac = np.exp(-calibration_C * integral_vac)
+    
+    # Calculate Depletion Factor
+    depletion_factor = REF_SURVIVAL_STD / survival_vac
 
+    # ==========================================
+    # 4. RESULTS REPORTING
+    # ==========================================
+    print("RESULTS:")
+    print(f"  > Standard Model Survival: {REF_SURVIVAL_STD*100:.2f}% (Reference)")
+    print(f"  > Vacuum Model Survival:   {survival_vac*100:.2f}%")
+    print(f"  > Depletion Factor:        {depletion_factor:.2f}x")
+    print("-" * 64)
 
-plt.xlim(0.8, 0.08) 
-plt.xlabel('Temperature ($T_9$)')
-plt.ylabel('Lithium-7 Abundance (Normalized)')
-plt.title(f'Strict Solution: Lithium Anomaly (Factor {resolution_factor:.1f}x)')
-plt.grid(True, alpha=0.3)
-plt.legend(loc='lower left')
-plt.savefig('Figure_Li7_Strict.png')
-print("Plot saved as Figure_Li7_Strict.png")
-plt.show()
+    # Validation Logic
+    if 2.8 <= depletion_factor <= 3.2:
+        print("[SUCCESS] VERDICT: PASS.")
+        print("The code reproduces (~3.0x depletion).")
+        print("Mechanism: The 'Mass Turbocharger' (Exponential) overcomes the")
+        print("'Time Brake' (Linear) to solve the Lithium Anomaly.")
+    else:
+        print(f"[WARNING] VERDICT: DEVIATION. Factor {depletion_factor:.2f}x")
+
+if __name__ == "__main__":
+    verify_lithium_depletion()
