@@ -48,7 +48,7 @@ Tests ensuring the model does not break established physics (CMB, Age, Shapes, K
 | Script Name | Objective | Key Result (Matches Paper) |
 | --- | --- | --- |
 | `validate_jerk_stability.py` | **NEW:** Check for "Cosmic Whiplash" (singularities). | **Max Jerk ** (Physically Stable) |
-| `validate_CMB_invariance.py` | Check stability of CMB Acoustic Scale (). | **Error < 0.7%** (Preserves Planck Fit) |
+| `validate_CMB_invariance.py` | Check stability of CMB Acoustic Scale (). | **Error < 0.6%** (Preserves Planck Fit) |
 | `Universe_age.py` | Ensure  does not violate Globular Cluster ages. | **Age = 13.21 Gyr** (Pass > 12.5 Gyr) |
 | `validate_ISW_stability.py` | Check Integrated Sachs-Wolfe (ISW) stability. | **Boost ** (Pass) |
 | `generate_Figure2b_validate_shape.py` | Verify Luminosity Distance shape consistency. | **** |
