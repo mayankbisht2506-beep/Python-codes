@@ -1,10 +1,10 @@
 import pandas as pd
 
-print("--- GLOBAL STATISTICAL BUDGET (TABLE VIII) ---")
+print("--- GLOBAL STATISTICAL BUDGET (TABLE VIII - FINAL) ---")
 print("Objective: Verify the Net Global Preference for Vacuum Elastodynamics.")
 
 # ==========================================
-# DATA INPUTS (FROM ADD 73, TABLE VIII)
+# DATA INPUTS (MATCHES FINAL PAPER SECTION 9.13)
 # ==========================================
 # The paper reports Delta Chi2 (Chi2_Vacuum - Chi2_LCDM).
 # Negative values favor the Vacuum Model.
@@ -22,12 +22,12 @@ data = {
         "Expansion History", 
         "Standard Ruler (rs)"
     ],
-    # UPDATED VALUES FROM ADD 73 (PAGE 37):
-    # 1. SNe: Matches Table VIII (-3566.6)
+    # UPDATED VALUES (Lepton Load Physics, eta ~ 0.157):
+    # 1. SNe: Matches Table VIII (-3577.6)
     # 2. Growth: Matches Table VIII (-0.06)
-    # 3. Chronometers: Updated from +5.0 to +8.6
-    # 4. BAO: Updated from +5.6 to +2.6 (Reflects Full Elastodynamics)
-    "Delta Chi2": [-3577.6, -0.06, +9.7, +2.9],
+    # 3. Chronometers: Matches Table VIII (+9.7)
+    # 4. BAO: Updated to +3.1 (Conservative Diagonal Estimate)
+    "Delta Chi2": [-3577.6, -0.06, +9.7, +3.1],
     "Verdict": [
         "Decisive Resolution (>5 sigma)", 
         "Statistical Tie", 
