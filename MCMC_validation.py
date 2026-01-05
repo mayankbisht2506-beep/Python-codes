@@ -1,3 +1,5 @@
+# Uncomment the line below if running in Google Colab / Jupyter
+# !pip install emcee corner
 import numpy as np
 import pandas as pd
 import emcee
