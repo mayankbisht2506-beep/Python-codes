@@ -43,29 +43,45 @@ def get_theta_lcdm():
     da = da_int / (1 + 1090)
     
     return rs / da
-
-# --- B. VACUUM ELASTODYNAMICS (The Test Group) ---
+# --- B. VACUUM ELASTODYNAMICS (CORRECTED) ---
 def get_theta_vacuum(h0_in, eta_in):
     h = h0_in / 100.0
     
-    # Gravity Scaling (Sigmoid)
+    # 1. Gravity Boost (Sigmoid)
+    # Returns ~1.22 for High Z, 1.0 for Low Z
     def get_G(z):
+        # Sigmoid approaches 1.0 at High Z (Early), 0.0 at Low Z (Late)
         sigmoid = 1.0 / (1.0 + np.exp(-(z - Z_TRANS) / WIDTH))
         return 1.0 + (G_RATIO - 1.0) * sigmoid
 
-    # Modified H(z)
+    # 2. Dynamic Viscosity (THE FIX)
+    def get_viscosity(z):
+        # Viscosity is ACTIVE (eta_in) only when vacuum is SOLID (Low Z)
+        # Viscosity is ZERO when vacuum is SUPERFLUID (High Z)
+        
+        # Calculate the same sigmoid as G
+        sigmoid = 1.0 / (1.0 + np.exp(-(z - Z_TRANS) / WIDTH))
+        
+        # If High Z (sigmoid=1), we want eta=0. 
+        # If Low Z (sigmoid=0), we want eta=eta_in.
+        return eta_in * (1.0 - sigmoid)
+
+    # 3. Modified H(z)
     def get_H(z):
         Om = omega_m_true / h**2
         Or = omega_r_true / h**2
         Ol = 1.0 - Om - Or
         E = np.sqrt(Or*(1+z)**4 + Om*(1+z)**3 + Ol)
-        # Viscous Damping: H ~ G^(-0.5 * eta)
-        G_scaling = (get_G(z))**(-0.5 * eta_in)
+        
+        # Get active viscosity for this redshift
+        eta_active = get_viscosity(z)
+        
+        # Viscous Damping with dynamic eta
+        G_scaling = (get_G(z))**(-0.5 * eta_active)
         return 100 * h * E * G_scaling
 
-    # Variable Speed of Light
+    # 4. Variable Speed of Light (Stiffness only, no viscosity)
     def get_c(z):
-        # c ~ G^-0.5
         return c_0 * (get_G(z))**(-0.5)
 
     # Observables
@@ -74,7 +90,6 @@ def get_theta_vacuum(h0_in, eta_in):
     da = da_int / (1 + 1090)
     
     return rs / da
-
 # ==========================================
 # 3. EXECUTE TEST
 # ==========================================
