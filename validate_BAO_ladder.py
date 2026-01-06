@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import quad
 
-print("--- BAO CONSISTENCY CHECK: FINAL UPDATED MODEL (8.1% CONTRACTION) ---")
+print("--- BAO CONSISTENCY CHECK: SUPERFLUID DETACHMENT (9.5% CONTRACTION) ---")
 
 # ==========================================
 # 1. OBSERVATIONAL DATA (BOSS DR12)
@@ -12,7 +12,7 @@ boss_DM_rd = [10.23, 13.36, 15.45]
 boss_DM_err = [0.17, 0.21, 0.22]
 
 # ==========================================
-# 2. PHYSICS SETUP (Matches Updated Section 7.11)
+# 2. PHYSICS SETUP (Matches Add (101).pdf Sec 7.11)
 # ==========================================
 c_light = 299792.458
 
@@ -25,20 +25,21 @@ rs_std = 147.09
 H0_vac_local = 74.5 
 H0_vac_early = 67.4 
 
-# 2. Viscous Horizon Contraction (UPDATED)
-# Driven by Lepton Load (eta ~ 0.157) -> Factor 0.919
-contraction_factor = 0.919
+# 2. Superfluid Horizon Contraction (CORRECTED)
+# Driven by Stiffness ONLY (eta ~ 0) -> Factor 0.905
+# Source: Add (101).pdf Equation (86)
+contraction_factor = 0.905  # Was 0.919 in old viscous model
 rs_vac = rs_std * contraction_factor
 
 # 3. Stiffness Phase Transition
 z_trans = 0.65
-delta_z = 0.1   
+delta_z = 0.1    
 
 print(f"--- PHYSICS PARAMETERS ---")
 print(f"Local H0:      {H0_vac_local} km/s/Mpc")
 print(f"Transition z:  {z_trans}")
 print(f"rs Contracted: {rs_vac:.2f} Mpc (Factor {contraction_factor})")
-print(f"Mechanism:     Lepton Load Viscosity (eta ~ 0.157)")
+print(f"Mechanism:     Superfluid Detachment (eta ~ 0)")
 
 # Standard Expansion History E(z)
 def E_std(z):
@@ -94,11 +95,11 @@ plt.plot(z_model, ratio_std, 'b--', linewidth=2, label=f'Standard LCDM (H0={H0_s
 plt.plot(z_model, ratio_vac, 'r-', linewidth=3, alpha=0.8, label=f'Vacuum Model (H0={H0_vac_local})')
 
 # Transition Zone
-plt.axvspan(z_trans - 0.05, z_trans + 0.05, color='green', alpha=0.1, label='Stiffness Transition (z=0.65)')
+plt.axvspan(z_trans - 0.05, z_trans + 0.05, color='green', alpha=0.1, label='Phase Transition (z=0.65)')
 
 plt.xlabel('Redshift $z$', fontsize=12)
 plt.ylabel(r'Transverse BAO Distance $D_M(z) / r_d$', fontsize=12)
-plt.title(f'BAO Verification: Lepton Load Model (8.1% Contraction)', fontsize=14)
+plt.title(f'BAO Verification: Superfluid Detachment (9.5% Contraction)', fontsize=14)
 plt.legend(fontsize=11, loc='upper left')
 plt.grid(True, alpha=0.3)
 
@@ -109,12 +110,13 @@ plt.annotate(f"Contraction: {100*(1-contraction_factor):.1f}%\n(rs = {rs_vac:.1f
              color='firebrick', fontsize=10)
 
 plt.tight_layout()
+plt.savefig('BAO_Superfluid_Check.png')
 plt.show()
 
 # ==========================================
 # 5. GENERATE TABLE IV VALUES
 # ==========================================
-print("\n--- NEW TABLE IV VALUES (To Match Paper) ---")
+print("\n--- NEW TABLE IV VALUES (Matches Add 101.pdf) ---")
 print(f"{'z':<5} | {'Data':<10} | {'Vacuum':<10} | {'Residual':<10}")
 print("-" * 45)
 
@@ -126,5 +128,4 @@ for idx, z in enumerate(boss_z):
     print(f"{z:<5} | {target:<10.2f} | {val_vac:<10.2f} | {residual:+.2f}")
 
 print("-" * 45)
-print("VERDICT: These residuals should match your updated Table IV.")
-print("(Expected: +0.04, -0.03, +0.11)")
+print("VERDICT: If residuals are small (< 0.2), the Superfluid Model works.")
