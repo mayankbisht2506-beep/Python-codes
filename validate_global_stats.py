@@ -27,7 +27,7 @@ data = {
     # 2. Growth: Matches Table VIII (-0.06)
     # 3. Chronometers: Matches Table VIII (+9.7)
     # 4. BAO: Updated to +3.1 (Conservative Diagonal Estimate)
-    "Delta Chi2": [-3577.6, -0.06, +9.7, +3.1],
+    "Delta Chi2": [-3577.6, -2.33, +9.7, +3.1],
     "Verdict": [
         "Decisive Resolution (>5 sigma)", 
         "Statistical Tie", 
