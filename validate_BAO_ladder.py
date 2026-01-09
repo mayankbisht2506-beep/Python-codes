@@ -22,7 +22,7 @@ Om_std = 0.315  # Planck Baseline
 
 # --- B. Vacuum Elastodynamics ---
 H0_vac_local = 74.5
-Om_vac = 0.350  # Matches Global MCMC Fit (Section 8.6) [cite: 877]
+Om_vac = 0.343  # Matches Global MCMC Fit (Section 8.6) [cite: 877]
 
 # 3. Stiffness Phase Transition
 z_trans = 0.65
@@ -137,5 +137,5 @@ for idx, z in enumerate(boss_z):
     print(f"{z:<5} | {target:<10.2f} | {val_vac:<10.2f} | {residual:+.2f}")
 
 print("-" * 45)
-print("EXPECTED RESULTS with Om=0.350:")
+print("EXPECTED RESULTS with Om=0.343:")
 print("all Residual less then 0.20")
