@@ -28,7 +28,7 @@ RD_PLANCK = 147.09
 
 # --- Model B: Vacuum Elastodynamics ---
 H0_VAC = 74.5
-OM_VAC = 0.350  # Updated Matter Density
+OM_VAC = 0.343  # Updated Matter Density
 RD_VAC = 147.09 * 0.905  # Superfluid Contraction (9.5%)
 Z_TRANS = 0.65
 WIDTH = 0.10
