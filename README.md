@@ -4,14 +4,14 @@
 **Repository for the paper:** *"Vacuum Elastodynamics: Resolving the Hubble and S8 Tensions via Lattice Viscosity"*
 
 ## 📂 Overview
-This repository contains the complete "Steel Man" validation suite for the Vacuum Elastodynamics model. It consists of **23 independent Python scripts** designed to strictly stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+This repository contains the complete "Steel Man" validation suite for the Vacuum Elastodynamics model. It consists of **24 independent Python scripts** designed to strictly stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
 
 These scripts demonstrate that the model simultaneously resolves the **Hubble Tension**, **S8 Tension**, and **Lithium Problem** while preserving the successes of the Standard Model ($\Lambda$CDM) in BBN, CMB, and Cosmic Age.
 
 ## 🛠️ Requirements
-To run these scripts, you will need a standard Python 3 scientific stack:
+To run these scripts, you will need a standard Python 3 scientific stack plus MCMC tools:
 ```bash
-pip install numpy scipy pandas matplotlib requests
+pip install numpy scipy pandas matplotlib requests emcee corner
 
 ```
 
@@ -26,6 +26,7 @@ Tests verifying the mechanism's ability to fix the primary cosmological crises.
 | Script Name | Objective | Key Result (Matches Paper) |
 | --- | --- | --- |
 | `Gravity_Boost.py` | Verify  shift via Early Gravity Boost (). | **** (Matches SH0ES) |
+| `mcmc_stress.py` | **NEW:** Stability Stress Test fixing  & . | **** (Matches Geometric Ideal) |
 | `S8_KiDS_DES.py` | Verify  suppression via Vacuum Viscosity (). | **** (Matches KiDS/DES) |
 | `generate_Figure2a_tension.py` | Calculate  for the Hubble Tension resolution. | **** |
 | `validate_vacuum_tension_resolution.py` | Raw stress test against Pantheon+ SNe data. | **Raw ** (Pass) |
@@ -47,7 +48,7 @@ Tests ensuring the model does not break established physics (CMB, Age, Shapes, K
 
 | Script Name | Objective | Key Result (Matches Paper) |
 | --- | --- | --- |
-| `validate_jerk_stability.py` | **NEW:** Check for "Cosmic Whiplash" (singularities). | **Max Jerk ** (Physically Stable) |
+| `validate_jerk_stability.py` | Check for "Cosmic Whiplash" (singularities). | **Max Jerk $ |
 | `validate_CMB_invariance.py` | Check stability of CMB Acoustic Scale (). | **Error < 0.6%** (Preserves Planck Fit) |
 | `Universe_age.py` | Ensure  does not violate Globular Cluster ages. | **Age = 13.21 Gyr** (Pass > 12.5 Gyr) |
 | `validate_ISW_stability.py` | Check Integrated Sachs-Wolfe (ISW) stability. | **Boost ** (Pass) |
@@ -94,7 +95,7 @@ Running `validate_global_stats.py` reproduces the paper's main conclusion:
 
 ## 📁 Repository Structure
 
-* `/src/`: Contains all 23 validation scripts listed above.
+* `/src/`: Contains all 24 validation scripts listed above.
 * `/figures/`: Outputs from plotting scripts (e.g., `Figure1_Stress_Strain.png`).
 * `/data/`: (Optional) Local cache for downloaded Pantheon+ data.
 
@@ -107,10 +108,10 @@ python src/validate_global_stats.py
 
 ```
 
-To verify the **Matter Power Spectrum Screening**:
+To run the **Stability Stress Test** (verifying ):
 
 ```bash
-python src/validate_Pk_screening.py
+python src/mcmc_stress.py
 
 ```
 
