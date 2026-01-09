@@ -32,7 +32,7 @@ OM_STD = 0.315
 
 # Vacuum Model uses Global Fit Baseline (Table VIII)
 # The higher density (0.350) provides the "Gas" to balance the Viscosity "Brake"
-OM_VAC = 0.350 
+OM_VAC = 0.343 
 
 # Vacuum Viscosity Parameters (Section 7.4)
 ETA_FLOOR = 0.1569
