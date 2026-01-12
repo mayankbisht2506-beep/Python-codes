@@ -78,6 +78,29 @@ DELTA_GEO_IDEAL = 0.229
 
 def hubble_model(z, params):
     H0_late, Om, eta = params
+
+
+# ==============================================================================
+# PHYSICS NOTE: EFFECTIVE METRIC RECONSTRUCTION
+# ==============================================================================
+# This function models the "Effective Expansion History" H_eff(z) required to
+# match the net luminosity distance D_L.
+#
+# In the analytic theory (manuscript Eq. 70-75):
+#   1. Gravity Boost (G_early > G0) INCREASES H(z) -> Brightens SNe.
+#   2. Viscous Damping (Opacity/Drag) DIMS SNe.
+#
+# Computationally, fitting two canceling parameters creates degeneracy.
+# Therefore, this code models the NET effective trajectory:
+#   H_eff(z) = H_boost(z) * Damping_Factor
+#
+# The 'suppression' term below represents the phenomenological net result:
+# transitioning from the high-H0 local vacuum to the Planck-compatible
+# background without requiring a separate "magnitude bias" parameter.
+# ==============================================================================
+
+def hubble_model(z, params):
+    # ... your existing code ...
     
     # Physics: Viscosity dampens relaxation
     delta_eff = DELTA_GEO_IDEAL * (1.0 - eta)
