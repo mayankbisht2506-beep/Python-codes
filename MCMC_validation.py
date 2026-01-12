@@ -99,8 +99,6 @@ def hubble_model(z, params):
 # background without requiring a separate "magnitude bias" parameter.
 # ==============================================================================
 
-def hubble_model(z, params):
-    # ... your existing code ...
     
     # Physics: Viscosity dampens relaxation
     delta_eff = DELTA_GEO_IDEAL * (1.0 - eta)
