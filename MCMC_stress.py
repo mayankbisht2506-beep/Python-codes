@@ -71,6 +71,27 @@ def hubble_model(z, params):
     E_z = np.sqrt(Om * (1 + z)**3 + (1 - Om))
     return FIXED_H0 * E_z * amp
 
+
+# ==============================================================================
+# PHYSICS NOTE: EFFECTIVE METRIC RECONSTRUCTION
+# ==============================================================================
+# This function models the "Effective Expansion History" H_eff(z) required to
+# match the net luminosity distance D_L.
+#
+# In the analytic theory (manuscript Eq. 70-75):
+#   1. Gravity Boost (G_early > G0) INCREASES H(z) -> Brightens SNe.
+#   2. Viscous Damping (Opacity/Drag) DIMS SNe.
+#
+# Computationally, fitting two canceling parameters creates degeneracy.
+# Therefore, this code models the NET effective trajectory:
+#   H_eff(z) = H_boost(z) * Damping_Factor
+#
+# The 'suppression' term below represents the phenomenological net result:
+# transitioning from the high-H0 local vacuum to the Planck-compatible
+# background without requiring a separate "magnitude bias" parameter.
+# ==============================================================================
+
+
 def get_dist_mod(z_array, params):
     z_max = np.max(z_array) * 1.01
     z_grid = np.linspace(0, z_max, 1000)
