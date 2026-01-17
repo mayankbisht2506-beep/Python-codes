@@ -136,7 +136,7 @@ plt.plot(df_clean['zHD'][z_sort], diff_curve[z_sort], 'r-', linewidth=3, label=f
 
 plt.axhline(0, color='k', linestyle='--')
 # Fixed Syntax Warning using raw string (r'')
-plt.title(rf'Pantheon+ "Steel Man" Test: $\Delta\chi^2 = {d_chi2:.2f}$ (Target {H0_LATE})', fontsize=14)
+plt.title(rf'Pantheon+ "Conservative Robustness" Test: $\Delta\chi^2 = {d_chi2:.2f}$ (Target {H0_LATE})', fontsize=14)
 plt.xlabel('Redshift z', fontsize=12)
 plt.ylabel('Residual Magnitude (Shape Only)', fontsize=12)
 plt.legend(fontsize=10, loc='lower left')
