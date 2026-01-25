@@ -5,16 +5,14 @@ from scipy.integrate import odeint
 print("--- ISW STABILITY TEST (Scientifically Corrected) ---")
 
 # ==========================================
-# 1. PARAMETERS (Add 46)
+# 1. PARAMETERS
 # ==========================================
 Om0 = 0.315
 Z_TRANS = 0.65
 WIDTH = 0.10
 
-# "SCIENTIFICALLY CORRECT" PARAMETER SELECTION
-# 1. We remove the arbitrary 'S8_SCALING = 7.4'. It is unphysical.
-# 2. We use ETA_LATE = 0.157 (Proton Load) as the physical ground state.
-#    (Section 9.25 uses 0.17 as an effective average, but 0.157 is the fundamental value).
+
+# We use ETA_LATE = 0.157 (Proton Load) as the physical ground state.
 
 ETA_PHYSICAL = 0.157  # The Proton Load (Fundamental)
 ETA_LIMIT    = 0.21   # The Yield Limit (Safety Ceiling)
