@@ -14,7 +14,7 @@ H0_PLANCK = 67.4
 OM_PLANCK = 0.315
 
 # VACUUM MODEL (STRICT LEPTON RULE)
-# Reference: Section 7.1 & 11.1
+# Reference: Section 7.1 & 9.12
 # "This stiffer vacuum predicts a local Hubble constant of H0 ~ 74.5"
 H0_THEORY = 74.5    # STRICT PREDICTION (Not 73.0)
 Z_TRANS   = 0.65    # Percolation Threshold
