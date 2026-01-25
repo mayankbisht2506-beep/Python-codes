@@ -11,9 +11,9 @@ Om0 = 0.315
 # PHYSICS INPUTS (Geometric Unity)
 # Using the OBSERVED value (0.16) + Jamming Spike (0.31)
 ETA_FLOOR = 0.1569       # Observed Proton Load
-ETA_PEAK  = 0.31       # Percolation Threshold
-Z_TRANS   = 0.65       # Transition Redshift
-WIDTH     = 0.1        # Phase Transition Width
+ETA_PEAK  = 0.31         # Percolation Threshold
+Z_TRANS   = 0.65         # Transition Redshift
+WIDTH     = 0.1          # Phase Transition Width
 
 # DATA TARGETS (KiDS/DES Consensus)
 S8_TARGET_LOW  = 0.759
@@ -22,13 +22,6 @@ S8_TARGET_HIGH = 0.776
 # ==========================================
 # 2. PHYSICS ENGINE
 # ==========================================
-def safe_sigmoid(x):
-    """
-    Numerically stable sigmoid function to prevent overflow warnings.
-    """
-    # Clamp x to avoid exp overflow (exp(700) is roughly limit)
-    x_clipped = np.clip(x, -500, 500)
-    return 1.0 / (1.0 + np.exp(-x_clipped))
 
 def get_viscosity(z):
     """
