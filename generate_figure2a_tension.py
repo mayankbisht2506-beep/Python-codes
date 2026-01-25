@@ -75,7 +75,7 @@ OL_PLANCK = 1.0 - OM_PLANCK
 # NEW PHYSICS (Section 7.1 & 7.3)
 # Gravity Boost (G_early = 1.22 G0) predicts H0 = 74.5
 H0_VACUUM = 74.5  
-MAG_SHIFT = -0.217 # Net shift from Dual-Nature Prediction
+MAG_SHIFT = -0.217 # Net shift derived from 5*log10(67.4/74.5)
 
 Z_TRANS = 0.65    # Percolation Threshold
 WIDTH = 0.10      
@@ -96,7 +96,11 @@ def get_planck_mu(z_array):
 # Transition active at LOW Z (z < 0.65) to resolve Tension.
 # High Z matches Planck. Low Z matches Vacuum.
 mu_planck = get_planck_mu(df_clean['zHD'].values)
-sigmoid = 1.0 / (1 + np.exp((df_clean['zHD'].values - Z_TRANS) / WIDTH))
+
+# Numerical Stability: Matches S8 and Hz validation scripts
+arg = (df_clean['zHD'].values - Z_TRANS) / WIDTH
+sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
+
 viscous_correction = MAG_SHIFT * sigmoid
 mu_viscous = mu_planck + viscous_correction
 
@@ -114,7 +118,7 @@ print("\n" + "="*50)
 print(f"FINAL METRIC 1 RESULTS (H0={H0_VACUUM})")
 print("="*50)
 print(f"Chi2 (Planck 67.4):   {chi2_planck:.2f}")
-print(f"Chi2 (Vacuum {H0_VACUUM}):   {chi2_viscous:.2f}") # Fixed String
+print(f"Chi2 (Vacuum {H0_VACUUM}):   {chi2_viscous:.2f}") 
 print(f"Delta Chi2:           {d_chi2:.2f}")
 print("-" * 50)
 
@@ -126,14 +130,16 @@ plt.errorbar(df_clean['zHD'], R_planck, yerr=df_clean['MU_SH0ES_ERR_DIAG'],
              fmt='o', color='lightgrey', alpha=0.3, label='Pantheon+ Residuals')
 
 z_sort = np.sort(df_clean['zHD'])
-# Plot curve matching the physics logic
-curve = MAG_SHIFT / (1 + np.exp((z_sort - Z_TRANS) / WIDTH))
+arg_sort = (z_sort - Z_TRANS) / WIDTH
+# Use safe sigmoid for plotting too
+curve_sigmoid = np.where(arg_sort > 100, 0.0, 1.0 / (1 + np.exp(arg_sort)))
+curve = MAG_SHIFT * curve_sigmoid
+
 plt.plot(z_sort, curve, 'r-', linewidth=3, label=f'Vacuum Model (H0={H0_VACUUM})')
 
 plt.axhline(0, color='k', linestyle='--')
 plt.xlabel('Redshift z')
 plt.ylabel(r'Magnitude Residual $\mu - \mu_{Planck}$')
-# Fixed SyntaxWarning by using raw string r''
 plt.title(rf'Resolution of Hubble Tension' + '\n' + rf'$\Delta\chi^2 = {d_chi2:.1f}$ (Target H0={H0_VACUUM})')
 plt.legend()
 plt.ylim(-0.6, 0.4)
