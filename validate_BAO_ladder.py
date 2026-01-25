@@ -22,7 +22,7 @@ Om_std = 0.315  # Planck Baseline
 
 # --- B. Vacuum Elastodynamics ---
 H0_vac_local = 74.5
-Om_vac = 0.343  # Matches Global MCMC Fit (Section 8.6) [cite: 877]
+Om_vac = 0.343  # Matches Global MCMC Fit (Section 8.6)
 
 # 3. Stiffness Phase Transition
 z_trans = 0.65
@@ -30,7 +30,7 @@ delta_z = 0.1
 
 # 2. Superfluid Horizon Contraction
 # Driven by Stiffness ONLY (eta ~ 0) -> Factor 0.905
-# [cite_start]Source: Section 7.11.2, Equation 86 [cite: 780]
+# Source: Section 7.11.1, Equation 87
 contraction_factor = 0.905
 rs_vac = 147.09 * contraction_factor 
 
@@ -46,7 +46,7 @@ def E_std(z):
     return np.sqrt(Om_std*(1+z)**3 + (1-Om_std))
 
 # Dynamic Hubble Parameter H(z)
-# CORRECTED: Uses Om_vac (0.350)
+# Uses Om_vac (0.350)
 def get_H_vac(z):
     # Sigmoidal relaxation for H0
     w = 1.0 / (1.0 + np.exp((z - z_trans) / delta_z))
