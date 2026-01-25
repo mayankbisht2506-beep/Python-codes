@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import requests
 import os
 
-print("--- RUNNING PANTHEON+ TENSION TEST (OFFICIAL PHYSICS) ---")
+print("--- RUNNING PANTHEON+ TENSION TEST (VALIDATION SCRIPT) ---")
 print("Objective: Verify Late Universe Stiffening (Low-Z Correction)")
 
 # ==========================================
@@ -57,8 +57,14 @@ else:
 
 indices = np.where(mask)[0]
 cov_filtered = cov_matrix[np.ix_(indices, indices)]
-print("Inverting Covariance Matrix (This is the Robust Step)...")
-inv_cov = np.linalg.inv(cov_filtered) 
+
+print("Inverting Covariance Matrix (Robust Method)...")
+# SAFETY RESTORED: Use pseudo-inverse if standard inverse fails (common in large matrices)
+try:
+    inv_cov = np.linalg.inv(cov_filtered) 
+except np.linalg.LinAlgError:
+    print("Warning: Matrix singular, using pseudo-inverse.")
+    inv_cov = np.linalg.pinv(cov_filtered)
 
 # ==========================================
 # 3. PHYSICS MODELS (Correct Low-Z Logic)
@@ -67,8 +73,11 @@ C_LIGHT = 299792.458
 H0_PLANCK = 67.4 
 OM_PLANCK = 0.315
 Z_TRANS = 0.65
-MAG_SHIFT = -0.217
 WIDTH = 0.1
+
+# Magnitude Shift derived from H0_VACUUM = 74.5
+# Shift = 5 * log10(67.4 / 74.5) ~ -0.217
+MAG_SHIFT = -0.217 
 
 # 1. Planck Baseline
 z_grid = np.linspace(0, 2.5, 1000)
@@ -77,9 +86,13 @@ dc_grid = np.cumsum(E_inv) * (z_grid[1]-z_grid[0])
 dl_grid = (1+z_grid) * (C_LIGHT/H0_PLANCK) * dc_grid
 mu_planck = np.interp(z_obs, z_grid, 5 * np.log10(dl_grid + 1e-9) + 25)
 
-# 2. Vacuum Model (POSITIVE SIGN = Low Z Correction)
-# The correction turns ON at Low Z to match SHOES, and OFF at High Z to match Planck.
-correction = MAG_SHIFT / (1 + np.exp((z_obs - Z_TRANS) / WIDTH))
+# 2. Vacuum Model (Low Z Correction)
+# SAFETY RESTORED: Prevent overflow in np.exp for robustness
+arg = (z_obs - Z_TRANS) / WIDTH
+sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
+
+# The correction turns ON at Low Z (z < 0.65) to match SHOES (H0=74.5)
+correction = MAG_SHIFT * sigmoid
 mu_vacuum = mu_planck + correction
 
 # ==========================================
@@ -102,11 +115,11 @@ print("-" * 50)
 print(f"Delta Chi2:                  {d_chi2:.2f}")
 print("="*50)
 
-# THRESHOLD UPDATE: -300 is too weak for this test. 
-# This test usually yields < -4000.
+# THRESHOLD CHECK
+# Matches Section 8.4.1 claims regarding statistical preference
 if d_chi2 < -1000:
     print("STATUS: CONFIRMED. Matches Section 8.4.1 Stress Test.")
-    print("Result: Massive preference (~ -4800) for Low-Z Stiffening.")
-    print("This proves the model resolves the Local Hubble Tension.")
+    print("Result: Strong preference for Low-Z Stiffening.")
+    print("This confirms the model resolves the Local Hubble Tension.")
 else:
     print("STATUS: MISMATCH. Check parameters.")
