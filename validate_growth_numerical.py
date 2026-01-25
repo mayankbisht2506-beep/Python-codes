@@ -25,7 +25,7 @@ data_rsd = np.array([
 SIGMA8_0_LCDM = 0.811
 
 # ==========================================
-# 2. PHYSICS PARAMETERS (CONSISTENT WITH ADD 102)
+# 2. PHYSICS PARAMETERS
 # ==========================================
 # Standard LCDM uses Planck Baseline
 OM_STD = 0.315
