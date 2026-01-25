@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 print("--- HELIUM-4 BBN STABILITY TEST ---")
-print("Objective: Verify the 'Cancellation Theorem' (Section 7.9)")
+print("Objective: Verify the 'Cancellation Theorem' (Section 7.12)")
 
 # ==========================================
 # 1. PHYSICS CONSTANTS (Standard Model)
@@ -13,24 +13,30 @@ T_freeze_0 = 0.8     # Freeze-out Temperature (MeV)
 TAU_NEUTRON_0 = 880.0 # Free Neutron Lifetime (s)
 T_NUC_0 = 180.0      # Time to Deuterium Bottleneck (s)
 
-# Observational Constraint
-Yp_OBS = 0.245       # Planck 2018 Helium Fraction
+# Observational Constraint (Planck 2018)
+Yp_OBS = 0.245       # Primordial Helium Fraction
 Yp_ERR = 0.003       # Error margin
 
 # ==========================================
 # 2. VACUUM ELASTODYNAMICS PARAMETERS
 # ==========================================
-# Derived in Section 7.1 (Eq. 72)
-G_BOOST = 1.22       # Early Gravity (G_early / G_0)
+# Derived in Section 7.1 (Eq. 71 in PDF)
+# G_early = G0 / (1 - delta_eff) ~ 1.22 G0
+G_BOOST = 1.22       # Early Gravity Strength
 
-# Geometric Scaling Laws (Section 7.9)
-# 1. Mass Scales: m ~ G^-0.5  (Eq. 82)
+# Geometric Scaling Laws (Section 7.12.1 & Eq. 80)
+# The "Cancellation Theorem" relies on these coupled scalings:
+
+# 1. Mass Scales: m ~ G^-0.5 (Eq. 80 in PDF)
+# Implications: Binding energies and Mass differences drop.
 MASS_FACTOR = G_BOOST**(-0.5)
 
-# 2. Weak Force: G_F ~ 1/v^2 ~ 1/m^2 ~ G^1.0 (Eq. 94 text)
+# 2. Weak Force: G_F ~ G^1.0 (Section 7.12.1 Text)
+# Implication: Weak interactions become stronger.
 GF_FACTOR = G_BOOST**(1.0) 
 
-# 3. Expansion Rate: H ~ sqrt(G) * T^2 (Eq. 94)
+# 3. Expansion Rate: H ~ sqrt(G) * T^2
+# Implication: Universe expands faster at a fixed T.
 H_FACTOR = np.sqrt(G_BOOST)
 
 def calculate_helium_fraction(model='std'):
@@ -46,39 +52,41 @@ def calculate_helium_fraction(model='std'):
         t_nuc = T_NUC_0
     else:
         # Vacuum Elastodynamics Parameters
+        
         # 1. Mass Difference scales with Mass (Q ~ m ~ G^-0.5)
         Q = Q_0 * MASS_FACTOR
         
         # 2. Weak Coupling (G_F ~ G)
         G_F_scale = GF_FACTOR
         
-        # 3. Expansion Rate (H ~ G^0.5)
+        # 3. Expansion Rate Scale (H ~ G^0.5)
         H_scale = H_FACTOR
         
-        # 4. Neutron Lifetime (Eq. 96)
-        # Gamma_decay ~ G_F^2 * m_e^5 ~ (G)^2 * (G^-0.5)^5 ~ G^-0.5
+        # 4. Neutron Lifetime (Section 7.12.1)
+        # Gamma_decay ~ G_F^2 * m_e^5 
+        # Scaling: (G^1)^2 * (G^-0.5)^5 = G^2 * G^-2.5 = G^-0.5
         # Lifetime (tau) ~ 1/Gamma ~ G^0.5
         tau_n = TAU_NEUTRON_0 * (G_BOOST**0.5)
         
-        # 5. Nucleosynthesis Time (Eq. 97)
-        # Target Temp depends on Binding Energy (B_D ~ m ~ G^-0.5)
+        # 5. Nucleosynthesis Time (Clock Rescaling)
+        # Target Temp drops (B_D ~ m ~ G^-0.5)
         # Time t ~ 1/(sqrt(G)*T^2) -> scales as G^0.5
         t_nuc = T_NUC_0 * (G_BOOST**0.5)
 
     # --- STEP A: Freeze-Out Temperature ---
-    # Freeze-out: Gamma_weak ~ H
-    # G_F^2 * T^5 ~ H * T^2  ->  T^3 ~ H / G_F^2
+    # Freeze-out condition: Gamma_weak ~ H
+    # Scaling: G_F^2 * T^5 ~ H * T^2  ->  T^3 ~ H / G_F^2
     T_freeze = T_freeze_0 * (H_scale / (G_F_scale**2))**(1.0/3.0)
     
     # --- STEP B: Neutron-to-Proton Ratio ---
     # n/p = exp(-Q / T_freeze)
-    # Note: In Vacuum model, Q drops and T drops, cancelling out [cite: 939]
+    # Crucial Cancellation: Q drops and T_freeze drops. Ratio stays stable.
     np_ratio_freeze = np.exp(-Q / T_freeze)
     
     # --- STEP C: Neutron Decay ---
     # Fraction surviving until nucleosynthesis
     # decay_exponent = t_nuc / tau_n
-    # Note: In Vacuum model, both t_nuc and tau_n increase by G^0.5 [cite: 955]
+    # Crucial Cancellation: Both t_nuc and tau_n increase by G^0.5.
     decay_fraction = np.exp(-t_nuc / tau_n)
     
     np_ratio_final = np_ratio_freeze * decay_fraction
@@ -112,7 +120,7 @@ print(f"Difference: {diff:.6f} ({percent_diff:.3f}%)")
 
 if abs(percent_diff) < 0.1:
     print("VERDICT: PERFECT CANCELLATION (Pass).")
-    print("Matches Section 7.9 proof: Nuclear rates scale identically to expansion.")
+    print("Matches Section 7.12 proof: Nuclear rates scale identically to expansion.")
 else:
     print("VERDICT: FAILURE. Check scaling laws.")
 
@@ -122,7 +130,7 @@ else:
 plt.figure(figsize=(8, 6))
 x = ['Standard $\Lambda$CDM', 'Vacuum Elastodynamics']
 y = [Yp_std, Yp_vac]
-colors = ['gray', '#2ca02c'] # Green for Vacuum
+colors = ['gray', '#2ca02c'] 
 
 bars = plt.bar(x, y, color=colors, width=0.6)
 plt.axhline(Yp_OBS, color='blue', linestyle='--', label=f'Planck Obs ({Yp_OBS})')
