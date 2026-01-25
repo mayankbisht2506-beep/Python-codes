@@ -34,24 +34,27 @@ def get_viscosity(z):
     """
     Combines Late-Time Stiffness Floor with Jamming Spike.
     """
-    # 1. The Floor (Sigmoid activation)
-    # Arg represents how far z is from the transition
-    # We want it to be 1 at z=0 (Late) and 0 at z=100 (Early)
-    # The original logic: late_trigger = 1 / (1 + exp((z - z_trans)/width))
-    # If z is large (Early), arg is positive -> exp is big -> trigger is 0.
-    arg = (z - Z_TRANS) / WIDTH
-    late_trigger = 1.0 / (1.0 + np.exp(arg)) # Reverting to standard logic, filtering overflow below
+    # 1. The Viscosity Floor (Sigmoid Activation)
+    # Implements the smooth phase transition described in Eq. 6.
+    # Boundary Conditions:
+    #   - Late Times (z << z_trans): Viscosity -> ETA_FLOOR (Symmetry Broken)
+    #   - Early Times (z >> z_trans): Viscosity -> 0 (Superfluid Vacuum)
     
-    # Use explicit clipping for safety if using raw exp
-    # Or use the logic: if arg > 100, trigger is 0.
+    arg = (z - Z_TRANS) / WIDTH
+    
+    # Numerical Stability:
+    # For z >> z_trans (Early Universe), exp(arg) diverges.
+    # We set trigger to 0.0 in this limit to enforce the Superfluid boundary condition.
     late_trigger = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
     
     base_viscosity = ETA_FLOOR * late_trigger
     
     # 2. The Jamming Spike (Gaussian at z=0.65)
+    # Models the transient stress peak at the percolation threshold.
     spike = (ETA_PEAK - ETA_FLOOR) * np.exp(-0.5 * ((z - Z_TRANS)/0.15)**2)
     
     return base_viscosity + spike
+    
 
 def growth_ode(y, a, model='lcdm'):
     delta, delta_prime = y
