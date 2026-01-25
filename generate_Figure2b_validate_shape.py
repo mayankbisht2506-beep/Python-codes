@@ -47,7 +47,7 @@ inv_cov = np.linalg.pinv(cov_filtered)
 print(f"Loaded {len(df_clean)} Supernovae.")
 
 # ==========================================
-# 2. PHYSICS MODELS (Updated for Add 33)
+# 2. PHYSICS MODELS
 # ==========================================
 C_LIGHT = 299792.458
 OM = 0.315
