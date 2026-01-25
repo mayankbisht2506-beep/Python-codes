@@ -35,14 +35,17 @@ def hubble_model(z, h0, om, use_transition=False):
     hz = h0 * np.sqrt(om * (1 + z)**3 + (1 - om))
     
     if use_transition:
-        # Vacuum Elastodynamics Boost (Section 7.1)
+        # Vacuum Elastodynamics Boost (Reference: Section 7.1)
         # Implements Lattice Relaxation: G(z) = G_early * (1 - delta(z))
         Z_TRANS = 0.65  # Percolation Threshold (Eq. 7)
         WIDTH = 0.10    # Phase Transition Width
         
-        # Sigmoid Transition (Eq. 6)
-        # 1.0 at z=0 (Late Time / Stiff), 0.0 at z>>1 (Early Time / Soft)
-        sigmoid = 1.0 / (1.0 + np.exp((z - Z_TRANS)/WIDTH))
+        # Numerical Stability: Matches the S8 Validation Script logic
+        # Prevents overflow at high z (CMB), enforcing Superfluid Detachment (Section 7.11.1)
+        arg = (z - Z_TRANS) / WIDTH
+        
+        # If z >> z_trans (Early Universe), arg is huge -> exp(arg) is huge -> sigmoid is 0.0
+        sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
         
         # Apply local boost to match H0_THEORY at z=0
         boost_amp = (H0_THEORY / H0_PLANCK) - 1.0
