@@ -7,7 +7,7 @@ import os
 # ==========================================
 # 1. SETUP & DATA
 # ==========================================
-print("--- RUNNING PANTHEON+ STEEL MAN TEST (UPDATED 74.5) ---")
+print("--- RUNNING PANTHEON+ SHAPE CONSISTENCY TEST ---")
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
 DATA_FILE = "Pantheon+SH0ES.dat"
@@ -52,12 +52,13 @@ print(f"Loaded {len(df_clean)} Supernovae.")
 C_LIGHT = 299792.458
 OM = 0.315
 OL = 1.0 - OM
-Z_TRANS = 0.65  
-WIDTH = 0.10    
+Z_TRANS = 0.65   # Percolation Threshold (Eq. 7)
+WIDTH = 0.10     # Phase Transition Width
 
-# PARAMETER UPDATE: Match Paper Section 7.1
+# PARAMETER UPDATE: Matching Section 7.1 "Gravity Boost"
+# "This specific trajectory predicts a local H0 ~ 74.5"
 H0_EARLY = 67.4  
-H0_LATE = 74.5   # Updated from 73.4 to match Gravity Boost (1.22x)
+H0_LATE = 74.5   
 
 def integrate_distance_vectorized(z_values, h_func):
     z_grid = np.linspace(0, np.max(z_values)*1.01, 2000)
@@ -79,8 +80,12 @@ def h_viscous(z):
     
     # Boost Logic: 
     # Sigmoid smoothly scales H0 from 67.4 (Early) to 74.5 (Late)
+    # Implements the relaxation profile described in Eq. 6
     boost_amp = H0_LATE / H0_EARLY
-    sigmoid = 1.0 / (1.0 + np.exp((z - Z_TRANS) / WIDTH))
+    
+    arg = (z - Z_TRANS) / WIDTH
+    # Numerical Stability (Consistent with S8/Hz scripts)
+    sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
     
     effective_boost = 1.0 + (boost_amp - 1.0) * sigmoid
     return H0_EARLY * E_z * effective_boost
@@ -135,13 +140,13 @@ z_sort = np.argsort(df_clean['zHD'])
 plt.plot(df_clean['zHD'][z_sort], diff_curve[z_sort], 'r-', linewidth=3, label=f'Vacuum Model Difference')
 
 plt.axhline(0, color='k', linestyle='--')
-# Fixed Syntax Warning using raw string (r'')
-plt.title(rf'Pantheon+ "Conservative Robustness" Test: $\Delta\chi^2 = {d_chi2:.2f}$ (Target {H0_LATE})', fontsize=14)
+plt.title(rf'Pantheon+ Shape Consistency Test: $\Delta\chi^2 = {d_chi2:.2f}$ (Target {H0_LATE})', fontsize=14)
 plt.xlabel('Redshift z', fontsize=12)
 plt.ylabel('Residual Magnitude (Shape Only)', fontsize=12)
 plt.legend(fontsize=10, loc='lower left')
 plt.ylim(-0.25, 0.25)
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('Figure4_Pantheon_SteelMan_Updated.png')
+plt.savefig('Figure4_Pantheon_Shape_Test.png')
+print("Plot saved as 'Figure4_Pantheon_Shape_Test.png'")
 plt.show()
