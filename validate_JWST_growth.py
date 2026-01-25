@@ -15,7 +15,7 @@ Ol0 = 1.0 - Om0
 rho_crit_0 = 2.775e11 * h**2 # M_sun / Mpc^3
 rho_m_0 = Om0 * rho_crit_0
 
-# VACUUM ELASTODYNAMICS PARAMETERS (Add 46 / Add 83)
+# VACUUM ELASTODYNAMICS PARAMETERS
 # 1. Gravity Boost: Active in Early Universe (z > 0.65)
 #    G_early = G_0 * (H0_vac / H0_std)^2
 G_BOOST = (74.5 / 67.4)**2  # approx 1.22
@@ -24,7 +24,7 @@ G_BOOST = (74.5 / 67.4)**2  # approx 1.22
 #    Using the physical 'Proton Load' floor
 ETA_PHYSICAL = 0.157 
 
-# 3. Phase Transition Geometry (Steel Man Standard)
+# 3. Phase Transition Geometry
 Z_TRANS = 0.65
 WIDTH = 0.10   # Strict Critical Jamming Limit
 
