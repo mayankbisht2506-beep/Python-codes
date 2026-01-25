@@ -58,12 +58,11 @@ else:
 indices = np.where(mask)[0]
 cov_filtered = cov_matrix[np.ix_(indices, indices)]
 
-print("Inverting Matrix...")
-try:
-    inv_cov = np.linalg.inv(cov_filtered)
-except:
-    inv_cov = np.linalg.pinv(cov_filtered)
 
+print("Inverting Covariance Matrix (Robust Method for Test II)...")
+# We explicitly use Pseudo-Inverse (pinv) to match the "Theoretical Verification" 
+# methodology in Section 8.4.2 (-3577 result).
+inv_cov = np.linalg.pinv(cov_filtered)
 # ==========================================
 # 3. PHYSICS ENGINE (VERIFIED CORRECT)
 # ==========================================
