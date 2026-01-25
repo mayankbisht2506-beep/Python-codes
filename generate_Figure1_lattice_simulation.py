@@ -56,13 +56,13 @@ def run_analysis():
     gamma_crit = monte_carlo_yield_test()
     
     # 2. Calculate Strains
+    # Base strain from Table 1 (Electron)
     g_e = 0.0021
     g_mu = calculate_strain(M_mu, g_e)
     g_tau = calculate_strain(M_tau, g_e)
     g_4th = calculate_strain(M_4th, g_e)
 
     # 3. Stability & Saturation
-    s_tau = stability_index(g_tau)
     total_strain = g_e + g_mu + g_tau
     saturation_pct = (total_strain / gamma_crit) * 100
     
@@ -72,10 +72,12 @@ def run_analysis():
     print(f"Tau:      Strain={g_tau:.4f}")
     print(f"4th Gen:  Strain={g_4th:.4f} (UNSTABLE)")
     
-    print(f"\n--- Geometric Saturation (Eq 103/104) ---")
+    # CORRECTED REFERENCE HERE
+    print(f"\n--- Geometric Saturation (Section 5.1 & Eq. 79) ---")
     print(f"Total Lepton Strain: {total_strain:.4f} (Paper: 0.1569)")
-    print(f"Frenkel Limit:       {gamma_crit:.4f}")
+    print(f"Frenkel Limit:       {gamma_crit:.4f} (Paper: 0.159)")
     print(f"Vacuum Saturation:   {saturation_pct:.1f}% (Paper: 98.6%)")
+
 
     # Plot
     gamma_range = np.linspace(0, 0.35, 100)
