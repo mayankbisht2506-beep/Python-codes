@@ -25,7 +25,7 @@ err_cc = cc_data[:, 2]
 H0_PLANCK = 67.4
 OM_PLANCK = 0.315
 
-# CORRECT PARAMETER: Matches "Add (33).pdf" Gravity Boost Prediction
+# CORRECT PARAMETER: Matches Gravity Boost Prediction
 H0_THEORY = 74.5  
 
 def hubble_model(z, h0, om, use_transition=False):
