@@ -144,5 +144,5 @@ plt.title(rf'Resolution of Hubble Tension' + '\n' + rf'$\Delta\chi^2 = {d_chi2:.
 plt.legend()
 plt.ylim(-0.6, 0.4)
 plt.grid(True, alpha=0.3)
-plt.savefig("Figure4a_Metric1_Corrected.png")
+plt.savefig("Figure2a_Metric1_Corrected.png")
 plt.show()
