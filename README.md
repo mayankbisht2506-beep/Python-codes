@@ -1,7 +1,7 @@
 ```markdown
 # Vacuum Elastodynamics: Verification & Validation Suite
 
-**Repository for the paper:** *"Vacuum Elastodynamics: Geometric Unification and the Resolution of Hubble and $S_{8}$ Tensions via Lattice Viscosity"*
+**Repository for the paper:** *"Vacuum Elastodynamics: Geometric Unification and the Resolution of Hubble and S8 Tensions via Lattice Viscosity"*
 
 ## 📂 Overview
 This repository contains the complete "Steel Man" validation suite for the Vacuum Elastodynamics model. It consists of **24 independent Python scripts** designed to strictly stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
@@ -124,6 +124,6 @@ python src/validate_jerk_stability.py
 
 ---
 
-*This codebase serves as the "Steel Man" verification for the manuscript "Vacuum Elastodynamics: Geometric Unification and the Resolution of Hubble and $S_{8}$ Tensions via Lattice Viscosity". All physics parameters used here are derived strictly from the theoretical constraints presented in the text.*
+*This codebase serves as the "Steel Man" verification for the manuscript "Vacuum Elastodynamics: Geometric Unification and the Resolution of Hubble and S8 Tensions via Lattice Viscosity". All physics parameters used here are derived strictly from the theoretical constraints presented in the text.*
 
 ```
