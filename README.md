@@ -1,21 +1,23 @@
-```markdown
 # Vacuum Elastodynamics: Verification & Validation Suite
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17666785.svg)](https://doi.org/10.5281/zenodo.17666785)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/mayankbisht2506-beep/Python-codes)
 
 **Repository for the paper:** *"Vacuum Elastodynamics: Geometric Unification and the Resolution of Hubble and S8 Tensions via Lattice Viscosity"*
 
 ## 📂 Overview
-This repository contains the complete "Steel Man" validation suite for the Vacuum Elastodynamics model. It consists of **24 independent Python scripts** designed to strictly stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+This repository contains the complete "Steel Man" validation suite for the Vacuum Elastodynamics model. It consists of **25 independent Python scripts** designed to strictly stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+
+* **📄 Scientific Paper:** The full manuscript is archived and citable via Zenodo: **[https://doi.org/10.5281/zenodo.17666785](https://doi.org/10.5281/zenodo.17666785)**
+* **💻 Source Code:** All validation scripts and data processing pipelines are hosted in this GitHub repository.
 
 These scripts demonstrate that the model simultaneously resolves the **Hubble Tension**, **S8 Tension**, and **Lithium Problem** while preserving the successes of the Standard Model ($\Lambda$CDM) in BBN, CMB, and Cosmic Age.
 
 ## 🛠️ Requirements
 To run these scripts, you will need a standard Python 3 scientific stack plus MCMC tools:
 ```bash
-pip install numpy scipy pandas matplotlib requests emcee corner
+pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward
 
-```
-
----
 
 ## 🧪 Validation Catalog
 
@@ -26,14 +28,14 @@ Tests verifying the mechanism's ability to fix the primary cosmological crises.
 | Script Name | Objective | Key Result (Matches Paper) |
 | --- | --- | --- |
 | `Gravity_Boost.py` | Verify  shift via Early Gravity Boost (). | ** km/s/Mpc** (Matches SH0ES) |
-| `mcmc_stress.py` | **NEW:** Stability Stress Test fixing  & . | **** (Matches Geometric Ideal) |
+| `mcmc_stress.py` | Stability Stress Test fixing  & . | **** (Matches Geometric Ideal) |
 | `S8_KiDS_DES.py` | Verify  suppression via Vacuum Viscosity (). | **** (Matches KiDS/DES) |
 | `generate_Figure2a_tension.py` | Calculate significance for the Hubble Tension resolution. | ** Significance** |
 | `validate_vacuum_tension_resolution.py` | Raw stress test against Pantheon+ SNe data. | **Raw ** (Massive Headroom) |
 
 ### 2. Microphysics & Fundamental Constants
 
-Tests validating the geometric origin of mass and the solution to the Lithium Problem.
+Tests validating the geometric origin of mass, the fracture limits, and the solution to the Lithium Problem.
 
 | Script Name | Objective | Key Result (Matches Paper) |
 | --- | --- | --- |
@@ -41,6 +43,7 @@ Tests validating the geometric origin of mass and the solution to the Lithium Pr
 | `validate_lithium_solution.py` | Verify Lithium-7 depletion via Tunneling Barrier reduction. | **Depletion: 2.76x** (Solves Li Problem) |
 | `validate_deuterium_robust.py` | Verify Deuterium/Helium invariance ("Cancellation Theorem"). | **Drift: < 1.0%** (Symmetry Preserved) |
 | `validate_BBN_stability.py` | Full BBN stability check for Helium-4 (). | **Invariant** (Matches Planck) |
+| `validate_vacuum_fracture.py` | **NEW:** Verify Vacuum Fracture (CMS Control vs DAMPE Signal). | **Break @ 0.9 TeV** (Matches 1.0 TeV Prediction) |
 
 ### 3. Consistency Checks (Safety Mechanisms)
 
@@ -61,7 +64,7 @@ Tests against specific dataset constraints.
 
 | Script Name | Objective | Key Result (Matches Paper) |
 | --- | --- | --- |
-| `validate_Pk_screening.py` | **CRITICAL:** Verify Environmental Screening preserves  shape. | **Turnover Shift: 0.00%** (Matches SDSS Shape) |
+| `validate_Pk_screening.py` | Verify Environmental Screening preserves  shape. | **Turnover Shift: 0.00%** (Matches SDSS Shape) |
 | `validate_BAO_consistency.py` | Check BAO standard ruler contraction (). | **Tie** (Corrects ruler by 0.905x) |
 | `validate_BAO_ladder.py` | Verify Inverse Distance Ladder residuals. | **Residuals < 0.20** |
 | `validate_growth_numerical.py` | Verify Growth Rate () evolution. | **Global Tie** () |
@@ -91,12 +94,12 @@ Running `validate_global_stats.py` reproduces the paper's main conclusion:
 * **Matter Power Spectrum:** Shape Preserved (via Screening)
 * **BBN:** Perfect Invariance (Resolves Li7, preserves D/He)
 * **CMB:** Geometric Resonance (Preserves Acoustic Scale)
-* **Kinematics:** Smooth Transition (No Singularities, Jerk )
+* **Vacuum Fracture:** Detected at **0.9 TeV** (Matches Theory 1.0 TeV)
 
 ## 📁 Repository Structure
 
-* `/src/`: Contains all 24 validation scripts listed above.
-* `/figures/`: Outputs from plotting scripts (e.g., `Figure1_Stress_Strain.png`).
+* `/src/`: Contains all 25 validation scripts listed above.
+* `/figures/`: Outputs from plotting scripts (e.g., `vacuum_fracture_test_corrected.png`).
 * `/data/`: (Optional) Local cache for downloaded Pantheon+ data.
 
 ## 📝 Usage
@@ -108,10 +111,10 @@ python src/validate_global_stats.py
 
 ```
 
-To run the **Stability Stress Test** (verifying ):
+To run the **Vacuum Fracture Test** (verifying the 1 TeV Limit):
 
 ```bash
-python src/mcmc_stress.py
+python src/validate_vacuum_fracture.py
 
 ```
 
@@ -125,5 +128,7 @@ python src/validate_jerk_stability.py
 ---
 
 *This codebase serves as the "Steel Man" verification for the manuscript "Vacuum Elastodynamics: Geometric Unification and the Resolution of Hubble and S8 Tensions via Lattice Viscosity". All physics parameters used here are derived strictly from the theoretical constraints presented in the text.*
+
+```
 
 ```
