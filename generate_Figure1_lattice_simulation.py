@@ -36,7 +36,7 @@ def calculate_strain(mass, base_strain=0.0021):
 def stability_index(gamma):
     return np.cos(2 * np.pi * gamma)
 
-def monte_carlo_yield_test(n_samples=200000):
+def monte_carlo_yield_test(n_samples=10000000):
     """
     Simulates lattice stress response to find yield point.
     """
