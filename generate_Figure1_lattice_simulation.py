@@ -1,10 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+# =============================================================================
+# VACUUM ELASTODYNAMICS: VALIDATION SUITE
+# =============================================================================
 
 # --- 1. PHYSICAL CONSTANTS & GEOMETRIC LIMITS ---
 
-# Source: Section 2.2.3,
+# Source: Section 2.2.3, Eq. 2
 # The microscopic yield strength of the lattice (Frenkel Sinusoidal Limit).
 # Derived from the sinusoidal topology of the connection field.
 GAMMA_CRIT = 1 / (2 * np.pi)  # approx 0.15915
@@ -45,19 +48,17 @@ def run_hierarchy_search(n_samples=10000000):
     Reproduces the statistical claim in Section 5.1.1.
     
     Claim: "Only 0.003% allowed a stable 3-generation universe within 2% of the yield limit."
-    Method: A "Blind Search" of possible physics models (Mass Ratios 1x to 200,000x).
+    Method: A "Blind Search" of possible physics models.
     """
     print(f"\n=== SIMULATION 1: BLIND HIERARCHY SEARCH (Section 5.1.1) ===")
     print(f"Generating {n_samples:,} random universes...")
 
-    # A. Generate Random Base Strains (Standard variance)
-    # Centered on our observed electron strain (0.0021) with slight noise
+    # A. Generate Random Base Strains (Standard variance around Electron)
     g1 = np.abs(np.random.normal(0.0021, 0.0005, n_samples))
 
     # B. Generate Random Mass Scalings (The "Blind" Parameter Space)
-    # We allow the mass ratio (m_n+1 / m_n) to vary from 1x (degenerate) to 200,000x.
-    # Strain multiplier = sqrt(Mass Ratio).
-    # This vast range proves that the Standard Model's stability is unique (0.003%).
+    # We allow mass ratios to vary from 1x to 200,000x to simulate a random universe.
+    # This vast range proves that the Standard Model's stability is unique.
     low_bound = np.sqrt(1)       
     high_bound = np.sqrt(200000) 
     
@@ -75,7 +76,7 @@ def run_hierarchy_search(n_samples=10000000):
     is_stable = total_strain < GAMMA_CRIT
     
     # Condition 2: Saturation (Must fill > 98% of the limit)
-    # This matches the "within 2% of the yield limit" claim.
+    # This matches the "within 2% of the yield limit" claim in Sec 5.1.1.
     is_saturated = total_strain > (0.98 * GAMMA_CRIT)
     
     success_mask = is_stable & is_saturated
@@ -118,7 +119,7 @@ def run_lepton_stability_analysis():
     print(f"Frenkel Limit:   {GAMMA_CRIT:.5f} (Eq. 2)")
     print(f"Saturation:      {saturation_pct:.2f}% (Matches '98.6%' claim in Sec 5.1)")
     
-    # C. Plotting Figure 1 [cite: 231-234]
+    # C. Plotting Figure 1
     # Generate the ideal stress-strain curve (The Blue Line)
     gamma_range = np.linspace(0, 0.35, 200)
     stress_curve = restoring_stress(gamma_range)
@@ -126,7 +127,7 @@ def run_lepton_stability_analysis():
     plt.figure(figsize=(10, 6))
     
     # 1. Vacuum Response Curve
-    plt.plot(gamma_range, stress_curve, 'b-', linewidth=2, label='Vacuum Stress Response (Sinusoidal)')
+    plt.plot(gamma_range, stress_curve, 'b-', linewidth=2, label='Vacuum Stress Response')
     
     # 2. Plot Particles
     particles = [
@@ -144,7 +145,7 @@ def run_lepton_stability_analysis():
     plt.plot(gamma_4th, s_4th, 'rx', markersize=12, markeredgewidth=3, label='4th Gen (Failure)')
     
     # 4. Critical Limits
-    plt.axvline(GAMMA_CRIT, color='r', linestyle='--', linewidth=1.5, label=f'Frenkel Limit ($\gamma_{{crit}} \\approx {GAMMA_CRIT:.3f}$)')
+    plt.axvline(GAMMA_CRIT, color='r', linestyle='--', linewidth=1.5, label=rf'Frenkel Limit ($\gamma_{{crit}} \approx {GAMMA_CRIT:.3f}$)')
     plt.axhline(0, color='k', linewidth=0.5)
     
     # 5. Annotation
@@ -153,7 +154,6 @@ def run_lepton_stability_analysis():
                  xytext=(gamma_tau + 0.02, 0.05),
                  arrowprops=dict(facecolor='black', shrink=0.05))
 
-    # Formatting matches Figure 1 in the PDF
     plt.title('Vacuum Elastodynamics: Lepton Stability Analysis', fontsize=14)
     plt.xlabel(r'Lattice Shear Strain ($\gamma$)', fontsize=12)
     plt.ylabel(r'Restoring Stress ($\tau$)', fontsize=12)
@@ -162,15 +162,11 @@ def run_lepton_stability_analysis():
     plt.xlim(0, 0.35)
     plt.ylim(-0.05, 0.17)
     
-    # Save and Show
     plt.savefig('Figure1_Lepton_Stability.png', dpi=300)
     print("Graph saved as 'Figure1_Lepton_Stability.png'")
     plt.show()
 
 # --- MAIN EXECUTION ---
 if __name__ == "__main__":
-    # 1. Run the "Probability Proof" (Section 5.1.1)
     run_hierarchy_search()
-    
-    # 2. Run the "Physical Plot" (Figure 1)
     run_lepton_stability_analysis()
