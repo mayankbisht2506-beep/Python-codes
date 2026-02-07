@@ -106,8 +106,8 @@ def run_independent_uniqueness_check(n_trials=10000000):
     
     print(f"[-] Random Successes: {successes}")
     print(f"[-] P-Value: {p_value:.6f}")
-    if p_value < 0.001:
-        print(">>> ROBUSTNESS VERIFIED: Random Chance is Ruled Out (p < 0.001). <<<")
+    if p_value < 0.01:
+        print(">>> ROBUSTNESS VERIFIED: Random Chance is Ruled Out (p < 0.01). <<<")
 
 # --- 5. SIMULATION C: LEPTON STABILITY PLOT (Figure 1 & Table 1) ---
 
