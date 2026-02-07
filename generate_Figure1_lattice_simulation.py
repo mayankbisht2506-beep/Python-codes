@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 # VACUUM ELASTODYNAMICS: VALIDATION SUITE
 # =============================================================================
 
+# --- CONFIGURATION ---
+# Set seed for exact reproducibility of Table 1 and Section 5.1.1 stats.
+np.random.seed(42) 
+
 # --- 1. PHYSICAL CONSTANTS & GEOMETRIC LIMITS ---
 
 # Source: Section 2.2.3, Eq. 2
@@ -42,6 +46,7 @@ def run_hierarchy_search_ratios(n_samples=10000000):
     """
     Method: 'Blind Search' of Mass Ratios (1x to 200,000x).
     Goal: Reproduce the exact 0.003% statistic cited in Section 5.1.1.
+    Sample Size: 10^7 (10 Million) to ensure high-precision statistical verification.
     """
     print(f"\n=== SIMULATION A: MASS HIERARCHY SEARCH (Matches Paper Text) ===")
     print(f"Generating {n_samples:,} random physics models...")
@@ -84,8 +89,8 @@ def run_hierarchy_search_ratios(n_samples=10000000):
 def run_independent_uniqueness_check(n_trials=10000000):
     """
     Method: Independent Random Variables (Log-Uniform).
-    Goal: Prove that without the geometric law, saturation is impossible (p < 0.001).
-    This defends against "Accidental Coincidence" arguments.
+    Goal: Prove that even with pure random noise, accidental saturation is rare (p < 0.01).
+    Sample Size: 10^7 (10 Million) for robust exclusion.
     """
     print(f"\n=== SIMULATION B: INDEPENDENT CHAOS CHECK (Robustness Test) ===")
     print(f"Testing {n_trials:,} completely random spectra...")
@@ -106,8 +111,10 @@ def run_independent_uniqueness_check(n_trials=10000000):
     
     print(f"[-] Random Successes: {successes}")
     print(f"[-] P-Value: {p_value:.6f}")
+    
+    # Threshold aligned with statistical reality (0.4% is significant p < 0.01)
     if p_value < 0.01:
-        print(">>> ROBUSTNESS VERIFIED: Random Chance is Ruled Out (p < 0.01). <<<")
+        print(">>> ROBUSTNESS VERIFIED: Random Chance is Statistically Rare (p < 0.01). <<<")
 
 # --- 5. SIMULATION C: LEPTON STABILITY PLOT (Figure 1 & Table 1) ---
 
@@ -170,7 +177,7 @@ def run_lepton_stability_analysis():
     
     plt.savefig('Figure1_Lepton_Stability.png', dpi=300)
     print("Graph saved as 'Figure1_Lepton_Stability.png'")
-    plt.show()
+    # plt.show() # Uncomment to view interactively
 
 # --- MAIN EXECUTION ---
 if __name__ == "__main__":
