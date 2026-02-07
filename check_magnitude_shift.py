@@ -18,7 +18,7 @@ OL_PLANCK = 1.0 - OM_PLANCK
 C_LIGHT   = 299792.458
 
 # --- UPDATED THEORETICAL INPUTS ---
-# Tests prediction from Section 8.2 (Pantheon+ Magnitude Bias) and Section 7.3.1 (Eq. 76)
+# Tests prediction from Section 8.2 (Pantheon+ Magnitude Bias) and Section 7.4.1
 # -0.65 (Geo) + 0.16 (Lum) + 0.255 (Visc) = -0.235 mag
 MODEL_SHIFT = -0.2350
 
