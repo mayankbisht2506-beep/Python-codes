@@ -34,7 +34,6 @@ download_file(COV_URL, COV_FILE)
 # 2. LOAD DATA
 # ==========================================
 # A. Cosmic Chronometers (Full N=31 Dataset matches Paper Table VI)
-# A. Cosmic Chronometers (Full N=31 Dataset matches Paper Table VI)
 # Format: [z, H(z), error]
 hz_data = np.array([
     [0.07, 69.0, 19.6], [0.09, 69.0, 12.0], [0.12, 68.6, 26.2], [0.17, 83.0, 8.0],
@@ -86,7 +85,7 @@ def hubble_model(z, params):
 # This function models the "Effective Expansion History" H_eff(z) required to
 # match the net luminosity distance D_L.
 #
-# In the analytic theory (manuscript Eq. 70-75):
+# In the analytic theory (manuscript Eq. 78-83):
 #   1. Gravity Boost (G_early > G0) INCREASES H(z) -> Brightens SNe.
 #   2. Viscous Damping (Opacity/Drag) DIMS SNe.
 #
