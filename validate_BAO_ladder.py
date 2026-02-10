@@ -30,7 +30,7 @@ delta_z = 0.1
 
 # 2. Superfluid Horizon Contraction
 # Driven by Stiffness ONLY (eta ~ 0) -> Factor 0.905
-# Source: Section 7.11.1, Equation 87
+# Source: Section 7.11.1,
 contraction_factor = 0.905
 rs_vac = 147.09 * contraction_factor 
 
