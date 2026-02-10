@@ -22,7 +22,7 @@ def get_hubble_evolution(z_array):
     E_z = np.sqrt(Om_PLANCK * (1 + z_array)**3 + (1 - Om_PLANCK))
     
     # VACUUM PHASE TRANSITION LOGIC
-    # Based on Section 7.1 (Eq. 71): G_early = 1.22 * G0
+    # Based on Section 7.2: G_early = 1.22 * G0
     # Early Universe (z > 0.65): Lattice is Stiff/Locked. Follows Planck.
     # Late Universe (z < 0.65): Lattice Relaxes. Elastic Energy Released.
     
