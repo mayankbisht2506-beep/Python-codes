@@ -6,7 +6,7 @@ print("Objective: Verify Gravity Boost shifts H0 from 67.4 to 74.5")
 # 1. Planck 2018 Baseline
 H0_PLANCK = 67.4
 
-# 2. Theoretical Inputs (Add 33)
+# 2. Theoretical Inputs
 # Gravity Boost derived from Phase Transition Energy Density
 # G_early / G_0 = (1 + delta_G)
 # Your theory predicts this ratio based on the vacuum transition.
