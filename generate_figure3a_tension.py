@@ -71,7 +71,7 @@ H0_PLANCK = 67.4
 OM_PLANCK = 0.315
 OL_PLANCK = 1.0 - OM_PLANCK
 
-# NEW PHYSICS (Section 7.1 & 7.3)
+# PHYSICS (Section 7.2 & 7.4)
 # Gravity Boost (G_early = 1.22 G0) predicts H0 = 74.5
 H0_VACUUM = 74.5  
 MAG_SHIFT = -0.217 # Net shift derived from 5*log10(67.4/74.5)
