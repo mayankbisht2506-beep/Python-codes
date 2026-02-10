@@ -15,7 +15,7 @@ ns_lcdm = 0.965
 
 # Vacuum Elastodynamics (The Full Model)
 h_vac_global = 0.745  # Boosted H0 (Background)
-h_vac_local  = 0.674  # Screened H0 (Inside Clusters - Sec 7.7.1)
+h_vac_local  = 0.674  # Screened H0 (Inside Clusters - Sec 7.8.1)
 
 # Wavenumber range
 k = np.logspace(-3, 1, 500)
