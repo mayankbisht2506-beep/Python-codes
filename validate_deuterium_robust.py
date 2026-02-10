@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 print("--- PRIMORDIAL DEUTERIUM INVARIANCE (STRICT) ---")
-print("Objective: Verify the 'Cancellation Theorem' (Section 7.12) for Deuterium.")
+print("Objective: Verify the 'Cancellation Theorem' (Section 7.13) for Deuterium.")
 
 # ==========================================
 # 1. PARAMETERS (Strict Theory Consistency)
@@ -14,14 +14,14 @@ OBS_DH = 2.547e-5
 H0_PLANCK = 67.4
 H0_THEORY = 74.5    # The Gravity Boost Prediction
 
-# CALCULATE G_BOOST EXACTLY (Eq. 71)
+# CALCULATE G_BOOST EXACTLY
 # H ~ sqrt(G), so G ~ H^2
 G_BOOST = (H0_THEORY / H0_PLANCK)**2  # approx 1.2216
 
 # ==========================================
 # 2. SCALING LAWS (The Cancellation Theorem)
 # ==========================================
-# Derived from Section 7.12 and Eq. 80
+# Derived from Section 7.13
 
 # A. Density Scaling
 # rho ~ T^3. Since T_nuc scales with Binding Energy Q ~ m ~ G^-0.5:
