@@ -52,7 +52,7 @@ print(f"Loaded {len(df_clean)} Supernovae.")
 C_LIGHT = 299792.458
 OM = 0.315
 OL = 1.0 - OM
-Z_TRANS = 0.65   # Percolation Threshold (Eq. 7)
+Z_TRANS = 0.65   # Percolation Threshold (Eq. 11)
 WIDTH = 0.10     # Phase Transition Width
 
 # PARAMETER UPDATE: Matching Section 7.1 "Gravity Boost"
@@ -80,7 +80,7 @@ def h_viscous(z):
     
     # Boost Logic: 
     # Sigmoid smoothly scales H0 from 67.4 (Early) to 74.5 (Late)
-    # Implements the relaxation profile described in Eq. 6
+    # Implements the relaxation profile
     boost_amp = H0_LATE / H0_EARLY
     
     arg = (z - Z_TRANS) / WIDTH
