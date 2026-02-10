@@ -18,7 +18,7 @@ def verify_lithium_depletion():
     G_BOOST = (H0_THEORY / H0_PLANCK)**2
     
     # B. Mass Scaling (The "Turbocharger")
-    # Paper Eq (80): m(z) ~ G(z)^-0.5
+    # Eq: m(z) ~ G(z)^-0.5
     # Lighter nucleons tunnel through Coulomb barriers easier.
     MASS_SCALE = G_BOOST**(-0.5)
 
@@ -61,7 +61,7 @@ def verify_lithium_depletion():
         # 1. Reaction Rate (Proportional)
         # Rate ~ exp(-B_eff / T^(1/3))
         # The Barrier B_eff scales with sqrt(reduced_mass) ~ m^(1/3) roughly
-        # Paper Eq (89): b propto sqrt(m) for the exponential term specifically
+        # b propto sqrt(m) for the exponential term specifically
         B_effective = B0 * (m_eff**(1.0/2.0)) # Using sqrt(m) scaling for Coulomb param
         
         # Gamow Window Exponent
