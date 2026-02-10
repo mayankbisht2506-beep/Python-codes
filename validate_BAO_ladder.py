@@ -123,9 +123,9 @@ plt.savefig('BAO_Superfluid_Check_Corrected.png')
 plt.show()
 
 # ==========================================
-# 5. GENERATE TABLE IV VALUES
+# 5. TABLE IV VALUES
 # ==========================================
-print("\n--- NEW TABLE IV VALUES (Matches Add 101.pdf) ---")
+print("\n--- TABLE IV  ---")
 print(f"{'z':<5} | {'Data':<10} | {'Vacuum':<10} | {'Residual':<10}")
 print("-" * 45)
 
