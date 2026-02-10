@@ -55,7 +55,7 @@ OL = 1.0 - OM
 Z_TRANS = 0.65   # Percolation Threshold (Eq. 11)
 WIDTH = 0.10     # Phase Transition Width
 
-# PARAMETER UPDATE: Matching Section 7.1 "Gravity Boost"
+# PARAMETER UPDATE: Matching Section 7.2 "Gravity Boost"
 # "This specific trajectory predicts a local H0 ~ 74.5"
 H0_EARLY = 67.4  
 H0_LATE = 74.5   
