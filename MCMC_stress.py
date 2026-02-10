@@ -9,7 +9,7 @@ import os
 import matplotlib.pyplot as plt
 
 print("--- VACUUM ELASTODYNAMICS: STABILITY STRESS TEST ---")
-print("MODE: FIXED H0 (74.5) + STABLE VISCOSITY (0.16 - 0.21)")
+print("MODE: FIXED H0 (74.5) + variable yield strength (0.16 - 0.21)")
 
 # ==========================================
 # 1. DATA LOADING
@@ -109,7 +109,7 @@ def log_likelihood(params):
     Om, eta = params
     
     # --- HARD CONSTRAINT ---
-    # We strictly forbid eta from leaving the stable zone [0.16, 0.21]
+    # We strictly forbid eta from leaving the zone [0.16, 0.21]
     if not (0.16 <= eta <= 0.21): 
         return -np.inf
     if not (0.1 < Om < 0.6):
