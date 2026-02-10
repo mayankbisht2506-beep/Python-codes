@@ -10,7 +10,7 @@ print("Objective: Verify the 'Cancellation Theorem' (Section 7.13) for Deuterium
 # Observation (Particle Data Group)
 OBS_DH = 2.547e-5
 
-# The "Grand Unification" Values (Section 7.1)
+# The "Grand Unification" Values (Section 7.2)
 H0_PLANCK = 67.4
 H0_THEORY = 74.5    # The Gravity Boost Prediction
 
