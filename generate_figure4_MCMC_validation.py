@@ -99,7 +99,7 @@ def hubble_model(z, params):
 # ==============================================================================
 
     
-    # Physics: Viscosity dampens relaxation
+    # Physics: Yield-Limited Damping relaxation
     delta_eff = DELTA_GEO_IDEAL * (1.0 - eta)
     suppression = np.sqrt(1.0 - delta_eff)
     
