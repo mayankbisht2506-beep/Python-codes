@@ -10,7 +10,7 @@
 
 ## 📂 Overview
 
-This repository contains the complete **Steel Man validation suite** for the Vacuum Elastodynamics model. It consists of **25 independent Python scripts** designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+This repository contains the complete Steel Man validation suite for the Vacuum Elastodynamics model. It consists of 25 independent Python scripts designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
 
 ### Resources
 
@@ -53,7 +53,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward
 | Gravity_Boost.py                      | Verify H₀ shift via Early Gravity Boost | 74.5 km/s/Mpc |
 | mcmc_stress.py                        | Stability stress test                   | Pass          |
 | S8_KiDS_DES.py                        | Verify S₈ suppression                   | 0.776         |
-| generate_Figure2a_tension.py          | Hubble tension significance             | > 5σ          |
+| generate_Figure3a_tension.py          | Hubble tension significance             | > 5σ          |
 | validate_vacuum_tension_resolution.py | Pantheon+ stress test                   | Δχ² = -4973.1 |
 
 ---
@@ -66,7 +66,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward
 | validate_lithium_solution.py           | Lithium-7 depletion        | 2.76×      |
 | validate_deuterium_robust.py           | D/He invariance            | < 1.0%     |
 | validate_BBN_stability.py              | Helium-4 stability         | Invariant  |
-| validate_vacuum_fracture.py            | Vacuum fracture test       | 0.9 TeV    |
+| generate_Figure5_validate_vacuum_fracture.py            | Vacuum fracture test       | 0.9 TeV    |
 
 ---
 
@@ -78,7 +78,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward
 | validate_CMB_invariance.py          | Acoustic scale stability | 0.26%       |
 | Universe_age.py                     | Universe age check       | 13.05 Gyr   |
 | validate_ISW_stability.py           | ISW stability            | ×1.10       |
-| generate_Figure2b_validate_shape.py | Distance shape           | Δχ² ≈ 0.28  |
+| generate_Figure3b_validate_shape.py | Distance shape           | Δχ² ≈ 0.28  |
 | hubble_transition_model.py          | Phase transition         | Smooth      |
 
 ---
@@ -102,7 +102,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward
 | Script Name              | Objective             | Result      |
 | ------------------------ | --------------------- | ----------- |
 | validate_global_stats.py | Global likelihood sum | Δχ² ≈ -3568 |
-| MCMC_validation.py       | Bayesian check        | Pass        |
+| generate_Figure4_MCMC_validation.py       | Bayesian check        | Pass        |
 
 ---
 
