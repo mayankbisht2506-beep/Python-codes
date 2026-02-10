@@ -28,7 +28,7 @@ def get_viscosity(z):
     Combines Late-Time Stiffness Floor with Jamming Spike.
     """
     # 1. The Viscosity Floor (Sigmoid Activation)
-    # Implements the smooth phase transition described in Eq. 6.
+    # Implements the smooth phase transition
     # Boundary Conditions:
     #   - Late Times (z << z_trans): Viscosity -> ETA_FLOOR (Symmetry Broken)
     #   - Early Times (z >> z_trans): Viscosity -> 0 (Superfluid Vacuum)
