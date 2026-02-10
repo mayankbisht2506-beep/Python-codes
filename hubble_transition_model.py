@@ -11,7 +11,7 @@ Om_PLANCK = 0.315
 # "predicts H0 ~ 74.5" based on eta_max
 # Source: [Section 7.2]
 H0_TARGET = 74.5      
-Z_TRANS = 0.65      # Percolation Threshold (Derived in Eq. 7)
+Z_TRANS = 0.65      # Percolation Threshold (Derived in Eq. 11)
 WIDTH = 0.1         # Transition Width (Sigmoidal Relaxation)
 
 # ==========================================
