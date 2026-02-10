@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 print("--- HELIUM-4 BBN STABILITY TEST ---")
-print("Objective: Verify the 'Cancellation Theorem' (Section 7.12)")
+print("Objective: Verify the 'Cancellation Theorem' (Section 7.13)")
 
 # ==========================================
 # 1. PHYSICS CONSTANTS (Standard Model)
@@ -20,18 +20,18 @@ Yp_ERR = 0.003       # Error margin
 # ==========================================
 # 2. VACUUM ELASTODYNAMICS PARAMETERS
 # ==========================================
-# Derived in Section 7.1 (Eq. 71 in PDF)
+# Derived in Section 7.2
 # G_early = G0 / (1 - delta_eff) ~ 1.22 G0
 G_BOOST = 1.22       # Early Gravity Strength
 
-# Geometric Scaling Laws (Section 7.12.1 & Eq. 80)
+# Geometric Scaling Laws (Section 7.13.1)
 # The "Cancellation Theorem" relies on these coupled scalings:
 
-# 1. Mass Scales: m ~ G^-0.5 (Eq. 80 in PDF)
+# 1. Mass Scales: m ~ G^-0.5
 # Implications: Binding energies and Mass differences drop.
 MASS_FACTOR = G_BOOST**(-0.5)
 
-# 2. Weak Force: G_F ~ G^1.0 (Section 7.12.1 Text)
+# 2. Weak Force: G_F ~ G^1.0 (Section 7.13.1)
 # Implication: Weak interactions become stronger.
 GF_FACTOR = G_BOOST**(1.0) 
 
@@ -62,7 +62,7 @@ def calculate_helium_fraction(model='std'):
         # 3. Expansion Rate Scale (H ~ G^0.5)
         H_scale = H_FACTOR
         
-        # 4. Neutron Lifetime (Section 7.12.1)
+        # 4. Neutron Lifetime (Section 7.13.1)
         # Gamma_decay ~ G_F^2 * m_e^5 
         # Scaling: (G^1)^2 * (G^-0.5)^5 = G^2 * G^-2.5 = G^-0.5
         # Lifetime (tau) ~ 1/Gamma ~ G^0.5
