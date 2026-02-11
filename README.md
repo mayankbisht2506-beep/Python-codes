@@ -8,7 +8,7 @@
 
 ## 📂 Overview
 
-This repository contains the complete Steel Man validation suite for the Vacuum Elastodynamics model. It consists of 27 independent Python scripts designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+This repository contains the complete Steel Man validation suite for the Vacuum Elastodynamics model. It consists of 28 independent Python scripts designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
 
 ### Resources
 
@@ -18,15 +18,15 @@ This repository contains the complete Steel Man validation suite for the Vacuum 
 
 These scripts demonstrate that the model simultaneously resolves:
 
-- Hubble Tension  
-- S8 Tension  
-- Lithium Problem  
+- Hubble Tension
+- S8 Tension
+- Lithium Problem
 
 while preserving ΛCDM successes in:
 
-- Big Bang Nucleosynthesis (BBN)  
-- Cosmic Microwave Background (CMB)  
-- Cosmic Age  
+- Big Bang Nucleosynthesis (BBN)
+- Cosmic Microwave Background (CMB)
+- Cosmic Age
 - Solar System Gravity (Cassini)
 
 ---
@@ -36,7 +36,7 @@ while preserving ΛCDM successes in:
 Install dependencies using:
 
 ```bash
-pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward
+pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward camb
 
 ```
 
@@ -72,6 +72,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward
 
 | Script Name | Objective | Key Result |
 | --- | --- | --- |
+| verify_CMB_geometric_scaling.py | CMB Spectrum Restoration (CAMB) | Peaks Aligned |
 | hyperuniform_screening_check.py | Cassini (Solar System) Check | Range < 12mm |
 | validate_CMB_invariance.py | Acoustic Scale Stability | 0.26% |
 | validate_jerk_stability.py | Singularity check | Jerk < 3.59 |
@@ -124,7 +125,7 @@ reproduces the main conclusion:
 * Structure Growth: S₈ ≈ 0.776
 * Matter Power: Preserved
 * BBN: Li7 resolved, D/He preserved
-* CMB: Acoustic scale preserved (0.26% error)
+* CMB: Acoustic scale preserved (Peaks Aligned via CAMB)
 * Solar System: Fifth Force screened (< 12mm)
 * Vacuum Fracture: 0.9 TeV detection
 
@@ -153,7 +154,10 @@ python src/validate_global_stats.py
 ### New Audits (CMB & Cassini)
 
 ```bash
-python src/validate_CMB_invariance.py
+# CMB Geometric Restoration (Requires CAMB)
+python src/verify_CMB_geometric_scaling.py
+
+# Cassini Screening Check
 python src/hyperuniform_screening_check.py
 
 ```
