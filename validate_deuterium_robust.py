@@ -75,7 +75,7 @@ percent_change = (ratio - 1) * 100
 
 print(f"H0 Theory: {H0_THEORY} (implies G_BOOST = {G_BOOST:.4f})")
 print("-" * 50)
-print(f"SCALING FACTORS (Section 7.12):")
+print(f"SCALING FACTORS (Section 7.13):")
 print(f"  Density (dilution):        {RHO_SCALE:.4f}  (G^-1.5)")
 print(f"  Cross-Section (boost):     {SIGMA_SCALE:.4f}  (G^1.0)")
 print(f"  Time Window (delay):       {TIME_SCALE:.4f}  (G^0.5)")
