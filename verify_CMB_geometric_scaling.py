@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import camb
 from scipy.interpolate import interp1d
 
-print("--- CMB GEOMETRIC RESTORATION PROOF (CORRECTED) ---")
+print("--- CMB GEOMETRIC RESTORATION PROOF ---")
 print("Objective: Demonstrate visual recovery of Planck 2018 Spectrum")
 print("-" * 60)
 
