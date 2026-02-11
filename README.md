@@ -8,7 +8,7 @@
 ```markdown
 ## 📂 Overview
 
-This repository contains the complete Steel Man validation suite for the Vacuum Elastodynamics model. It consists of 28 independent Python scripts designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+This repository contains the complete Steel Man validation suite for the Vacuum Elastodynamics model. It consists of 27 independent Python scripts designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
 
 ### Resources
 
