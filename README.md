@@ -1,11 +1,11 @@
-```markdown
+
 # Vacuum Elastodynamics: Verification & Validation Suite
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17666785.svg)](https://doi.org/10.5281/zenodo.17666785)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/mayankbisht2506-beep/Python-codes.git)
 
 **Repository for the paper:** *"Vacuum Elastodynamics: Geometric Unification and the Resolution of Hubble and S8 Tensions via Lattice Viscosity"*
-
+```markdown
 ## 📂 Overview
 
 This repository contains the complete Steel Man validation suite for the Vacuum Elastodynamics model. It consists of 28 independent Python scripts designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
