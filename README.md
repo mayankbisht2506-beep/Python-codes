@@ -149,16 +149,6 @@ reproduces the main conclusion:
 ```bash
 python src/validate_global_stats.py
 
-```
-
-### New Audits (CMB & Cassini)
-
-```bash
-# CMB Geometric Restoration (Requires CAMB)
-python src/verify_CMB_geometric_scaling.py
-
-# Cassini Screening Check
-python src/hyperuniform_screening_check.py
 
 ```
 
