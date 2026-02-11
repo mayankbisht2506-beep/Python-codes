@@ -62,7 +62,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | --- | --- | --- |
 | generate_Figure1_lattice_simulation.py | Lepton sum rule simulation | 98.6% |
 | validate_lithium_solution.py | Lithium-7 depletion | 2.76× |
-| validate_deuterium_robust.py | D/He invariance | < 1.0% |
+| validate_deuterium_robust.py | D/He invariance | Invariant |
 | validate_BBN_stability.py | Helium-4 stability | Invariant |
 | generate_Figure5_validate_vacuum_fracture.py | Vacuum fracture test | 0.9 TeV |
 
