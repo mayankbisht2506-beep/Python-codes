@@ -34,7 +34,6 @@ download_file(COV_URL, COV_FILE)
 # 2. LOAD DATA
 # ==========================================
 # A. Cosmic Chronometers (Full N=31 Dataset matches Paper Table VI)
-# Format: [z, H(z), error]
 hz_data = np.array([
     [0.07, 69.0, 19.6], [0.09, 69.0, 12.0], [0.12, 68.6, 26.2], [0.17, 83.0, 8.0],
     [0.179, 75.0, 4.0], [0.199, 75.0, 5.0], [0.20, 72.9, 29.6], [0.27, 77.0, 14.0],
@@ -63,7 +62,6 @@ if len(data_flat) == 1701**2 + 1:
 else:
     cov_matrix = data_flat.reshape((1701, 1701))
     
-# Apply mask and invert
 indices = np.where(mask)[0]
 cov_filtered = cov_matrix[np.ix_(indices, indices)]
 inv_cov_sn = np.linalg.inv(cov_filtered)
@@ -76,31 +74,12 @@ FIXED_Z_TRANS = 0.65
 DELTA_GEO_IDEAL = 0.229
 
 def hubble_model(z, params):
-    H0_late, Om, eta = params
+    # CHANGED: 'eta' -> 'Y' to match Equation 85 and Section 8.6
+    H0_late, Om, Y = params
 
-
-# ==============================================================================
-# PHYSICS NOTE: EFFECTIVE METRIC RECONSTRUCTION
-# ==============================================================================
-# This function models the "Effective Expansion History" H_eff(z) required to
-# match the net luminosity distance D_L.
-#
-# In the analytic theory (Sec 7.4):
-#   1. Gravity Boost (G_early > G0) INCREASES H(z) -> Brightens SNe.
-#   2. Viscous Damping (Opacity/Drag) DIMS SNe.
-#
-# Computationally, fitting two canceling parameters creates degeneracy.
-# Therefore, this code models the NET effective trajectory:
-#   H_eff(z) = H_boost(z) * Damping_Factor
-#
-# The 'suppression' term below represents the phenomenological net result:
-# transitioning from the high-H0 local vacuum to the Planck-compatible
-# background without requiring a separate "magnitude bias" parameter.
-# ==============================================================================
-
-    
     # Physics: Yield-Limited Damping relaxation
-    delta_eff = DELTA_GEO_IDEAL * (1.0 - eta)
+    # Matches Eq 85: delta_eff = delta_geo * (1 - Y)
+    delta_eff = DELTA_GEO_IDEAL * (1.0 - Y)
     suppression = np.sqrt(1.0 - delta_eff)
     
     # Sigmoid Transition
@@ -111,7 +90,6 @@ def hubble_model(z, params):
     return H0_late * E_z * amp
 
 def get_dist_mod(z_array, params):
-    # Vectorized Integration
     z_max = np.max(z_array) * 1.01
     z_grid = np.linspace(0, z_max, 1000)
     H_vals = hubble_model(z_grid, params)
@@ -125,36 +103,34 @@ def get_dist_mod(z_array, params):
 # 4. LIKELIHOOD (STRICT CALIBRATION)
 # ==========================================
 def log_likelihood(params):
-    H0, Om, eta = params
+    # CHANGED: 'eta' -> 'Y'
+    H0, Om, Y = params
     
-    if not (60 < H0 < 80 and 0.2 < Om < 0.4 and 0.0 < eta < 0.5):
+    if not (60 < H0 < 80 and 0.2 < Om < 0.4 and 0.0 < Y < 0.5):
         return -np.inf
 
     # Priors
     lp_Om = -0.5 * ((Om - 0.315) / 0.05)**2
-    lp_eta = -0.5 * ((eta - 0.21) / 0.1)**2 
+    # Prior centered on Theoretical Limit Y_max ~ 0.21 (Section 2.5)
+    lp_Y = -0.5 * ((Y - 0.21) / 0.1)**2 
     
     # 1. Cosmic Chronometers
     model_hz = hubble_model(hz_data[:,0], params)
     chi2_hz = np.sum(((hz_data[:,1] - model_hz) / hz_data[:,2])**2)
     
-    # 2. Pantheon+ (STRICT MODE)
+    # 2. Pantheon+
     model_mu = get_dist_mod(z_sn, params)
     residuals = mu_sn - model_mu
-    
-    # --- CRITICAL FIX: DO NOT MARGINALIZE M ---
-    # We force the model to hit the SH0ES calibration directly.
-    # This anchors H0 to ~73-74.
     chi2_sn = residuals.T @ inv_cov_sn @ residuals 
-    # ------------------------------------------
 
-    return lp_Om + lp_eta - 0.5 * (chi2_hz + chi2_sn)
+    return lp_Om + lp_Y - 0.5 * (chi2_hz + chi2_sn)
 
 # ==========================================
 # 5. RUN MCMC
 # ==========================================
 ndim = 3   
 nwalkers = 32
+# Initial positions around (74.5, 0.30, 0.19)
 p0 = [74.5, 0.30, 0.19] + 1e-2 * np.random.randn(nwalkers, ndim)
 
 print("Running Chain (may take 10-15 mins)...")
@@ -163,7 +139,8 @@ sampler.run_mcmc(p0, 4000, progress=True)
 
 # Results
 flat_samples = sampler.get_chain(discard=1000, thin=15, flat=True)
-labels = [r"$H_0$", r"$\Omega_m$", r"$\eta$"]
+# CHANGED: Label 'eta' -> 'Y' (Yield Coefficient)
+labels = [r"$H_0$", r"$\Omega_m$", r"$Y$"]
 
 print("\n--- FINAL CORRECTED RESULTS ---")
 for i in range(ndim):
@@ -171,6 +148,7 @@ for i in range(ndim):
     print(f"{labels[i]}: {mcmc[1]:.3f}  +{np.diff(mcmc)[1]:.3f} / -{np.diff(mcmc)[0]:.3f}")
 
 # Plot
+# Truths: H0=74.5 (Theory), Om=0.30 (Prior/Data mix), Y=0.19 (Delta_eff ~ 0.18)
 fig = corner.corner(flat_samples, labels=labels, truths=[74.5, 0.30, 0.19], truth_color="#ff4444")
 plt.savefig("Joint_MCMC_Corrected.png", dpi=300)
 print("Saved corner plot.")
