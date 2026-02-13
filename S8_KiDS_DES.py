@@ -8,12 +8,12 @@ from scipy.integrate import odeint
 S8_PLANCK = 0.832
 Om0 = 0.315
 
-# PHYSICS INPUTS (Geometric Unity)
-# Using the OBSERVED value (0.16) + Jamming Spike (0.31)
-ETA_FLOOR = 0.1569       # Observed Proton Load
-ETA_PEAK  = 0.31         # Percolation Threshold
-Z_TRANS   = 0.65         # Transition Redshift
-WIDTH     = 0.1          # Phase Transition Width
+# PHYSICS INPUTS (Geometric Unity - Updated Symbols)
+# Using ZETA (Bulk Viscosity) as defined in Section 7.5
+ZETA_FLOOR = 0.1569        # Lepton Saturation Viscosity (zeta_sat)
+ZETA_PEAK  = 0.31          # Jamming/Percolation Threshold (zeta_peak)
+Z_TRANS    = 0.65          # Transition Redshift
+WIDTH      = 0.1           # Phase Transition Width
 
 # DATA TARGETS (KiDS/DES Consensus)
 S8_TARGET_LOW  = 0.759
@@ -25,13 +25,14 @@ S8_TARGET_HIGH = 0.776
 
 def get_viscosity(z):
     """
-    Combines Late-Time Stiffness Floor with Jamming Spike.
+    Combines Late-Time Bulk Viscosity (zeta_sat) with Jamming Spike (zeta_peak).
+    Strictly follows 'Container vs. Contents' physics dictionary.
     """
     # 1. The Viscosity Floor (Sigmoid Activation)
     # Implements the smooth phase transition
     # Boundary Conditions:
-    #   - Late Times (z << z_trans): Viscosity -> ETA_FLOOR (Symmetry Broken)
-    #   - Early Times (z >> z_trans): Viscosity -> 0 (Superfluid Vacuum)
+    #   - Late Times (z << z_trans): Zeta -> ZETA_FLOOR (Matter Coupled)
+    #   - Early Times (z >> z_trans): Zeta -> 0 (Superfluid/Decoupled)
     
     arg = (z - Z_TRANS) / WIDTH
     
@@ -40,11 +41,11 @@ def get_viscosity(z):
     # We set trigger to 0.0 in this limit to enforce the Superfluid boundary condition.
     late_trigger = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
     
-    base_viscosity = ETA_FLOOR * late_trigger
+    base_viscosity = ZETA_FLOOR * late_trigger
     
     # 2. The Jamming Spike (Gaussian at z=0.65)
-    # Models the transient stress peak at the percolation threshold.
-    spike = (ETA_PEAK - ETA_FLOOR) * np.exp(-0.5 * ((z - Z_TRANS)/0.15)**2)
+    # Models the transient bulk stress peak at the percolation threshold.
+    spike = (ZETA_PEAK - ZETA_FLOOR) * np.exp(-0.5 * ((z - Z_TRANS)/0.15)**2)
     
     return base_viscosity + spike
     
@@ -62,12 +63,14 @@ def growth_ode(y, a, model='lcdm'):
     source = 1.5 * Om0 / (a**5 * E**2)
     
     if model == 'viscous':
-        eta = get_viscosity(z)
+        # Retrieve Bulk Viscosity (Zeta)
+        zeta = get_viscosity(z)
         
-        # QUADRATIC IMPEDANCE LAW
-        friction_term = hubble_friction * (1.0 + eta)**2.0
+        # QUADRATIC IMPEDANCE LAW (Section 7.9)
+        # Friction scales with (1 + zeta)^2
+        friction_term = hubble_friction * (1.0 + zeta)**2.0
         
-        # Standard gravity source (Assuming High G/Eta cancellation early)
+        # Standard gravity source
         return [delta_prime, -friction_term * delta_prime + source * delta]
         
     else:
@@ -78,7 +81,7 @@ def growth_ode(y, a, model='lcdm'):
 # 3. RUN SIMULATION
 # ==========================================
 print("Running Vacuum Elastodynamics Simulation...")
-print(f"Physics Configuration: Floor={ETA_FLOOR} (Observed), Peak={ETA_PEAK} (Jamming)")
+print(f"Physics Configuration: Zeta_sat={ZETA_FLOOR} (Observed), Zeta_peak={ZETA_PEAK} (Jamming)")
 
 a_range = np.linspace(0.001, 1.0, 1000)
 y0 = [a_range[0], 1.0]
@@ -131,9 +134,9 @@ plt.axhspan(0.759, 0.776, color='gray', alpha=0.15, label='Lensing Concordance')
 plt.xticks(range(4), targets.keys())
 plt.ylabel(r'$S_8$ Amplitude')
 
-# FIXED: Use raw string (r'') for LaTeX to avoid SyntaxWarning
-plt.title(rf'Resolution of $S_8$ Tension via Vacuum Viscosity' + '\n' + 
-          rf'(Input: $\eta_{{floor}}={ETA_FLOOR}$, $\eta_{{peak}}={ETA_PEAK}$)')
+# UPDATED TITLE WITH CORRECT SYMBOLS
+plt.title(rf'Resolution of $S_8$ Tension via Vacuum Bulk Viscosity' + '\n' + 
+          rf'(Input: $\zeta_{{sat}}={ZETA_FLOOR}$, $\zeta_{{peak}}={ZETA_PEAK}$)')
 
 plt.ylim(0.70, 0.86)
 plt.grid(axis='y', alpha=0.3)
