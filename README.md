@@ -8,7 +8,7 @@
 ```markdown
 ## 📂 Overview
 
-This repository contains the complete Steel Man validation suite for the Vacuum Elastodynamics model. It consists of 27 independent Python scripts designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+This repository contains the complete Steel Man validation suite for the Vacuum Elastodynamics model. It consists of 26 independent Python scripts designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
 
 ### Resources
 
@@ -49,7 +49,6 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result |
 | --- | --- | --- |
 | Gravity_Boost.py | Verify H₀ shift via Early Gravity Boost | 74.5 km/s/Mpc |
-| mcmc_stress.py | Stability stress test | Pass |
 | S8_KiDS_DES.py | Verify S₈ suppression | 0.776 |
 | generate_Figure3a_tension.py | Hubble tension significance | > 5σ |
 | validate_vacuum_tension_resolution.py | Pantheon+ stress test | Δχ² = -4973.1 |
@@ -74,9 +73,9 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | --- | --- | --- |
 | verify_CMB_geometric_scaling.py | CMB Spectrum Restoration (CAMB) | Peaks Aligned |
 | hyperuniform_screening_check.py | Cassini (Solar System) Check | Range < 12mm |
-| validate_CMB_invariance.py | Acoustic Scale Stability | 0.26% |
+| validate_CMB_invariance.py | Acoustic Scale Stability | 0.15% |
 | validate_jerk_stability.py | Singularity check | Jerk < 3.59 |
-| Universe_age.py | Universe age check | 13.05 Gyr |
+| Universe_age.py | Universe age check | 13.06 Gyr |
 | validate_ISW_stability.py | ISW stability | ×1.10 |
 | generate_Figure3b_validate_shape.py | Distance shape | Δχ² ≈ 0.28 |
 | hubble_transition_model.py | Phase transition | Smooth |
