@@ -32,7 +32,6 @@ omega_r_planck = 2.4728e-5 * 1.6918
 
 # Vacuum Model (UPDATED TO STANDARD DENSITY)
 # We test Omega_m = 0.315 (Standard Planck Value)
-# This confirms we don't need to "tune" the density to 0.311 or 0.343.
 h_vac = H0_THEORY / 100.0
 OMEGA_M_VAC_PARAM = 0.315 
 omega_m_vac = OMEGA_M_VAC_PARAM * h_vac**2
