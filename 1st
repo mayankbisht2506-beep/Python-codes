@@ -92,59 +92,45 @@ chi2_planck = R_planck.T @ inv_cov @ R_planck
 # ==========================================
 print("Optimizing Vacuum Model Headroom...")
 
-OM_PRIMORDIAL = 0.315 # Frictionless early universe
-OM_EFFECTIVE = 0.343  # Viscous late universe (Inertial Counter-Load)
+# REFINEMENT: Matches Section 8.6 MCMC Results 
+OM_PRIMORDIAL = 0.315  # Early Universe (Frictionless / Geometric)
+OM_EFFECTIVE  = 0.328  # Late Universe (Inertial Counter-Load / Viscous Drag)
+
+# REFINEMENT: Transition parameters from Eq. 11 
+Z_TRANS = 0.65 
+WIDTH   = 0.10
 
 # Define the Objective Function for the Optimizer
 def objective_vacuum(h0_param):
     H_FAST = h0_param[0]
     
     def h_viscous(z):
+        # Sigmoid Transition Function (Eq. 10 logic) [cite: 274]
         arg = (z - Z_TRANS) / WIDTH
         sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
         
-        # Transition the density, NOT the speed
+        # Effective Density Evolution (Inertial Counter-Load) [cite: 2017]
         OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
         OL_Z = 1.0 - OM_Z
         
+        # Calculate E(z)
         E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
         
-        # Fast expansion globally
+        # Apply the Optimized Hubble Rate
         return H_FAST * E_z
 
+    # Integrate to get Luminosity Distance
     dl_visc = (1 + z_obs) * integrate_distance_vectorized(z_obs, h_viscous)
     mu_vacuum = 5 * np.log10(dl_visc + 1e-12) + 25
     
+    # Calculate Residuals against full Covariance Matrix
     R_vacuum = mu_data - mu_vacuum
     chi2_vac = R_vacuum.T @ inv_cov @ R_vacuum
     return chi2_vac
 
-# Run the Optimizer (Starting near our theoretical target of 74.5)
-res = minimize(objective_vacuum, x0=[74.5], method='Nelder-Mead')
-
-best_H0 = res.x[0]
-chi2_vacuum_best = res.fun
-d_chi2 = chi2_vacuum_best - chi2_planck
-best_mag_shift = -5 * np.log10(best_H0 / H0_PLANCK)
-
-print("\n" + "="*55)
-print("TEST I: RAW STRESS TEST RESULTS (OPTIMIZED)")
-print("="*55)
-print(f"Chi2 (Planck 67.4 Baseline):    {chi2_planck:.2f}")
-print(f"Chi2 (Vacuum Model Minimum):    {chi2_vacuum_best:.2f}")
-print("-" * 55)
-print(f"Delta Chi2 (Max Headroom):      {d_chi2:.2f}")
-print(f"Optimized H0:                   {best_H0:.2f} km/s/Mpc")
-print(f"Equivalent Mag Shift:           {best_mag_shift:.4f} mag")
-print("="*55)
-
-if d_chi2 < -3000:
-    print("\nSTATUS: CONFIRMED.")
-    print("Matches Table 7 (Test I). The optimizer successfully found the massive")
-    print("mathematical headroom available in the unified Phase Transition model.")
-else:
-    print("\nSTATUS: CHECK PARAMETERS.")
-
+# Run Optimizer
+# Paper Result for Test I is ~73.62 
+res = minimize(objective_vacuum, x0=[73.5], method='Nelder-Mead')
 # ==========================================
 # 5. PLOTTING
 # ==========================================
