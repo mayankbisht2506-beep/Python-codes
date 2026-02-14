@@ -7,8 +7,8 @@ import os
 # ==========================================
 # 1. SETUP & DATA DOWNLOAD
 # ==========================================
-print("--- RUNNING PANTHEON+ TENSION TEST (QUADRUPLE CONCORDANCE) ---")
-print("Objective: Verify Metric 1 (Absolute Magnitude) for H0 = 74.5")
+print("--- RUNNING PANTHEON+ TENSION TEST (ABSOLUTE MAGNITUDE) ---")
+print("Objective: Verify Metric 1 (Test II: Theoretical Verification) for H0 = 74.5")
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
@@ -58,13 +58,13 @@ else:
 indices = np.where(mask)[0]
 cov_filtered = cov_matrix[np.ix_(indices, indices)]
 
-
 print("Inverting Covariance Matrix (Robust Method for Test II)...")
 # We explicitly use Pseudo-Inverse (pinv) to match the "Theoretical Verification" 
 # methodology in Section 8.4.2 (-3577 result).
 inv_cov = np.linalg.pinv(cov_filtered)
+
 # ==========================================
-# 3. PHYSICS ENGINE (VERIFIED CORRECT)
+# 3. PHYSICS ENGINE
 # ==========================================
 C_LIGHT = 299792.458
 H0_PLANCK = 67.4   
@@ -87,7 +87,12 @@ def get_planck_mu(z_array):
     z_max = np.max(z_array)
     z_grid = np.linspace(0, z_max * 1.01, 2000)
     E_inv = 1.0 / np.sqrt(OM_PLANCK * (1 + z_grid)**3 + OL_PLANCK)
-    comoving = np.cumsum(E_inv) * (z_grid[1] - z_grid[0])
+    
+    # --- CRITICAL FIX: Trapezoidal Integration ---
+    # Because there is no marginalization in this test, z=0 must be exactly 0 distance.
+    comoving = np.cumsum((E_inv[:-1] + E_inv[1:]) / 2 * np.diff(z_grid))
+    comoving = np.insert(comoving, 0, 0)
+    
     dl_mpc = (1 + z_array) * (C_LIGHT / H0_PLANCK) * np.interp(z_array, z_grid, comoving)
     return 5 * np.log10(dl_mpc) + 25
 
@@ -104,7 +109,7 @@ viscous_correction = MAG_SHIFT * sigmoid
 mu_viscous = mu_planck + viscous_correction
 
 # ==========================================
-# 4. STATISTICS
+# 4. STATISTICS (NO MARGINALIZATION)
 # ==========================================
 R_planck = df_clean['MU_SH0ES'].values - mu_planck
 R_viscous = df_clean['MU_SH0ES'].values - mu_viscous
@@ -130,7 +135,6 @@ plt.errorbar(df_clean['zHD'], R_planck, yerr=df_clean['MU_SH0ES_ERR_DIAG'],
 
 z_sort = np.sort(df_clean['zHD'])
 arg_sort = (z_sort - Z_TRANS) / WIDTH
-# Use safe sigmoid for plotting too
 curve_sigmoid = np.where(arg_sort > 100, 0.0, 1.0 / (1 + np.exp(arg_sort)))
 curve = MAG_SHIFT * curve_sigmoid
 
@@ -139,9 +143,9 @@ plt.plot(z_sort, curve, 'r-', linewidth=3, label=f'Vacuum Model (H0={H0_VACUUM})
 plt.axhline(0, color='k', linestyle='--')
 plt.xlabel('Redshift z')
 plt.ylabel(r'Magnitude Residual $\mu - \mu_{Planck}$')
-plt.title(rf'Resolution of Hubble Tension' + '\n' + rf'$\Delta\chi^2 = {d_chi2:.1f}$ (Target H0={H0_VACUUM})')
+plt.title(rf'Resolution of Hubble Tension (Test II)' + '\n' + rf'$\Delta\chi^2 \approx {d_chi2:.1f}$ (Target H0={H0_VACUUM})')
 plt.legend()
 plt.ylim(-0.6, 0.4)
 plt.grid(True, alpha=0.3)
-plt.savefig("Figure2a_Metric1_Corrected.png")
+plt.savefig("Figure3a_Metric1_Corrected.png")
 plt.show()
