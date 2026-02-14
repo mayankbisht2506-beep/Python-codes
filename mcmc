@@ -137,7 +137,7 @@ ndim = 2
 nwalkers = 32
 
 # p0: Walkers start near our theoretical targets to aid rapid convergence
-p0 = [74.5, 0.343] + 1e-2 * np.random.randn(nwalkers, ndim)
+p0 = [74.5, 0.315] + 1e-2 * np.random.randn(nwalkers, ndim)
 
 print("Running Chain (may take 10-15 mins)...")
 sampler = emcee.EnsembleSampler(nwalkers, ndim, log_likelihood)
@@ -154,6 +154,6 @@ for i in range(ndim):
 
 # Plot
 # Truths represent your theoretical predictions from the Yield Limit
-fig = corner.corner(flat_samples, labels=labels, truths=[74.5, 0.343], truth_color="#ff4444")
+fig = corner.corner(flat_samples, labels=labels, truths=[74.5, 0.315], truth_color="#ff4444")
 plt.savefig("Joint_MCMC_Unified.png", dpi=300)
 print("Saved corner plot.")
