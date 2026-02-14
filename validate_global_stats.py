@@ -25,9 +25,9 @@ data = {
     # UPDATED VALUES (Rigorous Integration & Pseudo-Inverse):
     # 1. SNe: Matches Updated Test II (-2331.9)
     # 2. Growth: S8 Suppression (-2.10)
-    # 3. Chronometers: Kinematic Shape (+9.7)
+    # 3. Chronometers: Kinematic Shape (+12.8)
     # 4. BAO: Conservative Diagonal Estimate (+2.02)
-    "Delta Chi2": [-2331.9, -2.10, +9.7, +2.02],
+    "Delta Chi2": [-2331.9, -2.10, +12.8, +2.02],
     "Verdict": [
         "Decisive Resolution (>5 sigma)", 
         "Statistical Tie", 
