@@ -30,9 +30,9 @@ data = {
     "Delta Chi2": [-2331.9, -2.10, +12.8, -2.4],
     "Verdict": [
         "Decisive Resolution (>5 sigma)", 
-        "Statistical Tie", 
+        "Statistically preffered", 
         "Consistent (Chi2_nu < 1)", 
-        "Concordant (Full Model)"
+        "Statistically preffered (Scaling Cancellation)"
     ]
 }
 
