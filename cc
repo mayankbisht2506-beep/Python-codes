@@ -32,9 +32,9 @@ OM_PLANCK = 0.315
 OL_PLANCK = 1.0 - OM_PLANCK
 
 # --- MODEL B: VACUUM ELASTODYNAMICS ---
-H_FAST = 74.5
+H_TERMINAL = 73.25   # The observed terminal velocity from MCMC
 OM_PRIMORDIAL = 0.315 # Frictionless early universe
-OM_EFFECTIVE = 0.343  # Viscous late universe (Inertial Counter-Load)
+OM_EFFECTIVE = 0.328  # Viscous late universe (Inertial Counter-Load = +0.013)
 
 def h_lcdm(z):
     return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + OL_PLANCK)
@@ -44,14 +44,14 @@ def h_viscous(z):
     arg = (z - Z_TRANS) / WIDTH
     sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
     
-    # Density dynamically transitions from 0.315 (early) to 0.343 (late)
+    # Density dynamically transitions from 0.315 (early) to 0.328 (late)
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
     
     E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
     
-    # Fast expansion globally
-    return H_FAST * E_z
+    # Fast terminal expansion globally
+    return H_TERMINAL * E_z
 
 # ==========================================
 # 3. STATISTICAL VALIDATION
@@ -72,14 +72,14 @@ rchi2_vacuum = chi2_vacuum / dof
 
 print(f"\n--- H(z) CONSISTENCY RESULTS (Table 6 Verification) ---")
 print(f"Planck Model (67.4): Chi2={chi2_planck:.2f} | Reduced={rchi2_planck:.2f}")
-print(f"Vacuum Model (74.5): Chi2={chi2_vacuum:.2f} | Reduced={rchi2_vacuum:.2f}")
+print(f"Vacuum Model (73.25): Chi2={chi2_vacuum:.2f} | Reduced={rchi2_vacuum:.2f}")
 
 # VERDICT
 if 0.7 < rchi2_vacuum < 1.2:
     print(f"\nVERDICT: SUCCESS.")
     print(f"The Vacuum Model (Reduced Chi2 = {rchi2_vacuum:.2f}) is statistically consistent.")
     print("This proves the dynamic Inertial Counter-Load perfectly threads the H(z) data,")
-    print("even while running on the global H0 = 74.5 fast trajectory!")
+    print("even while running on the global H0 = 73.25 terminal trajectory!")
 else:
     print(f"\nVERDICT: CHECK PARAMETERS (RChi2={rchi2_vacuum:.2f})")
 
@@ -96,7 +96,7 @@ plt.plot(z_grid, h_lcdm(z_grid), 'b--', label=rf'Standard LCDM ($H_0={H0_PLANCK}
 
 # Plot Vacuum unified model
 plt.plot(z_grid, h_viscous(z_grid), 'r-', linewidth=2.5, 
-         label=rf'Vacuum Model ($H_0={H_FAST}, \Omega_m \rightarrow {OM_EFFECTIVE}$)')
+         label=rf'Vacuum Model ($H_0={H_TERMINAL}, \Omega_m \rightarrow {OM_EFFECTIVE}$)')
 
 plt.axvline(x=Z_TRANS, color='gray', linestyle=':', label='Viscous Transition $z=0.65$')
 plt.xlabel('Redshift z', fontsize=12)
