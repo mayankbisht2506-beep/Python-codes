@@ -15,37 +15,29 @@ Z_TRANS = 0.65      # Percolation Threshold (Derived in Eq. 11)
 WIDTH = 0.1         # Transition Width (Sigmoidal Relaxation)
 
 # ==========================================
-# 2. PHYSICS ENGINE
+# CORRECTED PHYSICS ENGINE
 # ==========================================
+# Source: Section 8.6 (MCMC Results)
+H0_VACUUM = 74.5  # (Observed posterior, or 74.5 Theoretical)
+Om_VACUUM = 0.343 # CRITICAL: Higher matter density counter-load
+
 def get_hubble_evolution(z_array):
-    # Standard LCDM Background (Planck Baseline)
-    E_z = np.sqrt(Om_PLANCK * (1 + z_array)**3 + (1 - Om_PLANCK))
+    # 1. Planck Baseline (Standard LCDM)
+    E_z_planck = np.sqrt(Om_PLANCK * (1 + z_array)**3 + (1 - Om_PLANCK))
+    H_lcdm = H0_PLANCK * E_z_planck
     
-    # VACUUM PHASE TRANSITION LOGIC
-    # Based on Section 7.2: G_early = 1.22 * G0
-    # Early Universe (z > 0.65): Lattice is Stiff/Locked. Follows Planck.
-    # Late Universe (z < 0.65): Lattice Relaxes. Elastic Energy Released.
+    # 2. Vacuum Elastodynamics (Full Trajectory)
+    # The paper implies the High H0 is a global geometric solution 
+    # balanced by High Omega_m.
+    E_z_vac = np.sqrt(Om_VACUUM * (1 + z_array)**3 + (1 - Om_VACUUM))
     
-    # Transition Argument (Sigmoid)
-    arg = (z_array - Z_TRANS) / WIDTH
-    arg = np.clip(arg, -100, 100) 
+    # If explicitly modeling the transition dampening at z > 0.65:
+    # (Optional: Section 7.5.1 says early universe tracks stiffness boost)
+    # But for H(z) plots, the paper often compares the "High H, High Om" 
+    # shape against Standard.
+    H_vacuum = H0_VACUUM * E_z_vac 
     
-    # Sigmoid function: 
-    # 1.0 at Low z (Energy Released -> Boost ON)
-    # 0.0 at High z (Lattice Locked -> Boost OFF)
-    sigmoid = 1.0 / (1.0 + np.exp(arg))
-    
-    # Boost Amplitude (Scaling 67.4 -> 74.5)
-    boost_factor = H0_TARGET / H0_PLANCK
-    
-    # Apply Boost to the Late Universe
-    effective_H0_scaling = 1.0 + (boost_factor - 1.0) * sigmoid
-    
-    # Calculate H(z)
-    H_vacuum = H0_PLANCK * E_z * effective_H0_scaling
-    
-    # Reference Models
-    H_lcdm = H0_PLANCK * E_z
+    # SH0ES Reference
     H_shoes = 73.04 * np.sqrt(0.3 * (1 + z_array)**3 + 0.7)
     
     return H_vacuum, H_lcdm, H_shoes
