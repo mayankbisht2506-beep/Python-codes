@@ -15,10 +15,10 @@ Z_TRANS = 0.65      # Percolation Threshold (Derived in Eq. 11)
 WIDTH = 0.1         # Transition Width (Sigmoidal Relaxation)
 
 # ==========================================
-# CORRECTED PHYSICS ENGINE
+# PHYSICS ENGINE
 # ==========================================
-# Source: Section 8.6 (MCMC Results)
-H0_VACUUM = 74.5  # (Observed posterior, or 74.5 Theoretical)
+# Om_Vacuum = 0.343 Source: Section 8.6 (MCMC Results)
+H0_VACUUM = 74.5  # (74.5 Theoretical)
 Om_VACUUM = 0.343 # CRITICAL: Higher matter density counter-load
 
 def get_hubble_evolution(z_array):
