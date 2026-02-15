@@ -155,11 +155,11 @@ plt.errorbar(plot_data_z, plot_data_val, yerr=plot_data_err, fmt='o', color='bla
 # Plot Models
 plt.plot(z_grid, ratio_std_list, 'b--', linewidth=2, label='Planck Baseline ($H_0=67.4$)')
 plt.plot(z_grid, ratio_vac_list, 'r-', linewidth=2.5, 
-         label=f'Vacuum Model ($H_0=74.5, \Omega_m^{{eff}}=0.366$)\nwith Geometric Contraction ($r_d=133.1$ Mpc)')
+         label=rf'Vacuum Model ($H_0=74.5, \Omega_m^{{eff}}=0.366$)\nwith Geometric Contraction ($r_d=133.1$ Mpc)')
 
 plt.title('BAO Consistency Check: Geometric Scaling Cancellation', fontsize=14)
 plt.xlabel('Redshift $z$', fontsize=12)
-plt.ylabel(r'Transverse BAO Distance $D_M(z) / r_d$', fontsize=12)
+plt.ylabel(rf'Transverse BAO Distance $D_M(z) / r_d$', fontsize=12)
 plt.legend()
 plt.grid(True, alpha=0.3)
 
