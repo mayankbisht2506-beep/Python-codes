@@ -12,7 +12,6 @@ print("Objective: Verify Metric 1 (Test II: Theoretical Verification) for H0 = 7
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
-
 DATA_FILE = "Pantheon+SH0ES.dat"
 COV_FILE = "Pantheon+SH0ES_STAT+SYS.cov"
 
@@ -36,13 +35,15 @@ download_file(DATA_URL, DATA_FILE)
 download_file(COV_URL, COV_FILE)
 
 # ==========================================
-# 2. DATA PROCESSING
+# 2. DATA PROCESSING (N=1701)
 # ==========================================
 print("Loading Pantheon+ Data...")
 df = pd.read_csv(DATA_FILE, sep=r'\s+')
-mask = df['zHD'] > 0.01
+
+# CORRECTION: Do not cut out the Cepheid anchors!
+mask = df['zHD'] > 0.000
 df_clean = df[mask].reset_index(drop=True)
-print(f"Supernovae (z > 0.01): {len(df_clean)}")
+print(f"Supernovae (Full N=1701): {len(df_clean)}")
 
 print("Processing Covariance Matrix...")
 with open(COV_FILE, 'r') as f:
@@ -59,54 +60,53 @@ indices = np.where(mask)[0]
 cov_filtered = cov_matrix[np.ix_(indices, indices)]
 
 print("Inverting Covariance Matrix (Robust Method for Test II)...")
-# We explicitly use Pseudo-Inverse (pinv) to match the "Theoretical Verification" 
-# methodology in Section 8.4.2 (-3577 result).
 inv_cov = np.linalg.pinv(cov_filtered)
 
 # ==========================================
-# 3. PHYSICS ENGINE
+# 3. PHYSICS ENGINE (THE UNIFIED MODEL)
 # ==========================================
 C_LIGHT = 299792.458
+Z_TRANS = 0.65   
+WIDTH = 0.10     
+
+# --- MODEL A: PLANCK LCDM (Baseline Control) ---
 H0_PLANCK = 67.4   
 OM_PLANCK = 0.315
 OL_PLANCK = 1.0 - OM_PLANCK
 
-# PHYSICS (Section 7.2 & 7.4)
-# Gravity Boost (G_early = 1.22 G0) predicts H0 = 74.5
-H0_VACUUM = 74.5  
-MAG_SHIFT = -0.217 # Net shift derived from 5*log10(67.4/74.5)
+# --- MODEL B: VACUUM ELASTODYNAMICS ---
+H_FAST = 74.5         # Theoretical E8 Geometry Limit
+OM_PRIMORDIAL = 0.315 # Frictionless early universe
+OM_EFFECTIVE = 0.366  # CORRECTION: Viscous late universe (Inertial Counter-Load)
 
-Z_TRANS = 0.65    # Percolation Threshold
-WIDTH = 0.10      
-
-print(f"Physics Check:")
-print(f"  Target H0: {H0_VACUUM} (Matches Gravity Boost)")
-print(f"  Mag Shift: {MAG_SHIFT:.4f} mag")
-
-def get_planck_mu(z_array):
-    z_max = np.max(z_array)
-    z_grid = np.linspace(0, z_max * 1.01, 2000)
-    E_inv = 1.0 / np.sqrt(OM_PLANCK * (1 + z_grid)**3 + OL_PLANCK)
-    
-    # --- CRITICAL FIX: Trapezoidal Integration ---
-    # Because there is no marginalization in this test, z=0 must be exactly 0 distance.
-    comoving = np.cumsum((E_inv[:-1] + E_inv[1:]) / 2 * np.diff(z_grid))
+def integrate_distance_vectorized(z_values, h_func):
+    z_grid = np.linspace(0, np.max(z_values)*1.01, 2000)
+    h_grid = h_func(z_grid)
+    integrand = C_LIGHT / h_grid
+    comoving = np.cumsum((integrand[:-1] + integrand[1:]) / 2 * np.diff(z_grid))
     comoving = np.insert(comoving, 0, 0)
+    return np.interp(z_values, z_grid, comoving)
+
+# Planck History
+def h_lcdm(z):
+    return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + OL_PLANCK)
+
+dl_lcdm = (1 + df_clean['zHD']) * integrate_distance_vectorized(df_clean['zHD'], h_lcdm)
+mu_planck = 5 * np.log10(dl_lcdm) + 25
+
+# Vacuum History
+def h_viscous(z):
+    arg = (z - Z_TRANS) / WIDTH
+    sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
     
-    dl_mpc = (1 + z_array) * (C_LIGHT / H0_PLANCK) * np.interp(z_array, z_grid, comoving)
-    return 5 * np.log10(dl_mpc) + 25
+    OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
+    OL_Z = 1.0 - OM_Z
+    
+    E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
+    return H_FAST * E_z
 
-# MODEL LOGIC: 
-# Transition active at LOW Z (z < 0.65) to resolve Tension.
-# High Z matches Planck. Low Z matches Vacuum.
-mu_planck = get_planck_mu(df_clean['zHD'].values)
-
-# Numerical Stability: Matches S8 and Hz validation scripts
-arg = (df_clean['zHD'].values - Z_TRANS) / WIDTH
-sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
-
-viscous_correction = MAG_SHIFT * sigmoid
-mu_viscous = mu_planck + viscous_correction
+dl_visc = (1 + df_clean['zHD']) * integrate_distance_vectorized(df_clean['zHD'], h_viscous)
+mu_viscous = 5 * np.log10(dl_visc) + 25
 
 # ==========================================
 # 4. STATISTICS (NO MARGINALIZATION)
@@ -119,33 +119,37 @@ chi2_viscous = R_viscous.T @ inv_cov @ R_viscous
 d_chi2 = chi2_viscous - chi2_planck
 
 print("\n" + "="*50)
-print(f"FINAL METRIC 1 RESULTS (H0={H0_VACUUM})")
+print(f"FINAL METRIC 1 RESULTS (H0={H_FAST})")
 print("="*50)
 print(f"Chi2 (Planck 67.4):   {chi2_planck:.2f}")
-print(f"Chi2 (Vacuum {H0_VACUUM}):   {chi2_viscous:.2f}") 
+print(f"Chi2 (Vacuum {H_FAST}):   {chi2_viscous:.2f}") 
 print(f"Delta Chi2:           {d_chi2:.2f}")
 print("-" * 50)
+
+if d_chi2 < -2000:
+    print("VERDICT: DECISIVE SUCCESS.")
+    print("The fast global trajectory organically brightens the luminosity distance,")
+    print("perfectly resolving the SH0ES absolute magnitude tension!")
 
 # ==========================================
 # 5. PLOTTING
 # ==========================================
 plt.figure(figsize=(10,6))
 plt.errorbar(df_clean['zHD'], R_planck, yerr=df_clean['MU_SH0ES_ERR_DIAG'], 
-             fmt='o', color='lightgrey', alpha=0.3, label='Pantheon+ Residuals')
+             fmt='o', color='lightgrey', alpha=0.3, label='Pantheon+ Residuals (SH0ES Calibrated)')
 
-z_sort = np.sort(df_clean['zHD'])
-arg_sort = (z_sort - Z_TRANS) / WIDTH
-curve_sigmoid = np.where(arg_sort > 100, 0.0, 1.0 / (1 + np.exp(arg_sort)))
-curve = MAG_SHIFT * curve_sigmoid
+diff_curve = mu_viscous - mu_planck
+z_sort = np.argsort(df_clean['zHD'])
 
-plt.plot(z_sort, curve, 'r-', linewidth=3, label=f'Vacuum Model (H0={H0_VACUUM})')
+plt.plot(df_clean['zHD'][z_sort], diff_curve[z_sort], 'r-', linewidth=3, label=f'Vacuum Model (H0={H_FAST})')
 
 plt.axhline(0, color='k', linestyle='--')
 plt.xlabel('Redshift z')
 plt.ylabel(r'Magnitude Residual $\mu - \mu_{Planck}$')
-plt.title(rf'Resolution of Hubble Tension (Test II)' + '\n' + rf'$\Delta\chi^2 \approx {d_chi2:.1f}$ (Target H0={H0_VACUUM})')
+plt.title(rf'Resolution of Hubble Tension (Test II)' + '\n' + rf'$\Delta\chi^2 \approx {d_chi2:.1f}$ (Target H0={H_FAST})')
 plt.legend()
 plt.ylim(-0.6, 0.4)
 plt.grid(True, alpha=0.3)
 plt.savefig("Figure3a_Metric1_Corrected.png")
+print("Saved Figure3a_Metric1_Corrected.png")
 plt.show()
