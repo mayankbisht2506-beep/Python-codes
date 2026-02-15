@@ -75,7 +75,7 @@ OM_PLANCK = 0.315
 OL_PLANCK = 1.0 - OM_PLANCK
 
 # --- MODEL B: VACUUM ELASTODYNAMICS ---
-H_FAST = 74.5         # Theoretical E8 Geometry Limit
+H_FAST = 72.8         # Theoretical E8 Geometry Limit
 OM_PRIMORDIAL = 0.315 # Frictionless early universe
 OM_EFFECTIVE = 0.366  # CORRECTION: Viscous late universe (Inertial Counter-Load)
 
