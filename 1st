@@ -92,45 +92,40 @@ chi2_planck = R_planck.T @ inv_cov @ R_planck
 # ==========================================
 print("Optimizing Vacuum Model Headroom...")
 
-# REFINEMENT: Matches Section 8.6 MCMC Results 
+# REFINEMENT: Using final N=1701 true MCMC targets
 OM_PRIMORDIAL = 0.315  # Early Universe (Frictionless / Geometric)
-OM_EFFECTIVE  = 0.328  # Late Universe (Inertial Counter-Load / Viscous Drag)
+OM_EFFECTIVE  = 0.366  # Late Universe (Inertial Counter-Load / Viscous Drag)
 
-# REFINEMENT: Transition parameters from Eq. 11 
-Z_TRANS = 0.65 
-WIDTH   = 0.10
-
-# Define the Objective Function for the Optimizer
 def objective_vacuum(h0_param):
     H_FAST = h0_param[0]
     
     def h_viscous(z):
-        # Sigmoid Transition Function (Eq. 10 logic) [cite: 274]
         arg = (z - Z_TRANS) / WIDTH
         sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
-        
-        # Effective Density Evolution (Inertial Counter-Load) [cite: 2017]
         OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
         OL_Z = 1.0 - OM_Z
-        
-        # Calculate E(z)
         E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
-        
-        # Apply the Optimized Hubble Rate
         return H_FAST * E_z
 
-    # Integrate to get Luminosity Distance
     dl_visc = (1 + z_obs) * integrate_distance_vectorized(z_obs, h_viscous)
     mu_vacuum = 5 * np.log10(dl_visc + 1e-12) + 25
     
-    # Calculate Residuals against full Covariance Matrix
     R_vacuum = mu_data - mu_vacuum
     chi2_vac = R_vacuum.T @ inv_cov @ R_vacuum
     return chi2_vac
 
 # Run Optimizer
-# Paper Result for Test I is ~73.62 
 res = minimize(objective_vacuum, x0=[73.5], method='Nelder-Mead')
+best_H0 = res.x[0]
+chi2_vac_opt = res.fun
+d_chi2 = chi2_vac_opt - chi2_planck
+
+print(f"\n--- OPTIMIZATION RESULTS ---")
+print(f"Planck (67.4) Chi2:  {chi2_planck:.2f}")
+print(f"Vacuum Optimum H0:   {best_H0:.2f} km/s/Mpc")
+print(f"Vacuum Optimum Chi2: {chi2_vac_opt:.2f}")
+print(f"Delta Chi2:          {d_chi2:.2f}")
+
 # ==========================================
 # 5. PLOTTING
 # ==========================================
