@@ -12,7 +12,6 @@ print("Objective: Verify Metric 1 (Test II: Theoretical Verification) for H0 = 7
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
-
 DATA_FILE = "Pantheon+SH0ES.dat"
 COV_FILE = "Pantheon+SH0ES_STAT+SYS.cov"
 
@@ -36,13 +35,15 @@ download_file(DATA_URL, DATA_FILE)
 download_file(COV_URL, COV_FILE)
 
 # ==========================================
-# 2. DATA PROCESSING
+# 2. DATA PROCESSING (N=1701)
 # ==========================================
 print("Loading Pantheon+ Data...")
 df = pd.read_csv(DATA_FILE, sep=r'\s+')
-mask = df['zHD'] > 0.01
+
+# CORRECTION: Do not cut out the Cepheid anchors!
+mask = df['zHD'] > 0.000
 df_clean = df[mask].reset_index(drop=True)
-print(f"Supernovae (z > 0.01): {len(df_clean)}")
+print(f"Supernovae (Full N=1701): {len(df_clean)}")
 
 print("Processing Covariance Matrix...")
 with open(COV_FILE, 'r') as f:
@@ -59,7 +60,6 @@ indices = np.where(mask)[0]
 cov_filtered = cov_matrix[np.ix_(indices, indices)]
 
 print("Inverting Covariance Matrix (Robust Method for Test II)...")
-# Pseudo-Inverse (pinv) matches the "Theoretical Verification" methodology
 inv_cov = np.linalg.pinv(cov_filtered)
 
 # ==========================================
@@ -75,9 +75,9 @@ OM_PLANCK = 0.315
 OL_PLANCK = 1.0 - OM_PLANCK
 
 # --- MODEL B: VACUUM ELASTODYNAMICS ---
-H_FAST = 74.5
+H_FAST = 74.5         # Theoretical E8 Geometry Limit
 OM_PRIMORDIAL = 0.315 # Frictionless early universe
-OM_EFFECTIVE = 0.343  # Viscous late universe (Inertial Counter-Load)
+OM_EFFECTIVE = 0.366  # CORRECTION: Viscous late universe (Inertial Counter-Load)
 
 def integrate_distance_vectorized(z_values, h_func):
     z_grid = np.linspace(0, np.max(z_values)*1.01, 2000)
@@ -99,13 +99,10 @@ def h_viscous(z):
     arg = (z - Z_TRANS) / WIDTH
     sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
     
-    # Transition the density, NOT the speed
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
     
     E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
-    
-    # Fast expansion globally
     return H_FAST * E_z
 
 dl_visc = (1 + df_clean['zHD']) * integrate_distance_vectorized(df_clean['zHD'], h_viscous)
@@ -141,7 +138,6 @@ plt.figure(figsize=(10,6))
 plt.errorbar(df_clean['zHD'], R_planck, yerr=df_clean['MU_SH0ES_ERR_DIAG'], 
              fmt='o', color='lightgrey', alpha=0.3, label='Pantheon+ Residuals (SH0ES Calibrated)')
 
-# The difference between Vacuum and Planck
 diff_curve = mu_viscous - mu_planck
 z_sort = np.argsort(df_clean['zHD'])
 
@@ -155,4 +151,5 @@ plt.legend()
 plt.ylim(-0.6, 0.4)
 plt.grid(True, alpha=0.3)
 plt.savefig("Figure3a_Metric1_Corrected.png")
+print("Saved Figure3a_Metric1_Corrected.png")
 plt.show()
