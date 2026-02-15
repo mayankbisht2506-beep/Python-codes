@@ -49,12 +49,19 @@ hz_data = np.array([
     [1.53, 140.0, 14.0], [1.75, 202.0, 40.0], [1.965, 186.5, 50.4]
 ])
 
+
+
 # B. Pantheon+ (N=1701)
 print("Loading Pantheon+ Data...")
 df = pd.read_csv(DATA_FILE, sep=r'\s+')
-mask = df['zHD'] > 0.01
+
+# CORRECTION: The paper uses the FULL dataset including local calibrators.
+# z > 0.01 removes the anchors. Use z > 0.00 to get N=1701.
+mask = df['zHD'] > 0.00 
 z_sn = df[mask]['zHD'].values
 mu_sn = df[mask]['MU_SH0ES'].values
+
+print(f"Pantheon+ Data Loaded: {len(z_sn)} points (Target: 1701)")
 
 # C. Covariance Matrix
 print("Inverting Covariance Matrix...")
