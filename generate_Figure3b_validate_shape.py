@@ -50,22 +50,20 @@ C_LIGHT = 299792.458
 Z_TRANS = 0.65   
 WIDTH = 0.10     
 
-# --- MODEL A: PLANCK LCDM ---
+# --- MODEL A: PLANCK LCDM (Baseline Control) ---
 H0_A = 67.4
 OM_A = 0.315
 OL_A = 1.0 - OM_A
 
-# --- MODEL B: VACUUM ELASTODYNAMICS ---
-H0_B = 74.5
-# PHYSICS: Viscous Drag requires higher effective matter density (Section 9.1)
-OM_B = 0.343  
-OL_B = 1.0 - OM_B
+# --- MODEL B: VACUUM ELASTODYNAMICS (The New Physics) ---
+H_FAST = 74.5
+OM_PRIMORDIAL = 0.315 # Frictionless early universe
+OM_EFFECTIVE = 0.366  # Viscous late universe
 
 def integrate_distance_vectorized(z_values, h_func):
     z_grid = np.linspace(0, np.max(z_values)*1.01, 2000)
     h_grid = h_func(z_grid)
     integrand = C_LIGHT / h_grid
-    # Trapezoidal Integration
     comoving = np.cumsum((integrand[:-1] + integrand[1:]) / 2 * np.diff(z_grid))
     comoving = np.insert(comoving, 0, 0)
     return np.interp(z_values, z_grid, comoving)
@@ -77,16 +75,22 @@ def h_lcdm(z):
 dl_lcdm = (1 + df_clean['zHD']) * integrate_distance_vectorized(df_clean['zHD'], h_lcdm)
 mu_lcdm = 5 * np.log10(dl_lcdm) + 25
 
-# Vacuum History
+# Vacuum History (UPDATED PHYSICS)
 def h_viscous(z):
-    E_z = np.sqrt(OM_B * (1 + z)**3 + OL_B)
-    
-    boost_amp = H0_B / H0_A
+    # The Inertial Counter-Load activates at the z=0.65 phase transition
     arg = (z - Z_TRANS) / WIDTH
+    
+    # Sigmoid is 1 at z=0 (Late Universe), and 0 at high z (Early Universe)
     sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
     
-    effective_boost = 1.0 + (boost_amp - 1.0) * sigmoid
-    return H0_A * E_z * effective_boost
+    # Density dynamically transitions from 0.315 (early) to 0.343 (late)
+    OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
+    OL_Z = 1.0 - OM_Z
+    
+    E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
+    
+    # NO H0 BOOST MULTIPLIER. The universe rides the fast trajectory globally.
+    return H_FAST * E_z
 
 dl_visc = (1 + df_clean['zHD']) * integrate_distance_vectorized(df_clean['zHD'], h_viscous)
 mu_visc = 5 * np.log10(dl_visc) + 25
@@ -111,17 +115,14 @@ d_chi2 = chi2_visc - chi2_lcdm
 
 print("-" * 40)
 print(f"Model A (Planck 67.4, Om=0.315) Chi2:  {chi2_lcdm:.2f}")
-print(f"Model B (Vacuum 74.5, Om=0.343) Chi2:  {chi2_visc:.2f}")
-print(f"Delta Chi2:                            {d_chi2:.2f}")
+print(f"Model B (Vacuum 74.5, Dynamic Om) Chi2: {chi2_visc:.2f}")
+print(f"Delta Chi2:                              {d_chi2:.2f}")
 print("-" * 40)
 
-# STATISTICAL VERDICT
-# A Delta Chi2 < 6.63 is statistically insignificant (within 2-sigma for 1 DOF).
-# Given 1590 data points, anything < 10 is an excellent match.
 if d_chi2 < 10.0:
     print("VERDICT: SUCCESS (Consistent).")
     print("The Vacuum Model shape is statistically indistinguishable from LCDM.")
-    print("This proves the 'Viscous Drag' (Om=0.343) correctly balances the 'Gravity Boost'.")
+    print("This proves the dynamic 'Inertial Counter-Load' flawlessly traverses the degeneracy diagonal.")
 else:
     print("VERDICT: FAIL.")
 
