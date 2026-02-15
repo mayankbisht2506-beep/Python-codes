@@ -8,7 +8,7 @@
 ```markdown
 ## 📂 Overview
 
-This repository contains the complete Steel Man validation suite for the Vacuum Elastodynamics model. It consists of 26 independent Python scripts designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+This repository contains the complete Steel Man validation suite for the Vacuum Elastodynamics model. It consists of 25 independent Python scripts designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
 
 ### Resources
 
@@ -87,7 +87,6 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result |
 | --- | --- | --- |
 | validate_Pk_screening.py | Power spectrum screening | 0.00% |
-| validate_BAO_consistency.py | BAO ruler test | 0.905× |
 | validate_BAO_ladder.py | Distance ladder | < 1σ |
 | validate_growth_numerical.py | Growth rate | S₈ ≈ 0.776 |
 | check_magnitude_shift.py | SNe shift | < 1σ |
