@@ -44,7 +44,7 @@ def h_viscous(z):
     arg = (z - Z_TRANS) / WIDTH
     sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
     
-    # Density dynamically transitions from 0.315 (early) to 0.328 (late)
+    # Density dynamically transitions from 0.315 (early) to 0.366 (late)
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
     
@@ -72,14 +72,14 @@ rchi2_vacuum = chi2_vacuum / dof
 
 print(f"\n--- H(z) CONSISTENCY RESULTS (Table 6 Verification) ---")
 print(f"Planck Model (67.4): Chi2={chi2_planck:.2f} | Reduced={rchi2_planck:.2f}")
-print(f"Vacuum Model (73.25): Chi2={chi2_vacuum:.2f} | Reduced={rchi2_vacuum:.2f}")
+print(f"Vacuum Model (72.8): Chi2={chi2_vacuum:.2f} | Reduced={rchi2_vacuum:.2f}")
 
 # VERDICT
 if 0.7 < rchi2_vacuum < 1.2:
     print(f"\nVERDICT: SUCCESS.")
     print(f"The Vacuum Model (Reduced Chi2 = {rchi2_vacuum:.2f}) is statistically consistent.")
     print("This proves the dynamic Inertial Counter-Load perfectly threads the H(z) data,")
-    print("even while running on the global H0 = 73.25 terminal trajectory!")
+    print("even while running on the global H0 = 72.8 terminal trajectory!")
 else:
     print(f"\nVERDICT: CHECK PARAMETERS (RChi2={rchi2_vacuum:.2f})")
 
