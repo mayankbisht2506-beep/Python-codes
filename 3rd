@@ -58,7 +58,7 @@ OL_A = 1.0 - OM_A
 # --- MODEL B: VACUUM ELASTODYNAMICS (The New Physics) ---
 H_FAST = 74.5
 OM_PRIMORDIAL = 0.315 # Frictionless early universe
-OM_EFFECTIVE = 0.343  # Viscous late universe
+OM_EFFECTIVE = 0.366  # Viscous late universe
 
 def integrate_distance_vectorized(z_values, h_func):
     z_grid = np.linspace(0, np.max(z_values)*1.01, 2000)
