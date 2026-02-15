@@ -34,7 +34,7 @@ OL_PLANCK = 1.0 - OM_PLANCK
 # --- MODEL B: VACUUM ELASTODYNAMICS ---
 H_TERMINAL = 72.80   # The observed terminal velocity from MCMC
 OM_PRIMORDIAL = 0.315 # Frictionless early universe
-OM_EFFECTIVE = 0.366  # Viscous late universe (Inertial Counter-Load = +0.013)
+OM_EFFECTIVE = 0.366  # Viscous late universe (Inertial Counter-Load = +0.051)
 
 def h_lcdm(z):
     return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + OL_PLANCK)
