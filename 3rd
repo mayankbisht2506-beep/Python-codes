@@ -56,7 +56,7 @@ OM_A = 0.315
 OL_A = 1.0 - OM_A
 
 # --- MODEL B: VACUUM ELASTODYNAMICS (The New Physics) ---
-H_FAST = 72.8
+H_FAST = 74.5
 OM_PRIMORDIAL = 0.315 # Frictionless early universe
 OM_EFFECTIVE = 0.366  # Viscous late universe
 
