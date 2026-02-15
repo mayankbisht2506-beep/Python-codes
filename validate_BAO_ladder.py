@@ -9,7 +9,6 @@ print("==========================================================")
 # ==========================================
 # 1. CONSENSUS BAO DATA
 # ==========================================
-# Sources: 6dFGS (Beutler 2011), SDSS MGS (Ross 2015), BOSS DR12 (Alam 2017)
 bao_data = [
     # z      val      err      type      Survey
     (0.106,  0.336,   0.015,  'rs_DV',  '6dFGS'),
@@ -27,6 +26,8 @@ bao_data = [
 # ==========================================
 C_LIGHT = 299792.458
 RD_FIDUCIAL = 147.78
+Z_TRANS = 0.65
+WIDTH = 0.10
 
 # --- MODEL A: Planck 2018 (Baseline) ---
 H0_PLANCK = 67.4
@@ -35,21 +36,34 @@ RD_PLANCK = 147.09
 
 # --- MODEL B: Vacuum Elastodynamics ---
 # MECHANISM: High G_early -> Fast Expansion -> Contracted Ruler
-H0_VAC = 74.5       # Theoretical Geometric Limit
-OM_VAC = 0.343      # Inertial Counter-Load (MCMC Result)
-RD_VAC = 133.1      # 9.5% Contraction (Derived from H0 scaling)
+H_FAST = 74.5         # Theoretical Geometric Limit
+OM_PRIMORDIAL = 0.315 # Frictionless early universe
+OM_EFFECTIVE = 0.366  # Inertial Counter-Load (The late-universe brake)
+RD_VAC = 133.1        # 9.5% Contraction (Derived from 67.4/74.5 scaling)
 
 # ==========================================
 # 3. CALCULATION CORE
 # ==========================================
-def get_hubble(z, h0, om):
-    E_z = np.sqrt(om * (1 + z)**3 + (1 - om))
-    return h0 * E_z
+def h_lcdm(z):
+    return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + (1 - OM_PLANCK))
 
-def compute_observables(z, h0, om):
-    Hz = get_hubble(z, h0, om)
-    integrand = lambda z_: C_LIGHT / get_hubble(z_, h0, om)
-    dm, _ = quad(integrand, 0, z)
+def h_viscous(z):
+    # Phase Transition activates the 0.366 viscous drag
+    arg = (z - Z_TRANS) / WIDTH
+    sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
+    OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
+    OL_Z = 1.0 - OM_Z
+    return H_FAST * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
+
+def compute_planck(z):
+    Hz = h_lcdm(z)
+    dm, _ = quad(lambda z_: C_LIGHT / h_lcdm(z_), 0, z)
+    dv = (z * (dm**2) * (C_LIGHT / Hz))**(1.0/3.0)
+    return {'H': Hz, 'DM': dm, 'DV': dv}
+
+def compute_vacuum(z):
+    Hz = h_viscous(z)
+    dm, _ = quad(lambda z_: C_LIGHT / h_viscous(z_), 0, z)
     dv = (z * (dm**2) * (C_LIGHT / Hz))**(1.0/3.0)
     return {'H': Hz, 'DM': dm, 'DV': dv}
 
@@ -69,8 +83,8 @@ plot_data_val = []
 plot_data_err = []
 
 for z, val, err, dtype, survey in bao_data:
-    vec_p = compute_observables(z, H0_PLANCK, OM_PLANCK)
-    vec_v = compute_observables(z, H0_VAC, OM_VAC) 
+    vec_p = compute_planck(z)
+    vec_v = compute_vacuum(z) 
     
     # Fidelity Scaling Logic
     if dtype == 'rs_DV':
@@ -127,21 +141,21 @@ ratio_std_list = []
 ratio_vac_list = []
 
 for z_plot in z_grid:
-    vec_p = compute_observables(z_plot, H0_PLANCK, OM_PLANCK)
-    vec_v = compute_observables(z_plot, H0_VAC, OM_VAC)
+    vec_p = compute_planck(z_plot)
+    vec_v = compute_vacuum(z_plot)
     ratio_std_list.append(vec_p['DM'] / RD_PLANCK)
     ratio_vac_list.append(vec_v['DM'] / RD_VAC)
 
 plt.figure(figsize=(10, 6))
 
-# Plot the BOSS DR12 Data (extracted from the statistical loop)
+# Plot the BOSS DR12 Data
 plt.errorbar(plot_data_z, plot_data_val, yerr=plot_data_err, fmt='o', color='black', 
              label='BOSS DR12 Data ($D_M / r_d$)', capsize=5, zorder=5)
 
 # Plot Models
 plt.plot(z_grid, ratio_std_list, 'b--', linewidth=2, label='Planck Baseline ($H_0=67.4$)')
 plt.plot(z_grid, ratio_vac_list, 'r-', linewidth=2.5, 
-         label=f'Vacuum Elastodynamics ($H_0=74.5$)\nwith Geometric Contraction ($r_s=133.1$ Mpc)')
+         label=f'Vacuum Model ($H_0=74.5, \Omega_m^{{eff}}=0.366$)\nwith Geometric Contraction ($r_d=133.1$ Mpc)')
 
 plt.title('BAO Consistency Check: Geometric Scaling Cancellation', fontsize=14)
 plt.xlabel('Redshift $z$', fontsize=12)
@@ -150,7 +164,7 @@ plt.legend()
 plt.grid(True, alpha=0.3)
 
 # Add a text box highlighting the chi-squared win
-plt.annotate(r"Global BAO $\chi^2$:\nPlanck: {chi2_planck:.2f}\nVacuum: {chi2_vacuum:.2f}", 
+plt.annotate(rf"Global BAO $\chi^2$:" + "\n" + rf"Planck: {chi2_planck:.2f}" + "\n" + rf"Vacuum: {chi2_vacuum:.2f}", 
              xy=(0.05, 0.8), xycoords='axes fraction',
              bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.8),
              fontsize=11)
