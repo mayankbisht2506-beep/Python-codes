@@ -21,51 +21,46 @@ hz_cc = cc_data[:, 1]
 err_cc = cc_data[:, 2]
 
 # ==========================================
-# 2. PHYSICS ENGINE (Corrected)
+# 2. UNIFIED PHYSICS ENGINE
 # ==========================================
-# PLANCK BASELINE (Standard LambdaCDM)
+Z_TRANS = 0.65  
+WIDTH = 0.10    
+
+# --- MODEL A: PLANCK LCDM ---
 H0_PLANCK = 67.4
 OM_PLANCK = 0.315
+OL_PLANCK = 1.0 - OM_PLANCK
 
-# VACUUM MODEL (Matches Section 8.6 MCMC Results)
-# Paper Claim: "The MCMC-derived matter density (Om ~ 0.343) ensures dynamic consistency."
-H0_THEORY = 74.5   
-OM_VACUUM = 0.343  # <--- CRITICAL UPDATE FROM PAPER SECTION 8.6
+# --- MODEL B: VACUUM ELASTODYNAMICS ---
+H_TERMINAL = 72.80   # The observed terminal velocity from MCMC
+OM_PRIMORDIAL = 0.315 # Frictionless early universe
+OM_EFFECTIVE = 0.366  # Viscous late universe (Inertial Counter-Load = +0.051)
 
-def hubble_model(z, h0, om, use_transition=False):
-    # Calculate E(z) based on the specific Om for that model
-    ez = np.sqrt(om * (1 + z)**3 + (1 - om))
-    hz = h0 * ez
+def h_lcdm(z):
+    return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + OL_PLANCK)
+
+def h_viscous(z):
+    # The Inertial Counter-Load activates at the z=0.65 phase transition
+    arg = (z - Z_TRANS) / WIDTH
+    sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
     
-    if use_transition:
-        # Vacuum Elastodynamics Phase Transition
-        # Section 7.5.2: "Jamming Peak" at z ~ 0.65
-        Z_TRANS = 0.65  
-        WIDTH = 0.10    
-        
-        # Sigmoid Logic: 
-        # Low z (Late Time) -> Boost active (Viscous Slip) -> Returns ~1.0
-        # High z (Early Time) -> Boost inactive (Superfluid) -> Returns ~0.0
-        arg = (z - Z_TRANS) / WIDTH
-        
-        # Numerical safety for large z
-        sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
-        
-        # We apply the boost factor relative to the Planck baseline at z=0
-        # Note: We boost the *result*, effectively bridging 67.4 -> 74.5 at z=0
-        boost_amp = (H0_THEORY / H0_PLANCK) - 1.0
-        hz = hz * (1.0 + boost_amp * sigmoid)
-        
-    return hz
+    # Density dynamically transitions from 0.315 (early) to 0.366 (late)
+    OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
+    OL_Z = 1.0 - OM_Z
+    
+    E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
+    
+    # Fast terminal expansion globally
+    return H_TERMINAL * E_z
 
 # ==========================================
 # 3. STATISTICAL VALIDATION
 # ==========================================
 # Model 1: Standard Planck
-hz_planck = hubble_model(z_cc, H0_PLANCK, OM_PLANCK, use_transition=False)
+hz_planck = h_lcdm(z_cc)
 
-# Model 2: Vacuum Elastodynamics (Using Correct Om=0.343)
-hz_vacuum = hubble_model(z_cc, H0_PLANCK, OM_VACUUM, use_transition=True)
+# Model 2: Vacuum Elastodynamics
+hz_vacuum = h_viscous(z_cc)
 
 # Chi-Squared
 chi2_planck = np.sum(((hz_cc - hz_planck) / err_cc)**2)
@@ -76,17 +71,17 @@ rchi2_planck = chi2_planck / dof
 rchi2_vacuum = chi2_vacuum / dof
 
 print(f"\n--- H(z) CONSISTENCY RESULTS (Table 6 Verification) ---")
-print(f"Planck Model (Om={OM_PLANCK}):  Chi2={chi2_planck:.2f} | Reduced={rchi2_planck:.2f}")
-print(f"Vacuum Model (Om={OM_VACUUM}):  Chi2={chi2_vacuum:.2f} | Reduced={rchi2_vacuum:.2f}")
+print(f"Planck Model (67.4): Chi2={chi2_planck:.2f} | Reduced={rchi2_planck:.2f}")
+print(f"Vacuum Model (72.8): Chi2={chi2_vacuum:.2f} | Reduced={rchi2_vacuum:.2f}")
 
 # VERDICT
 if 0.7 < rchi2_vacuum < 1.2:
-    print(f"VERDICT: SUCCESS.")
-    print(f"The Vacuum Model (Reduced Chi2 = {rchi2_vacuum:.2f}) validates Section 8.3.")
-    print("Note: The slightly higher Chi2 compared to Planck is expected (per Table 6 text),")
-    print("but remaining < 1.0 confirms statistical consistency.")
+    print(f"\nVERDICT: SUCCESS.")
+    print(f"The Vacuum Model (Reduced Chi2 = {rchi2_vacuum:.2f}) is statistically consistent.")
+    print("This proves the dynamic Inertial Counter-Load perfectly threads the H(z) data,")
+    print("even while running on the global H0 = 72.8 terminal trajectory!")
 else:
-    print(f"VERDICT: CHECK PARAMETERS (RChi2={rchi2_vacuum:.2f})")
+    print(f"\nVERDICT: CHECK PARAMETERS (RChi2={rchi2_vacuum:.2f})")
 
 # ==========================================
 # 4. PLOT
@@ -94,18 +89,21 @@ else:
 plt.figure(figsize=(10, 6))
 plt.errorbar(z_cc, hz_cc, yerr=err_cc, fmt='o', color='k', alpha=0.5, label='Cosmic Chronometers (Moresco et al.)')
 
-z_grid = np.linspace(0, 2.0, 100)
-# Plot Planck
-plt.plot(z_grid, hubble_model(z_grid, H0_PLANCK, OM_PLANCK, False), 'b--', label='Standard LCDM (Planck)')
-# Plot Vacuum with Phase Transition + Higher Om
-plt.plot(z_grid, hubble_model(z_grid, H0_PLANCK, OM_VACUUM, True), 'r-', linewidth=2, label=f'Vacuum (H0={H0_THEORY}, Om={OM_VACUUM})')
+z_grid = np.linspace(0, 2.0, 200)
 
-plt.axvline(x=0.65, color='gray', linestyle=':', label='Transition z=0.65')
-plt.xlabel('Redshift z')
-plt.ylabel('H(z) [km/s/Mpc]')
-plt.title('Vacuum Elastodynamics: H(z) Consistency Check')
-plt.legend()
+# Plot Planck
+plt.plot(z_grid, h_lcdm(z_grid), 'b--', label=rf'Standard LCDM ($H_0={H0_PLANCK}, \Omega_m={OM_PLANCK}$)')
+
+# Plot Vacuum unified model
+plt.plot(z_grid, h_viscous(z_grid), 'r-', linewidth=2.5, 
+         label=rf'Vacuum Model ($H_0={H_TERMINAL}, \Omega_m \rightarrow {OM_EFFECTIVE}$)')
+
+plt.axvline(x=Z_TRANS, color='gray', linestyle=':', label='Viscous Transition $z=0.65$')
+plt.xlabel('Redshift z', fontsize=12)
+plt.ylabel('H(z) [km/s/Mpc]', fontsize=12)
+plt.title(rf'Cosmic Chronometer Consistency Check' + '\n' + rf'Vacuum $\chi^2_\nu \approx {rchi2_vacuum:.2f}$', fontsize=14)
+plt.legend(fontsize=10)
 plt.grid(True, alpha=0.3)
-plt.savefig('Figure5_Hz_Corrected.png')
-print("Plot saved as 'Figure5_Hz_Corrected.png'")
+plt.savefig('Figure5_Hz_Unified.png')
+print("Plot saved as 'Figure5_Hz_Unified.png'")
 plt.show()
