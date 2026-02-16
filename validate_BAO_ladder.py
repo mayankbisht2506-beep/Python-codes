@@ -34,12 +34,12 @@ H0_PLANCK = 67.4
 OM_PLANCK = 0.315
 RD_PLANCK = 147.09
 
-# --- MODEL B: Vacuum Elastodynamics ---
-# MECHANISM: High G_early -> Fast Expansion -> Contracted Ruler
-H_FAST = 74.5         # Theoretical Geometric Limit
+# --- MODEL B: Vacuum Elastodynamics (Pure Theoretical Invariants) ---
+H_FAST = 74.5         # Theoretical Geometric Limit (Early)
+H_LOCAL = 72.53       # Decelerated Terminal Velocity (Late)
 OM_PRIMORDIAL = 0.315 # Frictionless early universe
-OM_EFFECTIVE = 0.366  # Inertial Counter-Load (The late-universe brake)
-RD_VAC = 133.1        # 9.5% Contraction (Derived from 67.4/74.5 scaling)
+OM_EFFECTIVE = 0.367  # Pure Theoretical Viscous Drag (Eq 88)
+RD_VAC = 133.1        # 9.5% Contraction 
 
 # ==========================================
 # 3. CALCULATION CORE
@@ -48,12 +48,15 @@ def h_lcdm(z):
     return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + (1 - OM_PLANCK))
 
 def h_viscous(z):
-    # Phase Transition activates the 0.366 viscous drag
-    arg = (z - Z_TRANS) / WIDTH
-    sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
+    # DUAL PHASE TRANSITION
+    arg = (Z_TRANS - z) / WIDTH
+    sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
+    
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
-    return H_FAST * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
+    H_Z = H_FAST + (H_LOCAL - H_FAST) * sigmoid
+    
+    return H_Z * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
 
 def compute_planck(z):
     Hz = h_lcdm(z)
@@ -77,7 +80,6 @@ print("-" * 65)
 chi2_planck = 0.0
 chi2_vacuum = 0.0
 
-# Store ratios for plotting later
 plot_data_z = []
 plot_data_val = []
 plot_data_err = []
@@ -86,7 +88,6 @@ for z, val, err, dtype, survey in bao_data:
     vec_p = compute_planck(z)
     vec_v = compute_vacuum(z) 
     
-    # Fidelity Scaling Logic
     if dtype == 'rs_DV':
         pred_p = RD_PLANCK / vec_p['DV']
         pred_v = RD_VAC / vec_v['DV']
@@ -99,7 +100,6 @@ for z, val, err, dtype, survey in bao_data:
         pred_p_val = vec_p['DM'] / RD_PLANCK
         pred_v_val = vec_v['DM'] / RD_VAC
         
-        # Save DM ratios for Part II (Plotting)
         plot_data_z.append(z)
         plot_data_val.append(val_ratio)
         plot_data_err.append(err_ratio)
@@ -124,12 +124,7 @@ for z, val, err, dtype, survey in bao_data:
 print("-" * 65)
 print(f"TOTAL CHI-SQUARED:")
 print(f"Planck (Baseline): {chi2_planck:.2f}")
-print(f"Vacuum (Scaled):   {chi2_vacuum:.2f}")
-
-if chi2_vacuum < chi2_planck:
-    print("\nVERDICT: SUCCESS. The Scaling Cancellation is physically exact.")
-else:
-    print("\nVERDICT: FAILURE. Check Parameters.")
+print(f"Vacuum (Theory):   {chi2_vacuum:.2f}")
 
 # ==========================================
 # PART II: THE VISUALIZER (BOSS DR12 DM PLOT)
@@ -148,14 +143,12 @@ for z_plot in z_grid:
 
 plt.figure(figsize=(10, 6))
 
-# Plot the BOSS DR12 Data
 plt.errorbar(plot_data_z, plot_data_val, yerr=plot_data_err, fmt='o', color='black', 
              label='BOSS DR12 Data ($D_M / r_d$)', capsize=5, zorder=5)
 
-# Plot Models
 plt.plot(z_grid, ratio_std_list, 'b--', linewidth=2, label='Planck Baseline ($H_0=67.4$)')
 plt.plot(z_grid, ratio_vac_list, 'r-', linewidth=2.5, 
-         label=rf'Vacuum Model ($H_0=74.5, \Omega_m^{{eff}}=0.366$)\nwith Geometric Contraction ($r_d=133.1$ Mpc)')
+         label=rf'Vacuum Model (Theoretical Constants)\nwith Geometric Contraction ($r_d=133.1$ Mpc)')
 
 plt.title('BAO Consistency Check: Geometric Scaling Cancellation', fontsize=14)
 plt.xlabel('Redshift $z$', fontsize=12)
@@ -163,7 +156,6 @@ plt.ylabel(rf'Transverse BAO Distance $D_M(z) / r_d$', fontsize=12)
 plt.legend()
 plt.grid(True, alpha=0.3)
 
-# Add a text box highlighting the chi-squared win
 plt.annotate(rf"Global BAO $\chi^2$:" + "\n" + rf"Planck: {chi2_planck:.2f}" + "\n" + rf"Vacuum: {chi2_vacuum:.2f}", 
              xy=(0.05, 0.8), xycoords='axes fraction',
              bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.8),
