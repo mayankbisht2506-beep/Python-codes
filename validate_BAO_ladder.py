@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import quad
 
 print("==========================================================")
-print("   BAO CONSISTENCY AUDIT: GEOMETRIC SCALING (RIGOROUS)")
+print("   BAO CONSISTENCY AUDIT: GEOMETRIC SCALING (CROSS-VALIDATION)")
 print("==========================================================")
 
 # ==========================================
@@ -34,12 +34,12 @@ H0_PLANCK = 67.4
 OM_PLANCK = 0.315
 RD_PLANCK = 147.09
 
-# --- MODEL B: Vacuum Elastodynamics (Pure Theoretical Invariants) ---
-H_FAST = 74.5         # Theoretical Geometric Limit (Early)
-H_LOCAL = 72.53       # Decelerated Terminal Velocity (Late)
+# --- MODEL B: Vacuum Elastodynamics (Metric Scaling) ---
+# MECHANISM: Metric Expansion (H_FAST) vs. MCMC-Derived Drag (OM_EFFECTIVE)
+H_FAST = 74.5         # Theoretical Vacuum Engine (Metric Expansion Limit)
 OM_PRIMORDIAL = 0.315 # Frictionless early universe
-OM_EFFECTIVE = 0.367  # Pure Theoretical Viscous Drag (Eq 88)
-RD_VAC = 133.1        # 9.5% Contraction 
+OM_EFFECTIVE = 0.357  # MCMC Derived Drag (Cross-Validation consistency)
+RD_VAC = 133.1        # 9.5% Geometric Contraction (Derived from 67.4 / 74.5)
 
 # ==========================================
 # 3. CALCULATION CORE
@@ -47,14 +47,18 @@ RD_VAC = 133.1        # 9.5% Contraction
 def h_lcdm(z):
     return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + (1 - OM_PLANCK))
 
-def h_viscous(z):
-    # DUAL PHASE TRANSITION
+def h_viscous_bao(z):
+    # DYNAMIC DENSITY DRAG (Phase Transition)
     arg = (Z_TRANS - z) / WIDTH
     sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
     
+    # The metric feels the smooth density drag
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
-    H_Z = H_FAST + (H_LOCAL - H_FAST) * sigmoid
+    
+    # The metric expansion is governed strictly by the pure Vacuum Engine (74.5)
+    # The acoustic waves (BAO) ride this underlying metric.
+    H_Z = H_FAST 
     
     return H_Z * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
 
@@ -65,8 +69,8 @@ def compute_planck(z):
     return {'H': Hz, 'DM': dm, 'DV': dv}
 
 def compute_vacuum(z):
-    Hz = h_viscous(z)
-    dm, _ = quad(lambda z_: C_LIGHT / h_viscous(z_), 0, z)
+    Hz = h_viscous_bao(z)
+    dm, _ = quad(lambda z_: C_LIGHT / h_viscous_bao(z_), 0, z)
     dv = (z * (dm**2) * (C_LIGHT / Hz))**(1.0/3.0)
     return {'H': Hz, 'DM': dm, 'DV': dv}
 
@@ -148,7 +152,7 @@ plt.errorbar(plot_data_z, plot_data_val, yerr=plot_data_err, fmt='o', color='bla
 
 plt.plot(z_grid, ratio_std_list, 'b--', linewidth=2, label='Planck Baseline ($H_0=67.4$)')
 plt.plot(z_grid, ratio_vac_list, 'r-', linewidth=2.5, 
-         label=rf'Vacuum Model (Theoretical Constants)\nwith Geometric Contraction ($r_d=133.1$ Mpc)')
+         label=rf'Vacuum Model (Metric Expansion $H=74.5$)' + '\n' + rf'with Geometric Contraction ($r_d=133.1$ Mpc)')
 
 plt.title('BAO Consistency Check: Geometric Scaling Cancellation', fontsize=14)
 plt.xlabel('Redshift $z$', fontsize=12)
