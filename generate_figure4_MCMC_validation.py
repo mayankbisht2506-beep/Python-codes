@@ -1,5 +1,5 @@
 # Uncomment the line below if running in Google Colab / Jupyter
-# !pip install emcee corner
+!pip install emcee corner
 import numpy as np
 import pandas as pd
 import emcee
@@ -49,14 +49,12 @@ hz_data = np.array([
     [1.53, 140.0, 14.0], [1.75, 202.0, 40.0], [1.965, 186.5, 50.4]
 ])
 
-
-
 # B. Pantheon+ (N=1701)
 print("Loading Pantheon+ Data...")
 df = pd.read_csv(DATA_FILE, sep=r'\s+')
 
 # CORRECTION: The paper uses the FULL dataset including local calibrators.
-# z > 0.01 removes the anchors. Use z > 0.00 to get N=1701.
+# z > 0.00 to get N=1701.
 mask = df['zHD'] > 0.00 
 z_sn = df[mask]['zHD'].values
 mu_sn = df[mask]['MU_SH0ES'].values
@@ -75,37 +73,43 @@ else:
     
 indices = np.where(mask)[0]
 cov_filtered = cov_matrix[np.ix_(indices, indices)]
-# Using pseudo-inverse for stability, as we did in Test I and II
+# Using pseudo-inverse for stability
 inv_cov_sn = np.linalg.pinv(cov_filtered)
 
 # ==========================================
-# 3. UNIFIED PHYSICS ENGINE
+# 3. UNIFIED PHYSICS ENGINE (CORRECTED)
 # ==========================================
 c_light = 299792.458
 Z_TRANS = 0.65
 WIDTH = 0.10
 OM_PRIMORDIAL = 0.315 # The frictionless baseline
+H_FAST = 74.5         # The strict geometric expansion ceiling
 
 def hubble_model(z, params):
-    # Free Parameters: Global H0, and the Effective Late-Time Density
-    H0_global, Om_effective = params
+    # Free Parameters: Local Decelerated H0, and the Effective Late-Time Density
+    H0_local, Om_effective = params
 
-    # The Inertial Counter-Load activates at the z=0.65 phase transition
-    arg = (z - Z_TRANS) / WIDTH
-    sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
+    # The phase transition activates at z=0.65
+    arg = (Z_TRANS - z) / WIDTH
+    sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
     
-    # Density dynamically transitions from primordial to effective viscous load
+    # 1. Density Transition
     OM_Z = OM_PRIMORDIAL + (Om_effective - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
     
+    # 2. Hubble Trajectory Transition
+    # Early universe tracks H_FAST (74.5). Late universe tracks the dragged H0_local.
+    H_Z = H_FAST + (H0_local - H_FAST) * sigmoid
+    
+    # Standard Friedmann Expansion parameter using the dynamic density
     E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
     
-    # Fast expansion globally
-    return H0_global * E_z
+    return H_Z * E_z
 
 def get_dist_mod(z_array, params):
+    # Calculates the distance modulus by integrating the inverse Hubble parameter
     z_max = np.max(z_array) * 1.01
-    z_grid = np.linspace(0, z_max, 2000)
+    z_grid = np.linspace(0, z_max, 10000)
     H_vals = hubble_model(z_grid, params)
     integrand = 1.0 / H_vals
     
@@ -120,10 +124,10 @@ def get_dist_mod(z_array, params):
 # 4. LIKELIHOOD
 # ==========================================
 def log_likelihood(params):
-    H0_global, Om_effective = params
+    H0_local, Om_effective = params
     
-    # Broad Priors to let the data speak for itself
-    if not (60.0 < H0_global < 80.0 and 0.2 < Om_effective < 0.5):
+    # Broad Priors
+    if not (60.0 < H0_local < 80.0 and 0.2 < Om_effective < 0.5):
         return -np.inf
     
     # 1. Cosmic Chronometers
@@ -143,8 +147,10 @@ def log_likelihood(params):
 ndim = 2   
 nwalkers = 32
 
-# p0: Walkers start near our theoretical targets to aid rapid convergence
-p0 = [74.5, 0.315] + 1e-2 * np.random.randn(nwalkers, ndim)
+# p0: TRULY BLIND INITIALIZATION
+# Scatter walkers uniformly across the entire prior volume
+# H0 between 60 and 80, Om_eff between 0.2 and 0.5
+p0 = np.random.uniform(low=[60.0, 0.2], high=[80.0, 0.5], size=(nwalkers, ndim))
 
 print("Running Chain (may take 10-15 mins)...")
 sampler = emcee.EnsembleSampler(nwalkers, ndim, log_likelihood)
@@ -152,7 +158,7 @@ sampler.run_mcmc(p0, 4000, progress=True)
 
 # Results
 flat_samples = sampler.get_chain(discard=1000, thin=15, flat=True)
-labels = [r"$H_0$", r"$\Omega_{m}^{eff}$"]
+labels = [r"$H_0^{local}$", r"$\Omega_{m}^{eff}$"]
 
 print("\n--- FINAL UNIFIED MCMC RESULTS ---")
 for i in range(ndim):
@@ -160,7 +166,15 @@ for i in range(ndim):
     print(f"{labels[i]}: {mcmc[1]:.3f}  +{np.diff(mcmc)[1]:.3f} / -{np.diff(mcmc)[0]:.3f}")
 
 # Plot
-# Truths represent your theoretical predictions from the Yield Limit
-fig = corner.corner(flat_samples, labels=labels, truths=[74.5, 0.315], truth_color="#ff4444")
+# Truths represent the exact Terminal Velocity and Effective Drag derived in Section 7.2
+H_OBS_THEORY = 72.53
+OM_EFF_THEORY = 0.367
+
+fig = corner.corner(
+    flat_samples, 
+    labels=labels, 
+    truths=[H_OBS_THEORY, OM_EFF_THEORY], 
+    truth_color="#ff4444"
+)
 plt.savefig("Joint_MCMC_Unified.png", dpi=300)
 print("Saved corner plot.")
