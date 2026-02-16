@@ -70,7 +70,8 @@ Z_TRANS = 0.65
 WIDTH = 0.10
 
 def integrate_distance_vectorized(z_values, h_func):
-    z_grid = np.linspace(0, np.max(z_values)*1.01, 2000)
+    # Upgraded to 10,000 grid points for ultra-low z precision
+    z_grid = np.linspace(0, np.max(z_values)*1.01, 10000)
     h_grid = h_func(z_grid)
     integrand = C_LIGHT / h_grid
     comoving = np.cumsum((integrand[:-1] + integrand[1:]) / 2 * np.diff(z_grid))
@@ -94,18 +95,26 @@ print("Optimizing Vacuum Model Headroom...")
 
 # REFINEMENT: Using final N=1701 true MCMC targets
 OM_PRIMORDIAL = 0.315  # Early Universe (Frictionless / Geometric)
-OM_EFFECTIVE  = 0.366  # Late Universe (Inertial Counter-Load / Viscous Drag)
+OM_EFFECTIVE  = 0.357  # Late Universe (Inertial Counter-Load / Viscous Drag)
 
 def objective_vacuum(h0_param):
-    H_FAST = h0_param[0]
+    # Optimize the local decelerated velocity while locking the geometric ceiling
+    H_LOCAL = h0_param[0]
+    H_FAST = 74.5
     
     def h_viscous(z):
-        arg = (z - Z_TRANS) / WIDTH
-        sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
+        arg = (Z_TRANS - z) / WIDTH
+        sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
+        
+        # 1. Density Transition
         OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
         OL_Z = 1.0 - OM_Z
+        
+        # 2. Hubble Trajectory Transition
+        H_Z = H_FAST + (H_LOCAL - H_FAST) * sigmoid
+        
         E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
-        return H_FAST * E_z
+        return H_Z * E_z
 
     dl_visc = (1 + z_obs) * integrate_distance_vectorized(z_obs, h_viscous)
     mu_vacuum = 5 * np.log10(dl_visc + 1e-12) + 25
@@ -115,7 +124,7 @@ def objective_vacuum(h0_param):
     return chi2_vac
 
 # Run Optimizer
-res = minimize(objective_vacuum, x0=[73.5], method='Nelder-Mead')
+res = minimize(objective_vacuum, x0=[72.5], method='Nelder-Mead')
 best_H0 = res.x[0]
 chi2_vac_opt = res.fun
 d_chi2 = chi2_vac_opt - chi2_planck
@@ -134,11 +143,12 @@ plt.errorbar(z_obs, R_planck, yerr=df_clean['MU_SH0ES_ERR_DIAG'],
              fmt='o', color='lightgrey', alpha=0.3, label='Pantheon+ Residuals (SH0ES Calibrated)')
 
 def h_best(z):
-    arg = (z - Z_TRANS) / WIDTH
-    sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
+    arg = (Z_TRANS - z) / WIDTH
+    sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
-    return best_H0 * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
+    H_Z = 74.5 + (best_H0 - 74.5) * sigmoid
+    return H_Z * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
 
 z_sort = np.sort(z_obs)
 dl_best = (1 + z_sort) * integrate_distance_vectorized(z_sort, h_best)
@@ -149,7 +159,7 @@ mu_planck_sort = 5 * np.log10(dl_planck_sort + 1e-12) + 25
 
 curve_opt = mu_best - mu_planck_sort
 
-plt.plot(z_sort, curve_opt, 'r-', linewidth=3, label=f'Optimized Vacuum Model (H0={best_H0:.2f})')
+plt.plot(z_sort, curve_opt, 'r-', linewidth=3, label=f'Optimized Vacuum Model (Terminal $H_0={best_H0:.2f}$)')
 
 plt.axhline(0, color='k', linestyle='--')
 plt.xlabel('Redshift z', fontsize=12)
