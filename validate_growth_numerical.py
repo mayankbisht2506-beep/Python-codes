@@ -44,25 +44,25 @@ def get_viscosity(z):
 def growth_ode_rigorous(y, a, model='lcdm'):
     delta, delta_prime = y
     z = 1.0/a - 1.0
-    
+
     # EXACT PHYSICS: Dynamic density transition
     if model == 'viscous':
-        arg = (z - Z_TRANS) / WIDTH
-        sigmoid = np.where(arg > 100, 0.0, 1.0 / (1.0 + np.exp(arg)))
+        arg = (Z_TRANS - z) / WIDTH
+        sigmoid = expit(arg)
         om_z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     else:
         om_z = OM_PRIMORDIAL
-        
+
     E = np.sqrt(om_z*(1+z)**3 + (1-om_z))
     dE_da = -1.5 * om_z * (a**-4) / E
     source_term = 1.5 * om_z / (a**5 * E**2)
-    
+
     if model == 'viscous':
         eta = get_viscosity(z)
         # EXACT PHYSICS: Proper scale factor friction transformation
         friction_term = (1.0/a) + (dE_da/E) + (2.0/a) * (1.0 + eta)**2.0
         return [delta_prime, -friction_term * delta_prime + source_term * delta]
-        
+
     hubble_friction = 3.0/a + dE_da/E
     return [delta_prime, -hubble_friction * delta_prime + source_term * delta]
 
@@ -103,11 +103,11 @@ for row in data_rsd:
     z_val, y_val, err = row
     pred_l = np.interp(z_val, np.flip(z_axis), np.flip(fs8_lcdm))
     pred_v = np.interp(z_val, np.flip(z_axis), np.flip(fs8_vac))
-    
+
     c2_l = ((pred_l - y_val)/err)**2
     c2_v = ((pred_v - y_val)/err)**2
     chi2_lcdm_tot += c2_l; chi2_vac_tot += c2_v
-    
+
     status = "BETTER" if abs(pred_v - y_val) < abs(pred_l - y_val) else "WORSE"
     print(f"{z_val:<10.2f} | {y_val:.3f} +/-{err:.3f} | {pred_l:.3f}    | {pred_v:.3f}    | {status}")
 
