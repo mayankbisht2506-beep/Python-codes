@@ -1,33 +1,26 @@
-
 # Vacuum Elastodynamics: Verification & Validation Suite
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17666785.svg)](https://doi.org/10.5281/zenodo.17666785)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/mayankbisht2506-beep/Python-codes.git)
-
-**Repository for the paper:** *"Vacuum Elastodynamics: Geometric Unification and the Resolution of Hubble and S8 Tensions via Lattice Viscosity"*
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ```markdown
+**Repository for the paper:** *"Vacuum Elastodynamics: Geometric Unification and the Resolution of Hubble and S8 Tensions via Lattice Viscosity"*
+
 ## 📂 Overview
 
-This repository contains the complete Steel Man validation suite for the Vacuum Elastodynamics model. It consists of 25 independent Python scripts designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+This repository contains the complete **"Steel Man" Validation Suite** for the Vacuum Elastodynamics (VED) framework. It consists of **25 independent Python scripts** designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
 
 ### Resources
 
-- 📄 **Scientific Paper (Zenodo):** https://doi.org/10.5281/zenodo.17666785
-
+- 📄 **Scientific Paper (Zenodo):** [https://doi.org/10.5281/zenodo.17666785](https://doi.org/10.5281/zenodo.17666785)
 - 💻 **Source Code:** Hosted in this GitHub repository.
 
 These scripts demonstrate that the model simultaneously resolves:
+- **Hubble Tension** ($H_0 \approx 73$)
+- **$S_8$ Tension** ($S_8 \approx 0.765$)
+- **Lithium Problem** (2.76x Depletion)
 
-- Hubble Tension
-- S8 Tension
-- Lithium Problem
-
-while preserving ΛCDM successes in:
-
-- Big Bang Nucleosynthesis (BBN)
-- Cosmic Microwave Background (CMB)
-- Cosmic Age
-- Solar System Gravity (Cassini)
+...while preserving $\Lambda$CDM successes in BBN, CMB, and Solar System gravity.
 
 ---
 
@@ -37,7 +30,6 @@ Install dependencies using:
 
 ```bash
 pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward camb
-
 ```
 
 ---
@@ -45,109 +37,100 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 ## 🧪 Validation Catalog
 
 ### 1. Core Resolution (H₀ & S₈ Tensions)
+*Verifying the mechanical resolution of the expansion and growth tensions.*
 
-| Script Name | Objective | Key Result |
-| --- | --- | --- |
-| Gravity_Boost.py | Verify H₀ shift via Early Gravity Boost | 74.5 km/s/Mpc |
-| S8_KiDS_DES.py | Verify S₈ suppression | 0.776 |
-| generate_Figure3a_tension.py | Hubble tension significance | > 5σ |
-| validate_vacuum_tension_resolution.py | Pantheon+ stress test | Δχ² = -4973.1 |
-
----
+| Script Name | Objective | Key Result (Paper) |
+| :--- | :--- | :--- |
+| `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.5$ |
+| `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $S_8 \approx 0.765$ |
+| `generate_Figure3a_tension.py` | Hubble tension significance check | $> 5\sigma$ Resolution |
+| `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2531$ |
 
 ### 2. Microphysics & Fundamental Constants
+*Verifying the geometric derivation of constants and particle stability.*
 
-| Script Name | Objective | Key Result |
-| --- | --- | --- |
-| generate_Figure1_lattice_simulation.py | Lepton sum rule simulation | 98.6% |
-| validate_lithium_solution.py | Lithium-7 depletion | 2.76× |
-| validate_deuterium_robust.py | D/He invariance | Invariant |
-| validate_BBN_stability.py | Helium-4 stability | Invariant |
-| generate_Figure5_validate_vacuum_fracture.py | Vacuum fracture test | 0.9 TeV |
-
----
+| Script Name | Objective | Key Result (Paper) |
+| :--- | :--- | :--- |
+| `generate_Figure1_lattice_simulation.py` | Lepton Saturation Sum Rule | $98.58\%$ Efficiency |
+| `validate_lithium_solution.py` | Lithium-7 Depletion ($m \propto G^{-0.5}$) | $2.76\times$ Depletion |
+| `validate_deuterium_robust.py` | Deuterium/Helium Invariance | Ratio Preserved |
+| `validate_BBN_stability.py` | Helium-4 Freeze-out Check | $Y_p \approx 0.245$ |
+| `generate_Figure5_validate_vacuum_fracture.py` | Vacuum Fracture (Electron/Proton) | $0.9$ TeV / $14$ TeV |
 
 ### 3. Consistency Checks (Safety Mechanisms)
+*Ensuring the new physics does not break existing precision observations.*
 
-| Script Name | Objective | Key Result |
-| --- | --- | --- |
-| verify_CMB_geometric_scaling.py | CMB Spectrum Restoration (CAMB) | Peaks Aligned |
-| hyperuniform_screening_check.py | Cassini (Solar System) Check | Range < 12mm |
-| validate_CMB_invariance.py | Acoustic Scale Stability | 0.15% |
-| validate_jerk_stability.py | Singularity check | Jerk < 3.59 |
-| Universe_age.py | Universe age check | 13.06 Gyr |
-| validate_ISW_stability.py | ISW stability | ×1.10 |
-| generate_Figure3b_validate_shape.py | Distance shape | Δχ² ≈ 0.28 |
-| hubble_transition_model.py | Phase transition | Smooth |
-
----
+| Script Name | Objective | Key Result (Paper) |
+| :--- | :--- | :--- |
+| `verify_CMB_geometric_scaling.py` | CMB Spectrum Restoration (CAMB) | Peaks Aligned |
+| `hyperuniform_screening_check.py` | Cassini (Solar System) Screening | Range $< 12$mm |
+| `validate_CMB_invariance.py` | Acoustic Scale Stability ($\theta_*$) | Error $< 0.01\%$ |
+| `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.22$ |
+| `Universe_age.py` | Cosmic Age Calculation | $12.51$ Gyr |
+| `validate_ISW_stability.py` | Integrated Sachs-Wolfe (Supervoids) | Signal $\times 1.22$ |
+| `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +1.41$ |
+| `hubble_transition_model.py` | Phase Transition Smoothness | Continuous ($C^1$) |
 
 ### 4. Observational Probes (BAO, Growth, Galaxies)
+*Cross-validating against independent datasets.*
 
-| Script Name | Objective | Key Result |
-| --- | --- | --- |
-| validate_Pk_screening.py | Power spectrum screening | 0.00% |
-| validate_BAO_ladder.py | Distance ladder | < 1σ |
-| validate_growth_numerical.py | Growth rate | S₈ ≈ 0.776 |
-| check_magnitude_shift.py | SNe shift | < 1σ |
-| validate_JWST_growth.py | Galaxy growth | ×2458 |
-| cosmic_chronometers_test.py | H(z) test | χ² ≈ 0.79 |
-
----
+| Script Name | Objective | Key Result (Paper) |
+| :--- | :--- | :--- |
+| `validate_Pk_screening.py` | Matter Power Spectrum Shape | $0.00\%$ Deviation |
+| `validate_BAO_ladder.py` | BAO Distance Ladder (8-Point) | $r_s \approx 133.1$ Mpc |
+| `validate_growth_numerical.py` | Linear Growth Rate ($f\sigma_8$) | Matches Data |
+| `check_magnitude_shift.py` | SNe Magnitude Bias (Geometric) | $\Delta M \approx -0.235$ |
+| `validate_JWST_growth.py` | JWST "Impossible Galaxies" | Luminosity Boost |
+| `cosmic_chronometers_test.py` | Cosmic Chronometers ($H(z)$) | $\chi^2_\nu \approx 0.94$ |
 
 ### 5. Global Statistical Verdict
+*The final Bayesian evidence summary.*
 
 | Script Name | Objective | Result |
-| --- | --- | --- |
-| validate_global_stats.py | Global likelihood sum | Δχ² ≈ -3568 |
-| generate_Figure4_MCMC_validation.py | Bayesian check | Pass |
+| :--- | :--- | :--- |
+| `validate_global_stats.py` | Global Likelihood Sum (Net) | $\Delta\chi^2 \approx -2524$ |
+| `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.87 \pm 0.24$ |
 
 ---
 
 ## 📊 Key Findings
 
-Running:
-
-```bash
-python src/validate_global_stats.py
-
-```
-
-reproduces the main conclusion:
+Running `src/validate_global_stats.py` reproduces the main conclusion:
 
 > **The Unified Vacuum Model is globally preferred by >5σ over ΛCDM.**
 
-### Summary
-
-* Supernovae: H₀ ≈ 74.5
-* Structure Growth: S₈ ≈ 0.776
-* Matter Power: Preserved
-* BBN: Li7 resolved, D/He preserved
-* CMB: Acoustic scale preserved (Peaks Aligned via CAMB)
-* Solar System: Fifth Force screened (< 12mm)
-* Vacuum Fracture: 0.9 TeV detection
+### Summary Scorecard
+*   **Supernovae:** $H_0 \approx 72.87$ km/s/Mpc (Matches SH0ES)
+*   **Structure Growth:** $S_8 \approx 0.765$ (Matches Weak Lensing)
+*   **BBN:** Lithium-7 Solved, D/He Preserved
+*   **CMB:** Acoustic Scale Locked ($\theta_*$ invariant)
+*   **Solar System:** Fifth Force Screened (Hyperuniformity)
+*   **Vacuum Fracture:** 0.9 TeV Break Detected (DAMPE/CMS)
 
 ---
 
 ## 📁 Repository Structure
 
 ```
-/src/       # Validation scripts
-/figures/   # Generated plots
-/data/      # Cached datasets
-
+/src/       # Validation scripts (25 files)
+/figures/   # Generated plots (Figures 1-5)
+/data/      # Cached datasets (Pantheon+, Chronometers)
 ```
 
 ---
 
 ## 📝 Usage
 
-### Global Statistics (Table VIII)
+To run the **"Acid Test"** (Blind MCMC) to verify the expansion history:
 
 ```bash
-python src/validate_global_stats.py
+python src/generate_Figure4_MCMC_validation.py
+```
 
+To verify the **Lithium-7 Solution**:
 
+```bash
+python src/validate_lithium_solution.py
 ```
 
 ---
@@ -156,14 +139,13 @@ python src/validate_global_stats.py
 
 If you use this repository, please cite:
 
+```bibtex
+@article{Bisht2026,
+  title={Vacuum Elastodynamics: Geometric Unification and the Resolution of Hubble and S8 Tensions via Lattice Viscosity},
+  author={Bisht, Mayank},
+  journal={Zenodo},
+  year={2026},
+  doi={10.5281/zenodo.17666785}
+}
 ```
-Bisht, M. (2026).
-Vacuum Elastodynamics: Geometric Unification and the Resolution
-of Hubble and S8 Tensions via Lattice Viscosity.
-Zenodo. [https://doi.org/10.5281/zenodo.17666785](https://doi.org/10.5281/zenodo.17666785)
-
-```
-
-```
-
 ```
