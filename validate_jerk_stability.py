@@ -2,80 +2,93 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 print("--- COSMIC WHIPLASH (JERK PARAMETER STABILITY) ---")
-print("Objective: Verify the Phase Transition doesn't cause unphysical derivatives.")
+print("Objective: Verify the Phase Transition is Adiabatically Smooth.")
 
 # ==========================================
-# 1. PHYSICS ENGINE
+# 1. PHYSICS PARAMETERS (From VED Theory)
 # ==========================================
-# Grid Setup
+Z_TRANS = 0.65
+WIDTH = 0.10
+
+# Dual-Trajectory Anchor Points
+# EARLY REGIME (z > 0.65)
+H_EARLY = 74.5
+OM_EARLY = 0.315
+
+# LATE REGIME (z < 0.65)
+H_LATE = 72.87
+OM_LATE = 0.357  # Includes Inertial Counter-Load
+
+# ==========================================
+# 2. RIGOROUS DUAL-TRANSITION ENGINE
+# ==========================================
+def H_early_trajectory(z):
+    return H_EARLY * np.sqrt(OM_EARLY * (1+z)**3 + (1-OM_EARLY))
+
+def H_late_trajectory(z):
+    return H_LATE * np.sqrt(OM_LATE * (1+z)**3 + (1-OM_LATE))
+
+def get_hubble_vac(z):
+    # Sigmoid Transition
+    # z >> 0.65 -> Early Universe -> w = 1.0
+    # z << 0.65 -> Late Universe -> w = 0.0
+    w = 1.0 / (1.0 + np.exp(-(z - Z_TRANS)/WIDTH))
+    return w * H_early_trajectory(z) + (1.0 - w) * H_late_trajectory(z)
+
+# High-resolution Grid
 z_grid = np.linspace(0, 2.0, 2000)
 
-# Transition Parameters (Matches Paper)
-H0_VAC = 74.5
-Z_TRANS = 0.65
-WIDTH = 0.1
-
-def get_hubble_vac(z_arr):
-    """
-    Models the Vacuum Phase Transition.
-    Late Universe (z < 0.65): Lattice relaxes, boosting H(z).
-    Early Universe (z > 0.65): Lattice is stiff, matches Planck LCDM.
-    """
-    # Standard LCDM Baseline (Planck 2018 parameters)
-    E_lcdm = np.sqrt(0.315*(1+z_arr)**3 + (1-0.315))
-    
-    # Transition Function (Sigmoid)
-    # S = 1 at z=0 (Late Time / Boosted)
-    # S = 0 at z>>0.65 (Early Time / Standard)
-    S_active = 1.0 / (1.0 + np.exp((z_arr - Z_TRANS)/WIDTH))
-    
-    # Apply Boost
-    # Scales H0 from 67.4 (Planck) to 74.5 (Vacuum) smoothly
-    scaling = 1.0 + ( (74.5/67.4) - 1.0 ) * S_active
-    
-    return 67.4 * E_lcdm * scaling
-
 # ==========================================
-# 2. CALCULATE DERIVATIVES (q and j)
+# 3. CALCULATE DERIVATIVES (q and j)
 # ==========================================
-# H(z) Array
+# VED Kinematics
 Hz = get_hubble_vac(z_grid)
-
-# First Derivative dH/dz
 dHdz = np.gradient(Hz, z_grid)
-
-# Deceleration Parameter q(z)
-# Formula: q = (1+z)/H * (dH/dz) - 1
 q = (1+z_grid) * (dHdz / Hz) - 1
-
-# Derivative of q (dq/dz)
 dqdz = np.gradient(q, z_grid)
+j_vac = q*(2*q + 1) + (1+z_grid)*dqdz
 
-# Jerk Parameter j(z)
-# Formula: j = q(2q+1) + (1+z)*(dq/dz)
-j = q*(2*q + 1) + (1+z_grid)*dqdz
+# Standard LCDM Baseline (For Comparison)
+Hz_std = 67.4 * np.sqrt(0.315 * (1+z_grid)**3 + 0.685)
+dHdz_std = np.gradient(Hz_std, z_grid)
+q_std = (1+z_grid) * (dHdz_std / Hz_std) - 1
+dqdz_std = np.gradient(q_std, z_grid)
+j_std = q_std*(2*q_std + 1) + (1+z_grid)*dqdz_std
 
 # ==========================================
-# 3. VERDICT
+# 4. ANALYSIS & VERDICT
 # ==========================================
-max_j = np.max(np.abs(j))
-print(f"Max Absolute Jerk: {max_j:.2f}")
+max_j_vac = np.max(np.abs(j_vac))
+max_j_std = np.max(np.abs(j_std)) # Strictly 1.00
 
-# Threshold Analysis
-if max_j < 15.0:
-    print("VERDICT: PASS. Transition is physically smooth.")
+print(f"Max Absolute Jerk (Standard LCDM): {max_j_std:.2f}")
+print(f"Max Absolute Jerk (VED Dual-Transition): {max_j_vac:.2f}")
+
+print("-" * 50)
+if max_j_vac < 2.0:
+    print("[ PASS ] The Phase Transition is Adiabatically Smooth.")
+    print("The Inertial Counter-Load successfully cushions the expansion shift,")
+    print("preventing any unphysical 'Cosmic Whiplash'.")
 else:
-    print("VERDICT: FAIL. Cosmic Whiplash detected (Singularity risk).")
+    print("[ FAIL ] Whiplash detected.")
 
-# Plot
-plt.figure(figsize=(10,6))
-plt.plot(z_grid, j, 'r-', linewidth=2, label='Vacuum Jerk j(z)')
-plt.axhline(1.0, color='k', linestyle='--', label='LCDM Baseline (j=1)')
+# ==========================================
+# 5. PLOT
+# ==========================================
+plt.figure(figsize=(9,6))
+plt.plot(z_grid, j_vac, 'r-', linewidth=3, label='Vacuum Elastodynamics j(z)')
+plt.plot(z_grid, j_std, 'k--', linewidth=2, label='Standard LCDM Baseline (j=1)')
+
 plt.axvline(Z_TRANS, color='gray', linestyle=':', label='Phase Transition (z=0.65)')
-plt.xlabel('Redshift z')
-plt.ylabel('Jerk Parameter j(z)')
-plt.title(f'Stability Analysis: Jerk Parameter Evolution (Width={WIDTH})')
-plt.ylim(-5, 10) 
-plt.legend()
+plt.xlabel('Redshift z', fontsize=12)
+plt.ylabel('Jerk Parameter j(z)', fontsize=12)
+plt.title('Stability Analysis: Adiabatic Smoothness of the Vacuum Transition', fontsize=14)
+plt.ylim(0.5, 1.5)
+plt.legend(fontsize=11)
 plt.grid(True, alpha=0.3)
+plt.gca().invert_xaxis()
+
+plt.tight_layout()
+plt.savefig('Jerk_Stability_Test.png')
+print("Plot saved as 'Jerk_Stability_Test.png'")
 plt.show()
