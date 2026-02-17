@@ -43,7 +43,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | :--- | :--- | :--- |
 | `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.5$ |
 | `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $S_8 \approx 0.765$ |
-| `generate_Figure3a_tension.py` | Hubble tension significance check | $> 5\sigma$ Resolution |
+| `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2 \approx -2531$ |
 | `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2535$ |
 
 ### 2. Microphysics & Fundamental Constants
