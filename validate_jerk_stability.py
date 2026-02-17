@@ -83,7 +83,7 @@ plt.axvline(Z_TRANS, color='gray', linestyle=':', label='Phase Transition (z=0.6
 plt.xlabel('Redshift z', fontsize=12)
 plt.ylabel('Jerk Parameter j(z)', fontsize=12)
 plt.title('Stability Analysis: Adiabatic Smoothness of the Vacuum Transition', fontsize=14)
-plt.ylim(0.5, 1.5)
+plt.ylim(0, 1.5)
 plt.legend(fontsize=11)
 plt.grid(True, alpha=0.3)
 plt.gca().invert_xaxis()
