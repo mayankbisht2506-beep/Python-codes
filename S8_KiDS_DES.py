@@ -151,7 +151,7 @@ for i, (label, val) in enumerate(targets.items()):
 plt.axhspan(S8_TARGET_LOW, S8_TARGET_HIGH, color='blue', alpha=0.1, label=r'DES Y3 $1\sigma$ Concordance')
 plt.axhline(S8_TARGET_MEAN, color='blue', linestyle='--', alpha=0.3)
 
-plt.annotate(f"Viscous Suppression\n(-{100*(1-growth_suppression):.1f}% in $\sigma_8$)", 
+plt.annotate(rf"Viscous Suppression\n(-{100*(1-growth_suppression):.1f}% in $\sigma_8$)", 
              xy=(2, s8_true_wl), xytext=(1, 0.81),
              arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2", color='red'),
              fontsize=10, color='red', fontweight='bold')
