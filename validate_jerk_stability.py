@@ -67,8 +67,9 @@ print(f"Max Absolute Jerk (VED Dual-Transition): {max_j_vac:.2f}")
 print("-" * 50)
 if max_j_vac < 2.0:
     print("[ PASS ] The Phase Transition is Adiabatically Smooth.")
-    print("The Inertial Counter-Load successfully cushions the expansion shift,")
-    print("preventing any unphysical 'Cosmic Whiplash'.")
+    print(f"The Viscoelastic Relaxation Time (Transition Width dz={WIDTH})")
+    print("successfully cushions the microscopic jamming spike, preventing")
+    print("any macroscopic kinematic singularities (Cosmic Whiplash).")
 else:
     print("[ FAIL ] Whiplash detected.")
 
