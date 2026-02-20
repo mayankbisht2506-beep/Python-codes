@@ -41,7 +41,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
-| `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.5$ |
+| `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.53$ |
 | `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $S_8 \approx 0.765$ |
 | `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2 \approx -2531$ |
 | `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2535$ |
@@ -89,7 +89,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Result |
 | :--- | :--- | :--- |
 | `validate_global_stats.py` | Global Likelihood Sum (Net) | $\Delta\chi^2 \approx -2524$ |
-| `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.87 \pm 0.24$ |
+| `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.86 \pm 0.24$ |
 
 ---
 
