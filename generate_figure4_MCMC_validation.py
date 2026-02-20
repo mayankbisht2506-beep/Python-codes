@@ -80,10 +80,10 @@ inv_cov_sn = np.linalg.pinv(cov_filtered)
 # 3. UNIFIED PHYSICS ENGINE (CORRECTED)
 # ==========================================
 c_light = 299792.458
-Z_TRANS = 0.65
+Z_TRANS = 0.641 #Theroetically derived Section 2.4
 WIDTH = 0.10
-OM_PRIMORDIAL = 0.315 # The frictionless baseline
-H_FAST = 74.5         # The strict geometric expansion ceiling
+OM_PRIMORDIAL = 0.3116 # The frictionless baseline Theroetically derived Section 7.1.2
+H_FAST = 74.53         # The strict geometric expansion ceiling Theroetically derived Section 7.2
 
 def hubble_model(z, params):
     # Free Parameters: Local Decelerated H0, and the Effective Late-Time Density
@@ -167,8 +167,8 @@ for i in range(ndim):
 
 # Plot
 # Truths represent the exact Terminal Velocity and Effective Drag derived in Section 7.2
-H_OBS_THEORY = 72.53
-OM_EFF_THEORY = 0.367
+H_OBS_THEORY = 72.56
+OM_EFF_THEORY = 0.3639
 
 fig = corner.corner(
     flat_samples, 
