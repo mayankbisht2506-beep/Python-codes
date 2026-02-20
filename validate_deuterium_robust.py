@@ -1,3 +1,6 @@
+# Uncomment the line below if running in Google Colab / Jupyter
+# !pip install numpy matplotlib
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -5,18 +8,24 @@ print("--- PRIMORDIAL DEUTERIUM INVARIANCE (STRICT) ---")
 print("Objective: Verify the 'Cancellation Theorem' (Section 7.13) for Deuterium.")
 
 # ==========================================
-# 1. PARAMETERS (Strict Theory Consistency)
+# 1. PARAMETERS (Exact D4 Topology)
 # ==========================================
 # Observation (Particle Data Group)
 OBS_DH = 2.547e-5
-
-# The "Grand Unification" Values (Section 7.2)
 H0_PLANCK = 67.4
-H0_THEORY = 74.5    # The Gravity Boost Prediction
 
-# CALCULATE G_BOOST EXACTLY
-# H ~ sqrt(G), so G ~ H^2
-G_BOOST = (H0_THEORY / H0_PLANCK)**2  # approx 1.2216
+# EXACT TOPOLOGICAL INPUTS
+CABIBBO_ANGLE = 0.225   # Standard Model Mixing Angle (sin theta_c)
+Y_MAX = 0.2055          # Macroscopic Yield Limit (derived from E8/D4 geometry)
+
+# Derived Effective Stiffness (Section 7.3)
+DELTA_EFF = CABIBBO_ANGLE * (1.0 - Y_MAX)
+
+# Derived Early Gravity Boost (G_early / G_0)
+G_BOOST = 1.0 / (1.0 - DELTA_EFF)
+
+# Theoretical Expansion Ceiling (Tracks G_early)
+H0_THEORY = H0_PLANCK * np.sqrt(G_BOOST)
 
 # ==========================================
 # 2. SCALING LAWS (The Cancellation Theorem)
@@ -73,7 +82,7 @@ final_std, final_vac, scaling_factor = run_simulation()
 ratio = final_vac / final_std
 percent_change = (ratio - 1) * 100
 
-print(f"H0 Theory: {H0_THEORY} (implies G_BOOST = {G_BOOST:.4f})")
+print(f"H0 Theory: {H0_THEORY:.2f} (implies G_BOOST = {G_BOOST:.4f})")
 print("-" * 50)
 print(f"SCALING FACTORS (Section 7.13):")
 print(f"  Density (dilution):        {RHO_SCALE:.4f}  (G^-1.5)")
@@ -97,16 +106,18 @@ else:
 
 # Plot
 plt.figure(figsize=(6,5))
-x_labels = [r'Standard $\Lambda$CDM', f'Vacuum ($H_0={H0_THEORY}$)']
+x_labels = [r'Standard $\Lambda$CDM', rf'Vacuum ($H_0={H0_THEORY:.2f}$)']
 y_values = [final_std*1e5, final_vac*1e5]
 
 plt.bar(x_labels, y_values, color=['gray', '#1f77b4'], width=0.5)
-plt.axhline(OBS_DH*1e5, color='red', linestyle='--', linewidth=1, label='Particle Data Group')
+plt.axhline(OBS_DH*1e5, color='red', linestyle='--', linewidth=1.5, label='Particle Data Group')
 
-plt.ylabel(r'Deuterium Abundance ($10^{-5}$)')
-plt.title(f'BBN Invariance: The Cancellation Theorem')
+plt.ylabel(r'Deuterium Abundance ($10^{-5}$)', fontsize=12)
+plt.title(f'BBN Invariance: Derived from Cabibbo Angle', fontsize=14)
 plt.ylim(0, 3.0)
-plt.legend()
+plt.legend(loc='lower right')
+plt.grid(axis='y', linestyle=':', alpha=0.5)
 plt.tight_layout()
-plt.savefig('Figure_BBN_Strict.png')
+plt.savefig('Figure_BBN_Strict.png', dpi=300)
+print("Plot saved as 'Figure_BBN_Strict.png'")
 plt.show()
