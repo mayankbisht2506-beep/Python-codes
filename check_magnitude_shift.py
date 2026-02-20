@@ -5,8 +5,8 @@ import requests
 import io
 from scipy.integrate import quad
 
-print("--- PANTHEON+ THEORY VALIDATION (STRICT) ---")
-print("Objective: Verify Vacuum Prediction (-0.235 mag) against Deep Field Data")
+print("--- PANTHEON+ THEORY VALIDATION (EXACT PRECISION) ---")
+print("Objective: Verify Vacuum Prediction (-0.241 mag) against Deep Field Data")
 
 # ==========================================
 # 1. PHYSICS & COSMOLOGY SETUP
@@ -17,10 +17,10 @@ OM_PLANCK = 0.315
 OL_PLANCK = 1.0 - OM_PLANCK
 C_LIGHT   = 299792.458
 
-# --- UPDATED THEORETICAL INPUTS ---
-# Section 7.3
-# -0.65 (Geo) + 0.16 (Lum) + 0.255 (Visc) = -0.235 mag
-MODEL_SHIFT = -0.2350
+# --- EXACT THEORETICAL INPUTS ---
+# Section 7.3: Geometric(geo) + Luminosity(lum) + Viscous(visc)
+# -0.655 + 0.165 + 0.249 = -0.241 mag
+MODEL_SHIFT = -0.241
 
 # Observational Error Budget for Supernovae (approx 1.5-2.0%)
 # This is the standard "ruler error" for checking tension.
@@ -64,9 +64,10 @@ df['weights']   = 1.0 / (df['MU_SH0ES_ERR_DIAG']**2)
 # A. Weighted Mean (Diluted by Local Physics)
 obs_weighted = np.average(df['residual'], weights=df['weights'])
 
-# B. Deep Field Unweighted (The "Pure" Signal at z > 0.65)
-# Paper identifies z approx 0.65 as the transition threshold (Eq. 7)
-deep_data = df[df['zHD'] > 0.65]
+# B. Deep Field Unweighted (The "Pure" Signal at z > 0.641)
+# Paper identifies z approx 0.641 as the exact geometric percolation threshold
+Z_TRANS = 0.641
+deep_data = df[df['zHD'] > Z_TRANS]
 obs_deep_pure = deep_data['residual'].mean()
 
 # ==========================================
@@ -75,11 +76,11 @@ obs_deep_pure = deep_data['residual'].mean()
 print("\n" + "="*60)
 print("SCIENTIFIC VERIFICATION RESULTS")
 print("="*60)
-print(f"THEORY PREDICTION (Eq. 82): {MODEL_SHIFT:.4f} mag")
+print(f"THEORY PREDICTION (Eq. 92):   {MODEL_SHIFT:.3f} mag")
 print(f"OBSERVATIONAL ERROR (Sigma):  {SIGMA_OBS:.3f} mag")
 print("-" * 60)
 print(f"1. Global Weighted Mean:      {obs_weighted:.4f} mag")
-print(f"2. Deep Field Mean (z>0.65):  {obs_deep_pure:.4f} mag")
+print(f"2. Deep Field Mean (z>{Z_TRANS}): {obs_deep_pure:.4f} mag")
 print("-" * 60)
 
 # Calculate Z-Score (Sigma Match)
@@ -108,9 +109,9 @@ plt.figure(figsize=(12, 7))
 
 # Plot Data
 plt.errorbar(df['zHD'], df['residual'], yerr=df['MU_SH0ES_ERR_DIAG'], 
-             fmt='o', color='lightgray', alpha=0.3, label='Local Data (z < 0.65)')
+             fmt='o', color='lightgray', alpha=0.3, label=f'Local Data (z < {Z_TRANS})')
 plt.errorbar(deep_data['zHD'], deep_data['residual'], yerr=deep_data['MU_SH0ES_ERR_DIAG'], 
-             fmt='o', color='gray', alpha=0.8, label='Deep Field (z > 0.65)')
+             fmt='o', color='gray', alpha=0.8, label=f'Deep Field (z > {Z_TRANS})')
 
 # Plot Reference Lines
 plt.axhline(0, color='black', linewidth=1, label='Planck Baseline')
