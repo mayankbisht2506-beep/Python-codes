@@ -29,12 +29,13 @@ SIGMA8_0_LCDM = 0.811
 # ==========================================
 # 2. PHYSICS PARAMETERS
 # ==========================================
-OM_PRIMORDIAL = 0.315
-OM_EFFECTIVE  = 0.359  # UPDATED: Matches final highly converged MCMC result
+OM_PLANCK     = 0.315
+OM_PRIMORDIAL = 0.3116  # EXACT: Frictionless Bare Density
+OM_EFFECTIVE  = 0.359   # EXACT: Matches final converged MCMC result
 
-ETA_FLOOR = 0.1569
-ETA_PEAK  = 0.3116     # UPDATED: Exact simple cubic percolation limit
-Z_TRANS   = 0.641      # UPDATED: Exact percolation redshift
+ETA_FLOOR = 0.1569      # EXACT: Lepton Saturation Viscosity
+ETA_PEAK  = 0.3116      # EXACT: Simple cubic percolation limit
+Z_TRANS   = 0.641       # EXACT: Percolation redshift
 WIDTH     = 0.10
 
 def get_viscosity(z):
@@ -54,7 +55,7 @@ def growth_ode_rigorous(y, a, model='lcdm'):
         sigmoid = expit(arg)
         om_z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     else:
-        om_z = OM_PRIMORDIAL
+        om_z = OM_PLANCK
 
     E = np.sqrt(om_z*(1+z)**3 + (1-om_z))
     dE_da = -1.5 * om_z * (a**-4) / E
@@ -86,7 +87,11 @@ f_lcdm = (a_grid / delta_lcdm) * d_delta_lcdm
 f_vac  = (a_grid / delta_vac) * d_delta_vac
 
 sig8_lcdm = SIGMA8_0_LCDM * (delta_lcdm / delta_lcdm[-1])
-sig8_vac = (sig8_lcdm[0] / delta_vac[0]) * delta_vac
+
+# TRUE PHYSICAL SCALAR: Early universe fluctuates according to bare density
+# We scale the initial fluctuations by the sqrt of the bare/Planck ratio
+early_scalar = np.sqrt(OM_PRIMORDIAL / OM_PLANCK)
+sig8_vac = (sig8_lcdm[0] * early_scalar / delta_vac[0]) * delta_vac
 
 fs8_lcdm = f_lcdm * sig8_lcdm
 fs8_vac  = f_vac * sig8_vac
@@ -128,7 +133,7 @@ else:
 # Plot
 plt.figure(figsize=(10,6))
 plt.plot(z_axis, fs8_lcdm, 'k--', label=r'Standard $\Lambda$CDM ($\Omega_m=0.315$)')
-plt.plot(z_axis, fs8_vac, 'r-', linewidth=2, label=r'Vacuum Model ($\Omega_m^{eff}=0.359, \eta=0.157$)')
+plt.plot(z_axis, fs8_vac, 'r-', linewidth=2, label=r'Vacuum Model ($\Omega_{bare}=0.3116, \eta=0.157$)')
 plt.errorbar(data_rsd[:,0], data_rsd[:,1], yerr=data_rsd[:,2], fmt='o', color='blue', label='RSD Data', capsize=3)
 plt.xlim(0, 1.6)
 plt.xlabel('Redshift z')
@@ -136,6 +141,7 @@ plt.ylabel(r'$f\sigma_8(z)$')
 plt.title(r'Global Growth Rate: Full Model vs LCDM')
 plt.legend()
 plt.grid(alpha=0.3)
-plt.savefig('Growth_Check_Final.png')
+plt.tight_layout()
+plt.savefig('Growth_Check_Final.png', dpi=300)
 print("Plot saved as 'Growth_Check_Final.png'")
 plt.show()
