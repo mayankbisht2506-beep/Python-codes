@@ -1,3 +1,6 @@
+# Uncomment the line below if running in Google Colab / Jupyter
+# !pip install scipy numpy matplotlib
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
@@ -27,11 +30,11 @@ SIGMA8_0_LCDM = 0.811
 # 2. PHYSICS PARAMETERS
 # ==========================================
 OM_PRIMORDIAL = 0.315
-OM_EFFECTIVE  = 0.357  # Updated to MCMC Cross-Validation value
+OM_EFFECTIVE  = 0.359  # UPDATED: Matches final highly converged MCMC result
 
 ETA_FLOOR = 0.1569
-ETA_PEAK  = 0.31
-Z_TRANS   = 0.65
+ETA_PEAK  = 0.3116     # UPDATED: Exact simple cubic percolation limit
+Z_TRANS   = 0.641      # UPDATED: Exact percolation redshift
 WIDTH     = 0.10
 
 def get_viscosity(z):
@@ -125,7 +128,7 @@ else:
 # Plot
 plt.figure(figsize=(10,6))
 plt.plot(z_axis, fs8_lcdm, 'k--', label=r'Standard $\Lambda$CDM ($\Omega_m=0.315$)')
-plt.plot(z_axis, fs8_vac, 'r-', linewidth=2, label=r'Vacuum Model ($\Omega_m^{eff}=0.357, \eta=0.157$)')
+plt.plot(z_axis, fs8_vac, 'r-', linewidth=2, label=r'Vacuum Model ($\Omega_m^{eff}=0.359, \eta=0.157$)')
 plt.errorbar(data_rsd[:,0], data_rsd[:,1], yerr=data_rsd[:,2], fmt='o', color='blue', label='RSD Data', capsize=3)
 plt.xlim(0, 1.6)
 plt.xlabel('Redshift z')
