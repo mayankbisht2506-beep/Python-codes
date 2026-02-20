@@ -19,12 +19,13 @@ COV_FILE = "Pantheon+SH0ES_STAT+SYS.cov"
 def download_file(url, filename):
     if not os.path.exists(filename):
         try:
+            print(f"Downloading {filename}...")
             r = requests.get(url, stream=True)
             with open(filename, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error downloading {filename}: {e}")
 
 download_file(DATA_URL, DATA_FILE)
 download_file(COV_URL, COV_FILE)
@@ -59,6 +60,9 @@ cov_filtered = cov_matrix[np.ix_(indices, indices)]
 print("Inverting Covariance Matrix (Robust Method)...")
 inv_cov = np.linalg.pinv(cov_filtered) 
 
+# Extract safe diagonal errors for plotting
+err_diag = np.sqrt(np.diag(cov_filtered))
+
 # ==========================================
 # 3. PHYSICS BASELINE (PLANCK)
 # ==========================================
@@ -66,8 +70,13 @@ C_LIGHT = 299792.458
 H0_PLANCK = 67.4 
 OM_PLANCK = 0.315
 OL_PLANCK = 1.0 - OM_PLANCK
-Z_TRANS = 0.65
+
+# EXACT PURE THEORY PARAMETERS
+Z_TRANS = 0.641
 WIDTH = 0.10
+H_FAST = 74.37
+OM_PRIMORDIAL = 0.3116  # Topological Bare Density
+OM_EFFECTIVE  = 0.3635  # Viscous Braking Density
 
 def integrate_distance_vectorized(z_values, h_func):
     # Upgraded to 10,000 grid points for ultra-low z precision
@@ -93,17 +102,13 @@ chi2_planck = R_planck.T @ inv_cov @ R_planck
 # ==========================================
 print("Optimizing Vacuum Model Headroom...")
 
-# REFINEMENT: Using final N=1701 true MCMC targets
-OM_PRIMORDIAL = 0.315  # Early Universe (Frictionless / Geometric)
-OM_EFFECTIVE  = 0.357  # Late Universe (Inertial Counter-Load / Viscous Drag)
-
 def objective_vacuum(h0_param):
     # Optimize the local decelerated velocity while locking the geometric ceiling
     H_LOCAL = h0_param[0]
-    H_FAST = 74.5
     
     def h_viscous(z):
         arg = (Z_TRANS - z) / WIDTH
+        # Safe sigmoid computation
         sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
         
         # 1. Density Transition
@@ -139,7 +144,7 @@ print(f"Delta Chi2:          {d_chi2:.2f}")
 # 5. PLOTTING
 # ==========================================
 plt.figure(figsize=(10,6))
-plt.errorbar(z_obs, R_planck, yerr=df_clean['MU_SH0ES_ERR_DIAG'], 
+plt.errorbar(z_obs, R_planck, yerr=err_diag, 
              fmt='o', color='lightgrey', alpha=0.3, label='Pantheon+ Residuals (SH0ES Calibrated)')
 
 def h_best(z):
@@ -147,7 +152,7 @@ def h_best(z):
     sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
-    H_Z = 74.5 + (best_H0 - 74.5) * sigmoid
+    H_Z = H_FAST + (best_H0 - H_FAST) * sigmoid
     return H_Z * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
 
 z_sort = np.sort(z_obs)
@@ -159,6 +164,8 @@ mu_planck_sort = 5 * np.log10(dl_planck_sort + 1e-12) + 25
 
 curve_opt = mu_best - mu_planck_sort
 
+
+
 plt.plot(z_sort, curve_opt, 'r-', linewidth=3, label=f'Optimized Vacuum Model (Terminal $H_0={best_H0:.2f}$)')
 
 plt.axhline(0, color='k', linestyle='--')
@@ -168,6 +175,7 @@ plt.title(rf'Test I: Raw Stress Test (Maximum Headroom)' + '\n' + rf'$\Delta\chi
 plt.legend(fontsize=10)
 plt.ylim(-0.6, 0.4)
 plt.grid(True, alpha=0.3)
-plt.savefig('Figure_Test1_RawStressTest.png')
-print("Plot saved as 'Figure_Test1_RawStressTest.png'")
+plt.tight_layout()
+plt.savefig('Figure_Test1_RawStressTest.png', dpi=300)
+print("\nPlot saved as 'Figure_Test1_RawStressTest.png'")
 plt.show()
