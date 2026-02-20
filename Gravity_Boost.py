@@ -7,7 +7,7 @@ print("Objective: Verify Gravity Boost and Late-Time Drag Mechanics")
 H0_PLANCK = 67.4
 
 # 2. Theoretical Inputs (Strictly derived from E8 Topology)
-DELTA_GEO = 0.2294       # 19D Cabibbo phase space projection
+DELTA_GEO = 0.2250       # D4 Triality projection (Cabibbo angle)
 Y_MAX = 0.2055           # Geometric Yield Coefficient
 DELTA_OM = 0.0523        # Inertial Counter-Load Drag (0.1569 / 3)
 
