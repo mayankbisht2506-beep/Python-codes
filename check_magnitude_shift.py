@@ -1,3 +1,5 @@
+# Uncomment the line below if running in Google Colab / Jupyter
+# !pip install pandas matplotlib scipy requests
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,7 +8,7 @@ import io
 from scipy.integrate import quad
 
 print("--- PANTHEON+ THEORY VALIDATION (EXACT PRECISION) ---")
-print("Objective: Verify Vacuum Prediction (-0.241 mag) against Deep Field Data")
+print("Objective: Verify Vacuum Prediction (-0.232 mag) against Deep Field Data")
 
 # ==========================================
 # 1. PHYSICS & COSMOLOGY SETUP
@@ -19,8 +21,8 @@ C_LIGHT   = 299792.458
 
 # --- EXACT THEORETICAL INPUTS ---
 # Section 7.3: Geometric(geo) + Luminosity(lum) + Viscous(visc)
-# -0.655 + 0.165 + 0.249 = -0.241 mag
-MODEL_SHIFT = -0.241
+# -0.642 + 0.160 + 0.250 = -0.232 mag
+MODEL_SHIFT = -0.232
 
 # Observational Error Budget for Supernovae (approx 1.5-2.0%)
 # This is the standard "ruler error" for checking tension.
@@ -132,6 +134,7 @@ plt.ylim(-0.6, 0.4)
 plt.xlim(0, 2.3)
 plt.grid(alpha=0.2)
 
-plt.savefig('Figure_Pantheon_DeepField_Match.png')
+plt.tight_layout()
+plt.savefig('Figure_Pantheon_DeepField_Match.png', dpi=300)
 print("Plot saved as 'Figure_Pantheon_DeepField_Match.png'")
 plt.show()
