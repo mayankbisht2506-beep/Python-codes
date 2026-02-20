@@ -17,10 +17,10 @@ S8_PLANCK     = 0.832
 OM_PRIMORDIAL = 0.315  # Standard Frictionless Bare Density
 
 # Vacuum Model Inputs (From MCMC & Theory)
-OM_EFFECTIVE  = 0.357   # The MCMC-derived "Terminal State" Kinematic Density
+OM_EFFECTIVE  = 0.359   # UPDATED: The MCMC-derived "Terminal State" Kinematic Density
 ZETA_FLOOR    = 0.1569  # Lepton Saturation Viscosity (zeta_sat)
-ZETA_PEAK     = 0.31    # Jamming/Percolation Threshold (zeta_peak)
-Z_TRANS       = 0.65    # Transition Redshift
+ZETA_PEAK     = 0.3116  # UPDATED: Jamming/Percolation Threshold (zeta_peak)
+Z_TRANS       = 0.641   # UPDATED: Transition Redshift
 WIDTH         = 0.10    # Phase Transition Width
 
 # Weak Lensing Targets (DES Y3 Consensus)
@@ -36,7 +36,7 @@ S8_TARGET_HIGH = S8_TARGET_MEAN + S8_TARGET_ERR
 def get_viscosity(z):
     """
     Calculates the macroscopic bulk viscosity of the vacuum lattice.
-    Includes the Gaussian jamming spike at z~0.65 and the late-time saturation floor.
+    Includes the Gaussian jamming spike at z~0.641 and the late-time saturation floor.
     """
     arg = (z - Z_TRANS) / WIDTH
     late_trigger = 1.0 - expit(arg)
@@ -53,7 +53,7 @@ def get_viscosity(z):
 def growth_ode_rigorous(y, a, model='lcdm'):
     """
     Solves the Linear Perturbation Growth Equation.
-    Vacuum Model adds the (1+zeta)^2 friction term from Eq. 98.
+    Vacuum Model adds the (1+zeta)^2 friction term from Eq. 103.
     """
     delta, delta_prime = y
     z = 1.0/a - 1.0
@@ -123,7 +123,7 @@ print(f"3. Vacuum Absolute Sigma_8:   {sigma8_visc:.4f}  <-- TRUE PHYSICAL AMPLI
 # S_8 is identical to the physical sigma_8.
 s8_true_wl = sigma8_visc * np.sqrt(0.30 / 0.3) 
 
-# 2. The Planck Illusion (Uses the kinematic load ~ 0.357)
+# 2. The Planck Illusion (Uses the kinematic load ~ 0.359)
 s8_planck_illusion = sigma8_visc * np.sqrt(OM_EFFECTIVE / 0.3)
 
 print(f"\n--- S8 TENSION VERDICT: THE OPTICAL ILLUSION ---")
