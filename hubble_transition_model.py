@@ -8,11 +8,11 @@ H0_PLANCK = 67.4
 Om_PLANCK = 0.315        # Standard LCDM Reference
 
 # VACUUM DYNAMICS (Strictly Geometric Derivations)
-H_FAST = 74.53           # EXACT: Early Superfluid Ceiling
+H_FAST = 74.37           # EXACT: Early Superfluid Ceiling (D4 Triality)
 DELTA_OM = 0.0523        # EXACT: Inertial Counter-Load Drag
 Om_BARE = 0.3116         # EXACT: Primordial Topological Density (p_c)
 Om_EFF = 0.3639          # EXACT: Effective Late-Time Density (0.3116 + 0.0523)
-H_OBS = 72.56            # EXACT: Terminal Decelerated Velocity
+H_OBS = 72.40            # EXACT: Terminal Decelerated Velocity
 
 Z_TRANS = 0.641          # EXACT: Percolation Threshold
 WIDTH = 0.1              # Transition Width (Sigmoidal Relaxation)
