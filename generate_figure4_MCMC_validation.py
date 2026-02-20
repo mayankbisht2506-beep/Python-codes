@@ -1,5 +1,5 @@
 # Uncomment the line below if running in Google Colab / Jupyter
-!pip install emcee corner
+# !pip install emcee corner
 import numpy as np
 import pandas as pd
 import emcee
@@ -54,8 +54,7 @@ print("Loading Pantheon+ Data...")
 df = pd.read_csv(DATA_FILE, sep=r'\s+')
 
 # CORRECTION: The paper uses the FULL dataset including local calibrators.
-# z > 0.00 to get N=1701.
-mask = df['zHD'] > 0.00 
+mask = df['zHD'] > -1.00 
 z_sn = df[mask]['zHD'].values
 mu_sn = df[mask]['MU_SH0ES'].values
 
@@ -80,10 +79,12 @@ inv_cov_sn = np.linalg.pinv(cov_filtered)
 # 3. UNIFIED PHYSICS ENGINE (CORRECTED)
 # ==========================================
 c_light = 299792.458
-Z_TRANS = 0.641 #Theroetically derived Section 2.4
+Z_TRANS = 0.641 # Theoretically derived Section 2.4
 WIDTH = 0.10
-OM_PRIMORDIAL = 0.3116 # The frictionless baseline Theroetically derived Section 7.1.2
-H_FAST = 74.53         # The strict geometric expansion ceiling Theroetically derived Section 7.2
+OM_PRIMORDIAL = 0.3116 # The frictionless baseline Theoretically derived Section 7.1.2
+
+# STRICT GEOMETRIC CEILING (Matches exact D4 Triality output)
+H_FAST = 74.37         
 
 def hubble_model(z, params):
     # Free Parameters: Local Decelerated H0, and the Effective Late-Time Density
@@ -98,7 +99,6 @@ def hubble_model(z, params):
     OL_Z = 1.0 - OM_Z
     
     # 2. Hubble Trajectory Transition
-    # Early universe tracks H_FAST (74.5). Late universe tracks the dragged H0_local.
     H_Z = H_FAST + (H0_local - H_FAST) * sigmoid
     
     # Standard Friedmann Expansion parameter using the dynamic density
@@ -148,16 +148,25 @@ ndim = 2
 nwalkers = 32
 
 # p0: TRULY BLIND INITIALIZATION
-# Scatter walkers uniformly across the entire prior volume
-# H0 between 60 and 80, Om_eff between 0.2 and 0.5
 p0 = np.random.uniform(low=[60.0, 0.2], high=[80.0, 0.5], size=(nwalkers, ndim))
 
-print("Running Chain (may take 10-15 mins)...")
+print("Running Chain for 10,000 steps (may take ~20 mins)...")
 sampler = emcee.EnsembleSampler(nwalkers, ndim, log_likelihood)
-sampler.run_mcmc(p0, 4000, progress=True)
+sampler.run_mcmc(p0, 10000, progress=True)
+
+# --- NEW: Autocorrelation Diagnostic ---
+print("\n--- CONVERGENCE DIAGNOSTICS ---")
+try:
+    tau = sampler.get_autocorr_time()
+    print(f"Autocorrelation time (tau): {tau}")
+    print(f"Chain length is {10000 / np.mean(tau):.1f} times the autocorrelation time.")
+    if (10000 / np.mean(tau)) > 100:
+        print("STATUS: Convergence is mathematically rigorous (>100x tau).")
+except emcee.autocorr.AutocorrError as e:
+    print(f"Autocorrelation Warning: {e}")
 
 # Results
-flat_samples = sampler.get_chain(discard=1000, thin=15, flat=True)
+flat_samples = sampler.get_chain(discard=2000, thin=15, flat=True)
 labels = [r"$H_0^{local}$", r"$\Omega_{m}^{eff}$"]
 
 print("\n--- FINAL UNIFIED MCMC RESULTS ---")
@@ -166,8 +175,8 @@ for i in range(ndim):
     print(f"{labels[i]}: {mcmc[1]:.3f}  +{np.diff(mcmc)[1]:.3f} / -{np.diff(mcmc)[0]:.3f}")
 
 # Plot
-# Truths represent the exact Terminal Velocity and Effective Drag derived in Section 7.2
-H_OBS_THEORY = 72.56
+# STRICT GEOMETRIC TERMINAL (Matches exact D4 Triality output)
+H_OBS_THEORY = 72.40
 OM_EFF_THEORY = 0.3639
 
 fig = corner.corner(
@@ -176,5 +185,5 @@ fig = corner.corner(
     truths=[H_OBS_THEORY, OM_EFF_THEORY], 
     truth_color="#ff4444"
 )
-plt.savefig("Joint_MCMC_Unified.png", dpi=300)
-print("Saved corner plot.")
+plt.savefig("Joint_MCMC_Unified_10k.png", dpi=300)
+print("Saved 10,000-step corner plot.")
