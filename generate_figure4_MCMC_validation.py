@@ -89,7 +89,7 @@ def hubble_model(z, params):
     # Free Parameters: Local Decelerated H0, and the Effective Late-Time Density
     H0_local, Om_effective = params
 
-    # The phase transition activates at z=0.65
+    # The phase transition activates at z=0.641
     arg = (Z_TRANS - z) / WIDTH
     sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
     
