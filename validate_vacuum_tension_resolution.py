@@ -64,19 +64,21 @@ inv_cov = np.linalg.pinv(cov_filtered)
 err_diag = np.sqrt(np.diag(cov_filtered))
 
 # ==========================================
-# 3. PHYSICS BASELINE (PLANCK)
+# 3. PHYSICS BASELINE (PLANCK 2018 EXACT)
 # ==========================================
 C_LIGHT = 299792.458
-H0_PLANCK = 67.4 
-OM_PLANCK = 0.315
+H0_PLANCK = 67.36     # EXACT: Planck 2018 Baseline
+OM_PLANCK = 0.3153    # EXACT: Planck 2018 Baseline
 OL_PLANCK = 1.0 - OM_PLANCK
 
-# EXACT PURE THEORY PARAMETERS
+# ==========================================
+# EXACT PURE THEORY PARAMETERS (VED)
+# ==========================================
 Z_TRANS = 0.641
 WIDTH = 0.10
-H_FAST = 74.37
-OM_PRIMORDIAL = 0.3116  # Topological Bare Density
-OM_EFFECTIVE  = 0.3635  # Viscous Braking Density
+H_FAST = 74.69        # EXACT: Early Geometric Ceiling
+OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Density
+OM_EFFECTIVE  = 0.3639 # EXACT: Viscous Braking Density
 
 def integrate_distance_vectorized(z_values, h_func):
     # Upgraded to 10,000 grid points for ultra-low z precision
