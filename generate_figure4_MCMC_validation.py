@@ -1,5 +1,5 @@
 # Uncomment the line below if running in Google Colab / Jupyter
-# !pip install emcee corner
+!pip install emcee corner pandas
 import numpy as np
 import pandas as pd
 import emcee
@@ -76,15 +76,15 @@ cov_filtered = cov_matrix[np.ix_(indices, indices)]
 inv_cov_sn = np.linalg.pinv(cov_filtered)
 
 # ==========================================
-# 3. UNIFIED PHYSICS ENGINE (CORRECTED)
+# 3. UNIFIED PHYSICS ENGINE (UPDATED TO EXACT 0.03% INTEGRATION)
 # ==========================================
 c_light = 299792.458
 Z_TRANS = 0.641 # Theoretically derived Section 2.4
 WIDTH = 0.10
 OM_PRIMORDIAL = 0.3116 # The frictionless baseline Theoretically derived Section 7.1.2
 
-# STRICT GEOMETRIC CEILING (Matches exact D4 Triality output)
-H_FAST = 74.37         
+# STRICT GEOMETRIC CEILING (Matches exact Ab Initio Integration)
+H_FAST = 74.70         
 
 def hubble_model(z, params):
     # Free Parameters: Local Decelerated H0, and the Effective Late-Time Density
@@ -175,8 +175,8 @@ for i in range(ndim):
     print(f"{labels[i]}: {mcmc[1]:.3f}  +{np.diff(mcmc)[1]:.3f} / -{np.diff(mcmc)[0]:.3f}")
 
 # Plot
-# STRICT GEOMETRIC TERMINAL (Matches exact D4 Triality output)
-H_OBS_THEORY = 72.40
+# STRICT GEOMETRIC TERMINAL (Matches exact Ab Initio output)
+H_OBS_THEORY = 72.72
 OM_EFF_THEORY = 0.3639
 
 fig = corner.corner(
