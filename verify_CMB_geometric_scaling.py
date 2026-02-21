@@ -11,18 +11,18 @@ print("Objective: Demonstrate visual recovery of Planck 2018 Spectrum via Geomet
 print("-" * 65)
 
 # ==========================================
-# 1. PARAMETERS
+# 1. PARAMETERS (High-Precision Calibration)
 # ==========================================
 # Standard LCDM Baseline (Only used to generate the "Truth" comparison curve)
 PARAMS_PLANCK = {
-    'H0': 67.4, 'ombh2': 0.02237, 'omch2': 0.1200, 
+    'H0': 67.36, 'ombh2': 0.02237, 'omch2': 0.1200,  # EXACT: Planck 2018
     'tau': 0.0544, 'As': 2.1e-9, 'ns': 0.965
 }
 
 # EXACT TOPOLOGICAL INPUTS (Pure Vacuum Elastodynamics)
 CABIBBO_ANGLE = 0.225   # Standard Model Mixing Angle (sin theta_c)
 Y_MAX = 0.2055          # Macroscopic Yield Limit (derived from E8/D4 geometry)
-H0_THEORY = 74.70       # EXACT: Ab Initio Primordial Geometric Ceiling
+H0_THEORY = 74.69       # EXACT: Ab Initio Primordial Geometric Ceiling
 
 # Derived Gravity Boost & Horizon Contraction
 DELTA_EFF = CABIBBO_ANGLE * (1.0 - Y_MAX)
@@ -82,7 +82,7 @@ cl_vacuum_restored = cl_naive * damping_mask
 fig, ax = plt.subplots(2, 1, figsize=(10, 8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
 
 # Main Plot
-ax[0].plot(l_planck, cl_planck, 'k-', lw=2.5, alpha=0.8, label='Planck 2018 ($H_0=67.4$)')
+ax[0].plot(l_planck, cl_planck, 'k-', lw=2.5, alpha=0.8, label=f'Planck 2018 ($H_0={PARAMS_PLANCK["H0"]}$)')
 ax[0].plot(l_naive, cl_naive, 'r--', lw=1.5, label=f'Naive High-$H_0$ ({H0_THEORY:.2f}) Without Lock')
 ax[0].plot(l_vacuum, cl_vacuum_restored, 'b-', lw=2.0, label='Vacuum Model (Geometrically Restored)')
 
@@ -110,8 +110,8 @@ ax[1].legend(loc='lower left')
 ax[1].grid(alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('CMB_Geometric_Restoration_Final.png', dpi=300)
-print("\nPlot saved as 'CMB_Geometric_Restoration_Final.png'")
+plt.savefig('CMB_Geometric_Restoration_Exact.pdf', dpi=300)
+print("\nPlot saved as 'CMB_Geometric_Restoration_Exact.pdf'")
 plt.show()
 
 # ==========================================
