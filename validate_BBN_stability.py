@@ -69,18 +69,19 @@ def calculate_helium_fraction(model='std'):
         # Scaling: G_F^2 * T^5 ~ H * T^2  ->  T^3 ~ H / G_F^2
         T_freeze = T_freeze_0 * (H_scale / (G_F_scale**2))**(1.0/3.0)
 
-    # --- STEP B: Neutron-to-Proton Ratio ---
-    # n/p = exp(-Q / T_freeze)
+    # --- STEP B: Neutron-to-Proton Ratio at Freeze-out ---
     np_ratio_freeze = np.exp(-Q / T_freeze)
     
-    # --- STEP C: Neutron Decay ---
+    # --- STEP C: Neutron Mass Fraction ---
+    # Convert ratio to fraction of total nucleons (conserved)
+    X_n_freeze = np_ratio_freeze / (1.0 + np_ratio_freeze)
+    
+    # --- STEP D: Neutron Decay & Final Helium Yield ---
     # Fraction surviving until nucleosynthesis
     decay_fraction = np.exp(-t_nuc / tau_n)
+    X_n_final = X_n_freeze * decay_fraction
     
-    np_ratio_final = np_ratio_freeze * decay_fraction
-    
-    # --- STEP D: Helium Yield ---
-    Yp = 2 * np_ratio_final / (1 + np_ratio_final)
+    Yp = 2 * X_n_final
     
     return Yp, T_freeze, Q, t_nuc
 
@@ -116,7 +117,7 @@ else:
 # 4. PLOTTING
 # ==========================================
 plt.figure(figsize=(8, 6))
-x = ['Standard $\Lambda$CDM', 'Vacuum Elastodynamics']
+x = [r'Standard $\Lambda$CDM', 'Vacuum Elastodynamics']
 y = [Yp_std, Yp_vac]
 colors = ['gray', '#2ca02c'] 
 
@@ -131,8 +132,8 @@ for bar in bars:
              f'{height:.4f}', ha='center', va='bottom', fontsize=12, fontweight='bold')
 
 plt.ylim(0.20, 0.35)
-plt.ylabel('Primordial Helium Fraction ($Y_p$)', fontsize=12)
-plt.title(f'BBN Invariance: Derived purely from Cabibbo Angle ($0.225$)', fontsize=14)
+plt.ylabel(r'Primordial Helium Fraction ($Y_p$)', fontsize=12)
+plt.title(r'BBN Invariance: Derived purely from Cabibbo Angle ($0.225$)', fontsize=14)
 plt.legend(loc='lower right')
 plt.grid(axis='y', linestyle=':', alpha=0.5)
 
