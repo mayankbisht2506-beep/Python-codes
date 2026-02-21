@@ -16,7 +16,7 @@ H0_PLANCK = 67.36
 OMEGA_M_PLANCK = 0.3153
 
 # Vacuum Elastodynamics Derived Roots
-H0_THEORY = 74.70          # EXACT: Integral root for geometric ceiling
+H0_THEORY = 74.68555       # EXACT: High-Precision Integral root for geometric ceiling
 OMEGA_M_VAC_PARAM = 0.3116 # Topological Bare Density (Percolation)
 
 # Topological Gravity Boost
@@ -82,6 +82,8 @@ theta_vac = r_s_vac / da_vac
 
 damping_ratio = get_damping_consistency()
 
+
+
 print(f"\nTEST 1: PEAK POSITION (Theta_*)")
 print(f"Planck Target:    {theta_std:.6f}")
 print(f"Vacuum Model:     {theta_vac:.6f} (with Omega_m={OMEGA_M_VAC_PARAM})")
@@ -97,8 +99,6 @@ print("\n" + "="*65)
 print("SCIENTIFIC VERDICT")
 print("="*65)
 
-
-
 if abs(err_theta) < 0.1:
     print(f"[SUCCESS] Geometric Concordance Verified (Error = {err_theta:+.4f}%)")
     print(f"By strictly mirroring Eq. 87, H_fast = {H0_THEORY} flawlessly preserves")
@@ -112,5 +112,4 @@ if abs(err_damping) > 1.0:
     print("This provides the exact physical mechanism to natively resolve")
     print("the small-scale CMB anomalies (such as the A_L lensing tension).")
     
-
 print("="*65)
