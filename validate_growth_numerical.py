@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 from scipy.special import expit  # Safe sigmoid
 
-print("--- GROWTH RATE EVOLUTION: ZERO-PARAMETER THEORETICAL VALIDATION ---")
+print("--- GROWTH RATE EVOLUTION: PRECISION UPDATE (EXACT PLANCK 2018) ---")
 print("Objective: Compare Standard Model (Planck) vs. Vacuum Model (Theoretical Terminal State)")
 
 # ==========================================
@@ -24,12 +24,15 @@ data_rsd = np.array([
     [0.86, 0.400, 0.110]   # VIPERS
 ])
 
-SIGMA8_0_LCDM = 0.811
+# ==========================================
+# 2. PHYSICS PARAMETERS (Exact Updates)
+# ==========================================
+# Standard Model Base
+H0_LCDM       = 67.36   # EXACT: Planck 2018 Baseline
+OM_PLANCK     = 0.3153  # EXACT: Planck 2018 Baseline
+SIGMA8_0_LCDM = 0.8111  # EXACT: Planck 2018 Baseline
 
-# ==========================================
-# 2. PHYSICS PARAMETERS (Pure Theory)
-# ==========================================
-OM_PLANCK     = 0.3153
+# Vacuum Model (Pure Theory)
 OM_PRIMORDIAL = 0.3116  # EXACT: Frictionless Bare Density
 OM_EFFECTIVE  = 0.3639  # EXACT: Theoretically Derived Viscous Load (0.3116 + 0.0523)
 
@@ -96,7 +99,7 @@ fs8_lcdm = f_lcdm * sig8_lcdm
 fs8_vac  = f_vac * sig8_vac
 
 # ==========================================
-# 4. RESULTS
+# 4. RESULTS & OPTICAL ILLUSION CHECK
 # ==========================================
 z_axis = 1.0/a_grid - 1.0
 
@@ -119,10 +122,18 @@ for row in data_rsd:
     print(f"{z_val:<10.2f} | {y_val:.3f} +/-{err:.3f} | {pred_l:.3f}    | {pred_v:.3f}    | {status}")
 
 print("-" * 75)
-print(f"Total Chi2 (LCDM):   {chi2_lcdm_tot:.2f}")
-print(f"Total Chi2 (Vacuum): {chi2_vac_tot:.2f}")
-print(f"Delta Chi2:          {chi2_vac_tot - chi2_lcdm_tot:.2f}")
-print(f"Sigma8 (Vacuum):     {sig8_vac[-1]:.3f}")
+print(f"Total Chi2 (LCDM):   {chi2_lcdm_tot:.3f}")
+print(f"Total Chi2 (Vacuum): {chi2_vac_tot:.3f}")
+print(f"Delta Chi2:          {chi2_vac_tot - chi2_lcdm_tot:.3f}")
+print(f"Absolute Sigma8:     {sig8_vac[-1]:.4f} (Vacuum Baseline)")
+
+# S8 Illusion Calculations
+s8_true_wl = sig8_vac[-1] * np.sqrt(OM_PRIMORDIAL / 0.3) 
+s8_planck_illusion = sig8_vac[-1] * np.sqrt(OM_EFFECTIVE / 0.3)
+
+print(f"\n--- S8 OPTICAL ILLUSION CHECK ---")
+print(f"True Observable Weak Lensing S8: {s8_true_wl:.4f}")
+print(f"Planck CMB Illusion S8:          {s8_planck_illusion:.4f}")
 
 if chi2_vac_tot <= chi2_lcdm_tot + 1.0:
     print("\nVERDICT: SUCCESS (Vacuum Model matches/exceeds Standard Model performance)")
@@ -131,7 +142,7 @@ else:
 
 # Plot
 plt.figure(figsize=(10,6))
-plt.plot(z_axis, fs8_lcdm, 'k--', label=r'Standard $\Lambda$CDM ($\Omega_m=0.315$)')
+plt.plot(z_axis, fs8_lcdm, 'k--', label=rf'Standard $\Lambda$CDM ($\Omega_m={OM_PLANCK}$)')
 plt.plot(z_axis, fs8_vac, 'r-', linewidth=2, label=r'Vacuum Model ($\Omega_{bare}=0.3116 \to 0.3639$)')
 plt.errorbar(data_rsd[:,0], data_rsd[:,1], yerr=data_rsd[:,2], fmt='o', color='blue', label='RSD Data', capsize=3)
 plt.xlim(0, 1.6)
