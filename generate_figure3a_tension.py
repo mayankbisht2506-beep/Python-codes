@@ -73,15 +73,15 @@ Z_TRANS = 0.641       # EXACT: Topological percolation redshift
 WIDTH = 0.10         
 
 # --- MODEL A: PLANCK LCDM (Baseline Control) ---
-H0_PLANCK = 67.4   
-OM_PLANCK = 0.315
+H0_PLANCK = 67.36     # EXACT: Planck 2018
+OM_PLANCK = 0.3153    # EXACT: Planck 2018
 OL_PLANCK = 1.0 - OM_PLANCK
 
 # --- MODEL B: VACUUM ELASTODYNAMICS (Zero-Parameter Prediction) ---
-H_FAST = 74.37         # EXACT: Theoretical E8 Geometry Limit (Early Universe)
-H_LOCAL = 72.40        # EXACT: Theoretically Derived Terminal Velocity (Late Universe)
+H_FAST = 74.69         # EXACT: Theoretical E8 Geometry Limit
+H_LOCAL = 72.71        # EXACT: Theoretically Derived Terminal Velocity
 OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Density
-OM_EFFECTIVE = 0.3635  # EXACT: Theoretically Derived Viscous Load
+OM_EFFECTIVE = 0.3639  # EXACT: Theoretically Derived Viscous Load
 
 def integrate_distance_vectorized(z_values, h_func):
     z_grid = np.linspace(0, np.max(z_values)*1.01, 10000)
