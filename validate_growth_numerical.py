@@ -31,7 +31,7 @@ SIGMA8_0_LCDM = 0.811
 # ==========================================
 OM_PLANCK     = 0.315
 OM_PRIMORDIAL = 0.3116  # EXACT: Frictionless Bare Density
-OM_EFFECTIVE  = 0.3635  # EXACT: Theoretically Derived Viscous Load
+OM_EFFECTIVE  = 0.3639  # EXACT: Theoretically Derived Viscous Load (0.3116 + 0.0523)
 
 ETA_FLOOR = 0.1569      # EXACT: Lepton Saturation Viscosity
 ETA_PEAK  = 0.3116      # EXACT: Simple cubic percolation limit
@@ -132,7 +132,7 @@ else:
 # Plot
 plt.figure(figsize=(10,6))
 plt.plot(z_axis, fs8_lcdm, 'k--', label=r'Standard $\Lambda$CDM ($\Omega_m=0.315$)')
-plt.plot(z_axis, fs8_vac, 'r-', linewidth=2, label=r'Vacuum Model ($\Omega_{bare}=0.3116 \to 0.3635$)')
+plt.plot(z_axis, fs8_vac, 'r-', linewidth=2, label=r'Vacuum Model ($\Omega_{bare}=0.3116 \to 0.3639$)')
 plt.errorbar(data_rsd[:,0], data_rsd[:,1], yerr=data_rsd[:,2], fmt='o', color='blue', label='RSD Data', capsize=3)
 plt.xlim(0, 1.6)
 plt.xlabel('Redshift z')
