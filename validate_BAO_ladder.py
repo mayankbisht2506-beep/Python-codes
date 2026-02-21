@@ -32,16 +32,16 @@ RD_FIDUCIAL = 147.78
 Z_TRANS = 0.641       # EXACT: Topological percolation redshift
 WIDTH = 0.10
 
-# --- MODEL A: Planck 2018 (Baseline) ---
-H0_PLANCK = 67.4
-OM_PLANCK = 0.315
+# --- MODEL A: EXACT Planck 2018 (Baseline) ---
+H0_PLANCK = 67.36     # UPDATED: Exact High-Precision Baseline
+OM_PLANCK = 0.3153    # UPDATED: Exact High-Precision Baseline
 RD_PLANCK = 147.09
 
 # --- MODEL B: Vacuum Elastodynamics (Metric Scaling) ---
-H_FAST = 74.37         # EXACT: Early Geometric Ceiling
-H_TERMINAL = 72.40     # EXACT: Theoretically Derived Terminal Velocity
+H_FAST = 74.69         # UPDATED: Exact High-Precision Geometric Ceiling
+H_TERMINAL = 72.71     # UPDATED: Exact High-Precision Terminal Velocity
 OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Mass
-OM_EFFECTIVE = 0.3635  # EXACT: Theoretically Derived Viscous Load
+OM_EFFECTIVE = 0.3639  # UPDATED: Exact High-Precision Viscous Load
 
 # EXACT GEOMETRIC CONTRACTION OF THE SOUND HORIZON:
 # The BAO ruler is established in the early universe (z > 1000)
@@ -157,8 +157,8 @@ plt.figure(figsize=(10, 6))
 plt.errorbar(plot_data_z, plot_data_val, yerr=plot_data_err, fmt='o', color='black', 
              label='BOSS DR12 Data ($D_M / r_d$)', capsize=5, zorder=5)
 
-plt.plot(z_grid, ratio_std_list, 'b--', linewidth=2, label=rf'Standard $\Lambda$CDM ($H_0={H0_PLANCK}$)')
-plt.plot(z_grid, ratio_vac_list, 'r-', linewidth=2.5, 
+plt.plot(z_grid, ratio_std_list, 'k--', linewidth=2, label=rf'Standard $\Lambda$CDM ($H_0={H0_PLANCK}$)')
+plt.plot(z_grid, ratio_vac_list, 'r-', linewidth=3, 
          label=rf'Theoretical Model ($H_{{fast}} \rightarrow H_{{local}}$)' + '\n' + rf'w/ Contraction ($r_d={RD_VAC:.1f}$ Mpc)')
 
 plt.title('BAO Consistency Check: Geometric Scaling Cancellation', fontsize=14)
@@ -173,6 +173,6 @@ plt.annotate(rf"Global BAO $\chi^2$:" + "\n" + rf"Planck: {chi2_planck:.2f}" + "
              fontsize=11)
 
 plt.tight_layout()
-plt.savefig('Figure_BAO_Unified_Audit.png', dpi=300)
-print("Plot saved to 'Figure_BAO_Unified_Audit.png'")
+plt.savefig('Figure_BAO_Unified_Audit.pdf', dpi=300)
+print("Plot saved to 'Figure_BAO_Unified_Audit.pdf'")
 plt.show()
