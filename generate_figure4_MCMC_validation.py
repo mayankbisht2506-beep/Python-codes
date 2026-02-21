@@ -1,5 +1,5 @@
 # Uncomment the line below if running in Google Colab / Jupyter
-!pip install emcee corner pandas
+# !pip install -q emcee corner pandas requests matplotlib numpy scipy
 import numpy as np
 import pandas as pd
 import emcee
@@ -9,7 +9,7 @@ import os
 import matplotlib.pyplot as plt
 
 print("--- VACUUM ELASTODYNAMICS: FULL JOINT MCMC (N=1701 + 31) ---")
-print("MODE: STRICT CALIBRATION (Unified Phase Transition Engine)")
+print("MODE: EXACT GEOMETRY (Unified Phase Transition Engine)")
 
 # ==========================================
 # 1. AUTO-DOWNLOADER
@@ -76,15 +76,15 @@ cov_filtered = cov_matrix[np.ix_(indices, indices)]
 inv_cov_sn = np.linalg.pinv(cov_filtered)
 
 # ==========================================
-# 3. UNIFIED PHYSICS ENGINE (UPDATED TO EXACT 0.03% INTEGRATION)
+# 3. UNIFIED PHYSICS ENGINE (EXACT HIGH-PRECISION ROOTS)
 # ==========================================
 c_light = 299792.458
 Z_TRANS = 0.641 # Theoretically derived Section 2.4
 WIDTH = 0.10
-OM_PRIMORDIAL = 0.3116 # The frictionless baseline Theoretically derived Section 7.1.2
+OM_PRIMORDIAL = 0.3116 # Exact Frictionless Baseline 
 
-# STRICT GEOMETRIC CEILING (Matches exact Ab Initio Integration)
-H_FAST = 74.70         
+# STRICT GEOMETRIC CEILING (Matches exact pure integral root)
+H_FAST = 74.69         
 
 def hubble_model(z, params):
     # Free Parameters: Local Decelerated H0, and the Effective Late-Time Density
@@ -150,11 +150,11 @@ nwalkers = 32
 # p0: TRULY BLIND INITIALIZATION
 p0 = np.random.uniform(low=[60.0, 0.2], high=[80.0, 0.5], size=(nwalkers, ndim))
 
-print("Running Chain for 10,000 steps (may take ~20 mins)...")
+print("\nRunning Chain for 10,000 steps (may take ~20 mins)...")
 sampler = emcee.EnsembleSampler(nwalkers, ndim, log_likelihood)
 sampler.run_mcmc(p0, 10000, progress=True)
 
-# --- NEW: Autocorrelation Diagnostic ---
+# --- Autocorrelation Diagnostic ---
 print("\n--- CONVERGENCE DIAGNOSTICS ---")
 try:
     tau = sampler.get_autocorr_time()
@@ -175,15 +175,17 @@ for i in range(ndim):
     print(f"{labels[i]}: {mcmc[1]:.3f}  +{np.diff(mcmc)[1]:.3f} / -{np.diff(mcmc)[0]:.3f}")
 
 # Plot
-# STRICT GEOMETRIC TERMINAL (Matches exact Ab Initio output)
-H_OBS_THEORY = 72.72
+# STRICT GEOMETRIC TERMINAL (Matches exact viscous terminal velocity)
+H_OBS_THEORY = 72.71
 OM_EFF_THEORY = 0.3639
 
 fig = corner.corner(
     flat_samples, 
     labels=labels, 
     truths=[H_OBS_THEORY, OM_EFF_THEORY], 
-    truth_color="#ff4444"
+    truth_color="#ff4444",
+    title_kwargs={"fontsize": 14}
 )
-plt.savefig("Joint_MCMC_Unified_10k.png", dpi=300)
-print("Saved 10,000-step corner plot.")
+plt.suptitle("Vacuum Elastodynamics: Joint MCMC (Pantheon+ & CC)", fontsize=16, y=1.02)
+plt.savefig("Joint_MCMC_Unified_10k_Exact.pdf", bbox_inches='tight', dpi=300)
+print("Saved 10,000-step exact geometry corner plot.")
