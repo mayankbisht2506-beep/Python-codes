@@ -29,7 +29,7 @@ SIGMA8_0_LCDM = 0.811
 # ==========================================
 # 2. PHYSICS PARAMETERS (Pure Theory)
 # ==========================================
-OM_PLANCK     = 0.315
+OM_PLANCK     = 0.3153
 OM_PRIMORDIAL = 0.3116  # EXACT: Frictionless Bare Density
 OM_EFFECTIVE  = 0.3639  # EXACT: Theoretically Derived Viscous Load (0.3116 + 0.0523)
 
