@@ -14,8 +14,7 @@ H0_PLANCK = 67.4
 H0_THEORY = 74.70  # EXACT: Ab Initio geometric expansion ceiling
 
 # Geometric Boost Factors (G_early / G_0)
-# Explains WHY the universe is fast: G_early ~ 1.2177 * G_0
-G_RATIO = (H0_THEORY / H0_PLANCK)**2
+G_RATIO = 1.21767
 
 # DENSITIES
 # Planck Baseline (Standard LCDM Assumption)
