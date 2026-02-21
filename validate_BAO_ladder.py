@@ -33,20 +33,20 @@ Z_TRANS = 0.641       # EXACT: Topological percolation redshift
 WIDTH = 0.10
 
 # --- MODEL A: EXACT Planck 2018 (Baseline) ---
-H0_PLANCK = 67.36     # UPDATED: Exact High-Precision Baseline
-OM_PLANCK = 0.3153    # UPDATED: Exact High-Precision Baseline
+H0_PLANCK = 67.36     # EXACT: High-Precision Baseline
+OM_PLANCK = 0.3153    # EXACT: High-Precision Baseline
 RD_PLANCK = 147.09
 
 # --- MODEL B: Vacuum Elastodynamics (Metric Scaling) ---
-H_FAST = 74.69         # UPDATED: Exact High-Precision Geometric Ceiling
-H_TERMINAL = 72.71     # UPDATED: Exact High-Precision Terminal Velocity
+H_FAST = 74.69         # EXACT: High-Precision Geometric Ceiling
+H_TERMINAL = 72.71     # EXACT: High-Precision Terminal Velocity
 OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Mass
-OM_EFFECTIVE = 0.3639  # UPDATED: Exact High-Precision Viscous Load
+OM_EFFECTIVE = 0.3639  # EXACT: High-Precision Viscous Load
 
 # EXACT GEOMETRIC CONTRACTION OF THE SOUND HORIZON:
-# The BAO ruler is established in the early universe (z > 1000)
-# Therefore, it scales strictly with H_FAST.
-RD_VAC = RD_PLANCK * (H0_PLANCK / H_FAST) 
+# Dictated strictly by the E8 topological gravity boost (~1.2177)
+G_BOOST = 1.21767
+RD_VAC = RD_PLANCK / np.sqrt(G_BOOST)
 
 # ==========================================
 # 3. CALCULATION CORE
@@ -152,10 +152,12 @@ for z_plot in z_grid:
     ratio_std_list.append(vec_p['DM'] / RD_PLANCK)
     ratio_vac_list.append(vec_v['DM'] / RD_VAC)
 
+
+
 plt.figure(figsize=(10, 6))
 
 plt.errorbar(plot_data_z, plot_data_val, yerr=plot_data_err, fmt='o', color='black', 
-             label='BOSS DR12 Data ($D_M / r_d$)', capsize=5, zorder=5)
+             label=r'BOSS DR12 Data ($D_M / r_d$)', capsize=5, zorder=5)
 
 plt.plot(z_grid, ratio_std_list, 'k--', linewidth=2, label=rf'Standard $\Lambda$CDM ($H_0={H0_PLANCK}$)')
 plt.plot(z_grid, ratio_vac_list, 'r-', linewidth=3, 
@@ -173,6 +175,6 @@ plt.annotate(rf"Global BAO $\chi^2$:" + "\n" + rf"Planck: {chi2_planck:.2f}" + "
              fontsize=11)
 
 plt.tight_layout()
-plt.savefig('Figure_BAO_Unified_Audit.pdf', dpi=300)
-print("Plot saved to 'Figure_BAO_Unified_Audit.pdf'")
+plt.savefig('Figure_BAO_Unified_Audit_Exact.pdf', dpi=300)
+print("Plot saved to 'Figure_BAO_Unified_Audit_Exact.pdf'")
 plt.show()
