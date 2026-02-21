@@ -15,7 +15,7 @@ print("-" * 65)
 # ==========================================
 # Standard Planck 2018 Baseline (The "Tension" Source)
 S8_PLANCK     = 0.832
-OM_PLANCK     = 0.315  # Standard assumed constant density
+OM_PLANCK     = 0.3153 # EXACT: Planck 2018 Baseline (Updated from 0.315)
 
 # Vacuum Model Inputs (Pure Theoretical Derivations)
 OM_BARE       = 0.3116 # EXACT: Topological Frictionless Bare Density
@@ -153,7 +153,7 @@ plt.annotate(rf"Viscous Suppression\n(-{100*(1-growth_suppression):.1f}% in $\si
              arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2", color='red'),
              fontsize=10, color='red', fontweight='bold')
 
-plt.xticks(range(3), targets.keys(), fontsize=11)
+plt.xticks(range(3), list(targets.keys()), fontsize=11)
 plt.ylabel(r'Observable Clustering Parameter ($S_8$)', fontsize=12)
 plt.title(r'Resolution of $S_8$ Tension via Vacuum Viscosity & Optical Illusion', fontsize=14)
 plt.ylim(0.72, 0.86)
@@ -161,6 +161,6 @@ plt.grid(axis='y', alpha=0.3)
 plt.legend(loc='upper right')
 
 plt.tight_layout()
-plt.savefig('S8_Resolution_Proof.png', dpi=300)
-print("\nPlot saved as 'S8_Resolution_Proof.png'")
+plt.savefig('S8_Resolution_Proof.pdf', dpi=300)
+print("\nPlot saved as 'S8_Resolution_Proof.pdf'")
 plt.show()
