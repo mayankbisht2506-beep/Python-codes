@@ -29,16 +29,16 @@ err_cc = cc_data[:, 2]
 Z_TRANS = 0.641      # EXACT: Topological percolation redshift
 WIDTH = 0.10         
 
-# --- MODEL A: PLANCK LCDM ---
-H0_PLANCK = 67.4
-OM_PLANCK = 0.315
+# --- MODEL A: PLANCK LCDM (Precision Baseline) ---
+H0_PLANCK = 67.36
+OM_PLANCK = 0.3153
 OL_PLANCK = 1.0 - OM_PLANCK
 
 # --- MODEL B: VACUUM ELASTODYNAMICS (Zero-Parameter Prediction) ---
-H_FAST = 74.37          # EXACT: Early Geometric Ceiling
-H_TERMINAL = 72.40      # EXACT: Theoretically Derived Terminal Velocity
+H_FAST = 74.69          # EXACT: Early Geometric Ceiling
+H_TERMINAL = 72.71      # EXACT: Theoretically Derived Terminal Velocity
 OM_PRIMORDIAL = 0.3116  # EXACT: Topological Bare Mass
-OM_EFFECTIVE = 0.3635   # EXACT: Theoretically Derived Viscous Load
+OM_EFFECTIVE = 0.3639   # EXACT: Theoretically Derived Viscous Load
 
 def h_lcdm(z):
     return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + OL_PLANCK)
@@ -52,7 +52,7 @@ def h_viscous(z):
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
     
-    # Braking from 74.37 down to 72.40
+    # Braking from 74.69 down to 72.71
     H_Z = H_FAST + (H_TERMINAL - H_FAST) * sigmoid
     
     return H_Z * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
@@ -71,7 +71,7 @@ rchi2_planck = chi2_planck / dof
 rchi2_vacuum = chi2_vacuum / dof
 
 print(f"\n--- H(z) CONSISTENCY RESULTS (Pure Theory Verification) ---")
-print(f"Planck Model (67.4): Chi2={chi2_planck:.2f} | Reduced={rchi2_planck:.2f}")
+print(f"Planck Model (67.36): Chi2={chi2_planck:.2f} | Reduced={rchi2_planck:.2f}")
 print(f"Vacuum Model (Theory): Chi2={chi2_vacuum:.2f} | Reduced={rchi2_vacuum:.2f}")
 
 # VERDICT
