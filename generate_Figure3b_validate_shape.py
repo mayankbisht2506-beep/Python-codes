@@ -1,14 +1,18 @@
+# Uncomment the line below if running in Google Colab / Jupyter
+# !pip install scipy numpy matplotlib pandas requests
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import requests
 import os
+from scipy.optimize import minimize
 
 # ==========================================
 # 1. SETUP & DATA
 # ==========================================
 print("--- RUNNING PANTHEON+ SHAPE CONSISTENCY TEST (KINEMATIC) ---")
-print("Objective: Verify Metric 2 (Test III: Shape Consistency)")
+print("Objective: Verify Metric 2 (Test III: Shape Consistency, Section 8.3.3)")
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
@@ -62,15 +66,15 @@ Z_TRANS = 0.641       # EXACT: Topological percolation redshift
 WIDTH = 0.10         
 
 # --- MODEL A: PLANCK LCDM (Baseline Control) ---
-H0_A = 67.4
-OM_A = 0.315
+H0_A = 67.36          # EXACT: Planck 2018
+OM_A = 0.3153         # EXACT: Planck 2018
 OL_A = 1.0 - OM_A
 
 # --- MODEL B: VACUUM ELASTODYNAMICS (Zero-Parameter Prediction) ---
-H_FAST = 74.37         # EXACT: Early Universe Ceiling
-H_LOCAL = 72.40        # EXACT: Late Universe Terminal Velocity
+H_FAST = 74.69         # EXACT: Early Universe Ceiling
+H_LOCAL = 72.71        # EXACT: Late Universe Terminal Velocity
 OM_PRIMORDIAL = 0.3116 # EXACT: Frictionless Bare Density
-OM_EFFECTIVE = 0.3635  # EXACT: Viscous late universe (Inertial Counter-Load)
+OM_EFFECTIVE = 0.3639  # EXACT: Viscous late universe (Inertial Counter-Load)
 
 def integrate_distance_vectorized(z_values, h_func):
     z_grid = np.linspace(0, np.max(z_values)*1.01, 10000)
@@ -107,25 +111,30 @@ mu_visc = 5 * np.log10(dl_visc) + 25
 # ==========================================
 # 3. STATISTICAL TEST (MARGINALIZED SHAPE)
 # ==========================================
-def calc_marginalized_chi2(mu_model, mu_data, inv_c):
-    # Marginalize over absolute magnitude (Intercept)
-    residuals = mu_data - mu_model
-    W = np.sum(inv_c)
-    W_R = np.sum(np.dot(residuals.T, inv_c))
-    A = W_R / W 
-    resid_final = residuals - A
-    return resid_final.T @ inv_c @ resid_final, A
-
+print("Marginalizing over Absolute Calibration (Intercept)...")
 mu_data = df_clean['MU_SH0ES'].values
 
-chi2_lcdm, offset_lcdm = calc_marginalized_chi2(mu_lcdm, mu_data, inv_cov)
-chi2_visc, offset_visc = calc_marginalized_chi2(mu_visc, mu_data, inv_cov)
+def get_marginalized_chi2(mu_model, mu_data, inv_c):
+    # Optimize a single shift parameter (delta_M) to minimize Chi2
+    def objective(delta_M):
+        shifted_model = mu_model + delta_M
+        residuals = mu_data - shifted_model
+        return residuals.T @ inv_c @ residuals
+    
+    # Run optimizer
+    res = minimize(objective, x0=[0.0], method='Nelder-Mead')
+    best_shift = res.x[0]
+    best_chi2 = res.fun
+    return best_chi2, best_shift
+
+chi2_lcdm, offset_lcdm = get_marginalized_chi2(mu_lcdm, mu_data, inv_cov)
+chi2_visc, offset_visc = get_marginalized_chi2(mu_visc, mu_data, inv_cov)
 d_chi2 = chi2_visc - chi2_lcdm
 
 print("\n" + "-" * 40)
-print(f"Model A (Planck 67.4, Om=0.315) Chi2:  {chi2_lcdm:.2f}")
-print(f"Model B (Vacuum Theory, Dynamic) Chi2: {chi2_visc:.2f}")
-print(f"Delta Chi2:                            {d_chi2:.2f}")
+print(f"Model A (Planck 67.36) Shape Chi2:   {chi2_lcdm:.2f}")
+print(f"Model B (Vacuum Theory) Shape Chi2:  {chi2_visc:.2f}")
+print(f"Delta Chi2 (Shape Penalty):          {d_chi2:.2f}")
 print("-" * 40)
 
 if d_chi2 < 10.0:
@@ -144,11 +153,9 @@ plt.errorbar(df_clean['zHD'], resid_plot, yerr=err_diag,
              fmt='o', color='lightgrey', alpha=0.3, label='Pantheon+ Residuals (Bulk Flow)')
 
 diff_curve = (mu_visc + offset_visc) - (mu_lcdm + offset_lcdm)
-z_sort = np.argsort(df_clean['zHD'])
+z_sort = np.argsort(df_clean['zHD'].values)
 
-
-
-plt.plot(df_clean['zHD'][z_sort], diff_curve[z_sort], 'r-', linewidth=3, label=f'Theoretical Model Shape Difference')
+plt.plot(df_clean['zHD'].values[z_sort], diff_curve[z_sort], 'r-', linewidth=3, label=f'Theoretical Model Shape Difference')
 
 plt.axhline(0, color='k', linestyle='--')
 plt.title(rf'Pantheon+ Shape Test: $\Delta\chi^2 = {d_chi2:.2f}$ (Consistent)', fontsize=14)
