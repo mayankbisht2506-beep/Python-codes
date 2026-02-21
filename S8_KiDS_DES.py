@@ -11,7 +11,7 @@ print("Mechanism: Pure Theoretical Viscous Damping & The Optical Illusion")
 print("-" * 65)
 
 # ==========================================
-# 1. PARAMETERS
+# 1. PARAMETERS (Updated to Exact Ab Initio Precision)
 # ==========================================
 # Standard Planck 2018 Baseline (The "Tension" Source)
 S8_PLANCK     = 0.832
@@ -19,7 +19,7 @@ OM_PLANCK     = 0.315  # Standard assumed constant density
 
 # Vacuum Model Inputs (Pure Theoretical Derivations)
 OM_BARE       = 0.3116 # EXACT: Topological Frictionless Bare Density
-OM_EFFECTIVE  = 0.3635 # EXACT: Theoretically Derived Kinematic Viscous Load
+OM_EFFECTIVE  = 0.3639 # EXACT: Theoretically Derived Kinematic Viscous Load (0.3116 + 0.0523)
 ZETA_FLOOR    = 0.1569 # EXACT: Lepton Saturation Viscosity (zeta_sat)
 ZETA_PEAK     = 0.3116 # EXACT: Jamming/Percolation Threshold (zeta_peak)
 Z_TRANS       = 0.641  # EXACT: Topological Phase Transition Redshift
@@ -120,7 +120,7 @@ print(f"4. Vacuum Absolute Sigma_8:  {sigma8_visc:.4f}  <-- TRUE PHYSICAL AMPLIT
 # 1. True Weak Lensing Observable (Uses bare gravitating mass: 0.3116)
 s8_true_wl = sigma8_visc * np.sqrt(OM_BARE / 0.3) 
 
-# 2. The Planck Illusion (Uses the heavy kinematic load: 0.3635)
+# 2. The Planck Illusion (Uses the heavy kinematic load: 0.3639)
 s8_planck_illusion = sigma8_visc * np.sqrt(OM_EFFECTIVE / 0.3)
 
 print(f"\n--- S8 TENSION VERDICT: THE OPTICAL ILLUSION ---")
