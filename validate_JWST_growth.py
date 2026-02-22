@@ -10,20 +10,16 @@ print("--- JWST 'IMPOSSIBLE GALAXIES' TEST: LUMINOSITY RESOLUTION ---")
 print("Objective: Quantify the mass correction due to VED Thermodynamic Brightening.")
 
 # ==========================================
-# 1. COSMOLOGICAL PARAMETERS (Pure VED Baseline)
+# 1. COSMOLOGICAL PARAMETERS (VED Bare Baseline)
 # ==========================================
-# We use strictly VED topologically derived parameters
+# We use the exact VED topological parameters for clustering
 h = 0.7271       # VED Terminal Velocity (H_local)
-Om0 = 0.3116     # VED Bare Primordial Density (p_c)
+Om0 = 0.3116     # VED Bare Primordial Density
 Ol0 = 1.0 - 0.3639 # VED Macroscopic Tension (1 - Om_eff)
-
-# VED derived Baryon Density (Yield Limit * Primordial Density)
-gamma_crit = 0.15915  # Frenkel Yield Strength
-Ob0 = Om0 * gamma_crit # Ob0 = 0.04959
-
+Ob0 = 0.049      # Standard Baryon Density
 rho_crit_0 = 2.775e11 * h**2 # M_sun / Mpc^3
 rho_m_0 = Om0 * rho_crit_0
-fb = Ob0 / Om0   # Cosmic Baryon Fraction (which equals gamma_crit)
+fb = Ob0 / Om0   # Cosmic Baryon Fraction
 
 # VED PARAMETERS (For the Correction)
 G_RATIO = 1.218  # Exact G_early / G_0 topological derivation
