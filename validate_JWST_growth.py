@@ -78,7 +78,7 @@ def get_abundance(M_halo, z):
 # ==========================================
 # 4. DATA & CORRECTION LOGIC
 # ==========================================
-# Labbé et al. (2023) Data Points (Approximate from Figure 1 of their paper)
+# Labbé et al. (2023) Data Points
 # (Observed Stellar Mass, Cumulative Density)
 jwst_data = [
     (1e10, 2e-4),   # Lower mass bin
@@ -142,7 +142,7 @@ masses_corr_high = [m / boost_factor_high for m in masses_obs]
 plt.plot(masses_corr_low, densities, 'bo', markersize=8, alpha=0.6, label=f'VED Corrected ($\\alpha={ALPHA_LOW}$)')
 plt.plot(masses_corr_high, densities, 'go', markersize=8, alpha=0.6, label=f'VED Corrected ($\\alpha={ALPHA_HIGH}$)')
 
-# Draw arrows connecting Original -> Corrected
+
 for i in range(len(masses_obs)):
     plt.arrow(masses_obs[i], densities[i], masses_corr_low[i] - masses_obs[i], 0,
               color='b', alpha=0.3, length_includes_head=True, head_width=densities[i]*0.1)
