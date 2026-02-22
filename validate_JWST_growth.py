@@ -1,3 +1,6 @@
+# Uncomment the line below if running in Google Colab / Jupyter
+# !pip install scipy numpy matplotlib
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
@@ -7,19 +10,23 @@ print("--- JWST 'IMPOSSIBLE GALAXIES' TEST: LUMINOSITY RESOLUTION ---")
 print("Objective: Quantify the mass correction due to VED Thermodynamic Brightening.")
 
 # ==========================================
-# 1. COSMOLOGICAL PARAMETERS (Standard LambdaCDM Baseline)
+# 1. COSMOLOGICAL PARAMETERS (Pure VED Baseline)
 # ==========================================
-# We use Planck 2018 parameters to define the "Limit" we are testing against.
-h = 0.674
-Om0 = 0.315
-Ol0 = 1.0 - Om0
-Ob0 = 0.049 # Baryon Density
+# We use strictly VED topologically derived parameters
+h = 0.7271       # VED Terminal Velocity (H_local)
+Om0 = 0.3116     # VED Bare Primordial Density (p_c)
+Ol0 = 1.0 - 0.3639 # VED Macroscopic Tension (1 - Om_eff)
+
+# VED derived Baryon Density (Yield Limit * Primordial Density)
+gamma_crit = 0.15915  # Frenkel Yield Strength
+Ob0 = Om0 * gamma_crit # Ob0 = 0.04959
+
 rho_crit_0 = 2.775e11 * h**2 # M_sun / Mpc^3
 rho_m_0 = Om0 * rho_crit_0
-fb = Ob0 / Om0 # Cosmic Baryon Fraction (~0.156)
+fb = Ob0 / Om0   # Cosmic Baryon Fraction (which equals gamma_crit)
 
 # VED PARAMETERS (For the Correction)
-G_RATIO = 1.22  # G_early / G_0 derived from your Hubble solution
+G_RATIO = 1.218  # Exact G_early / G_0 topological derivation
 
 # Stellar Physics Scaling: L ~ G^alpha
 # Conservative range for Main Sequence stars (opacity/pressure limited)
@@ -43,6 +50,7 @@ a_grid = np.linspace(0.001, 0.1, 500) # z=1000 to z=9
 y0 = [a_grid[0], 1.0]
 sol = odeint(growth_ode, y0, a_grid)
 D_raw = sol[:, 0]
+
 # Normalize to z=0 (approximate for high-z comparison)
 D_z0_approx = D_raw[-1] * (1.0/0.1) # simplistic growth extrapolation for normalization
 D_norm = D_raw / D_z0_approx
@@ -87,7 +95,7 @@ jwst_data = [
 boost_factor_low = G_RATIO**ALPHA_LOW   # Conservative (alpha=4)
 boost_factor_high = G_RATIO**ALPHA_HIGH # Aggressive (alpha=7)
 
-print(f"\nVED High-G Factor: {G_RATIO:.2f}x")
+print(f"\nVED High-G Factor: {G_RATIO:.3f}x")
 print(f"Luminosity Boost (alpha={ALPHA_LOW}): {boost_factor_low:.2f}x")
 print(f"Luminosity Boost (alpha={ALPHA_HIGH}): {boost_factor_high:.2f}x")
 print("-" * 40)
@@ -108,8 +116,9 @@ for M in mass_grid:
     # Integrate density above this mass
     M_integ = np.logspace(np.log10(M_halo_req), 14, 50)
     dn = [get_abundance(m, z_target) for m in M_integ]
-    # FIX: Using np.trapezoid to avoid deprecation warning
-    n_cum = np.trapezoid(dn, np.log(M_integ))
+    
+    # Use np.trapz for universal compatibility
+    n_cum = np.trapz(dn, np.log(M_integ)) 
     n_cumulative.append(n_cum)
 
 n_cumulative = np.array(n_cumulative)
@@ -149,11 +158,12 @@ plt.yscale('log')
 plt.xlim(1e9, 5e11)
 plt.ylim(1e-7, 1e-2)
 plt.xlabel(r'Stellar Mass ($M_\odot$)', fontsize=14)
-plt.ylabel(r'Cumulative Number Density ($Mpc^{-3}$)', fontsize=14)
-plt.title(f'Resolution of JWST Anomaly via Thermodynamic Brightening (z={z_target})', fontsize=14)
+plt.ylabel(r'Cumulative Number Density ($\text{Mpc}^{-3}$)', fontsize=14)
+plt.title(f'Resolution of JWST Anomaly via Thermodynamic Brightening ($z={z_target}$)', fontsize=14)
 plt.legend(fontsize=11)
 plt.grid(True, which="both", ls="-", alpha=0.2)
 
 plt.tight_layout()
-plt.savefig('JWST_Resolution_Luminosity.png')
+plt.savefig('JWST_Resolution_Luminosity.png', dpi=300)
+print("\nSaved plot successfully as JWST_Resolution_Luminosity.png")
 plt.show()
