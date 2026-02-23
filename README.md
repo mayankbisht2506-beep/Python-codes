@@ -41,10 +41,10 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
-| `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.53$ |
-| `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $S_8 \approx 0.765$ |
-| `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2 \approx -2531$ |
-| `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2535$ |
+| `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.69$ |
+| `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $\sigms_8 \approx 0.760$ |
+| `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2 \approx -2568$ |
+| `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2569$ |
 
 ### 2. Microphysics & Fundamental Constants
 *Verifying the geometric derivation of constants and particle stability.*
@@ -52,7 +52,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
 | `generate_Figure1_lattice_simulation.py` | Lepton Saturation Sum Rule | $98.58\%$ Efficiency |
-| `validate_lithium_solution.py` | Lithium-7 Depletion ($m \propto G^{-0.5}$) | $2.76\times$ Depletion |
+| `validate_lithium_solution.py` | Lithium-7 Depletion ($m \propto G^{-0.5}$) | $2.63\times$ Depletion |
 | `validate_deuterium_robust.py` | Deuterium/Helium Invariance | Invariant |
 | `validate_BBN_stability.py` | Helium-4 Freeze-out Check | $Y_p \Invariant |
 | `generate_Figure5_validate_vacuum_fracture.py` | Vacuum Fracture (Electron/Proton) | $0.9$ TeV |
@@ -66,9 +66,9 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | `hyperuniform_screening_check.py` | Cassini (Solar System) Screening | Range $< 12$mm |
 | `validate_CMB_invariance.py` | Acoustic Scale Stability ($\theta_*$) | Error $< 0.01\%$ |
 | `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.22$ |
-| `Universe_age.py` | Cosmic Age Calculation | $12.51$ Gyr |
+| `Universe_age.py` | Cosmic Age Calculation | $12.52$ Gyr |
 | `validate_ISW_stability.py` | Integrated Sachs-Wolfe (Supervoids) | Signal $\times 1.22$ |
-| `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +1.41$ |
+| `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +0.86$ |
 | `hubble_transition_model.py` | Phase Transition Smoothness | Smooth |
 
 ### 4. Observational Probes (BAO, Growth, Galaxies)
@@ -77,11 +77,11 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
 | `validate_Pk_screening.py` | Matter Power Spectrum Shape | $0.00\%$ Deviation |
-| `validate_BAO_ladder.py` | BAO Distance Ladder (8-Point) | $∆χ2≈−1.50$ |
-| `validate_growth_numerical.py` | Linear Growth Rate ($f\sigma_8$) | $∆χ2 ≈ −1.39$ |
+| `validate_BAO_ladder.py` | BAO Distance Ladder (8-Point) | $∆χ2≈ 1.61$ |
+| `validate_growth_numerical.py` | Linear Growth Rate ($f\sigma_8$) | $∆χ2 ≈ −1.11$ |
 | `check_magnitude_shift.py` | SNe Magnitude Bias (Geometric) | $ < 1σ$ |
 | `validate_JWST_growth.py` | JWST "Impossible Galaxies" | Luminosity Boost |
-| `cosmic_chronometers_test.py` | Cosmic Chronometers ($H(z)$) | $\chi^2_\nu \approx 0.94$ |
+| `cosmic_chronometers_test.py` | Cosmic Chronometers ($H(z)$) | $\chi^2_\nu \approx 0.95$ |
 
 ### 5. Global Statistical Verdict
 *The final Bayesian evidence summary.*
