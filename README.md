@@ -16,9 +16,9 @@ This repository contains the complete **"Steel Man" Validation Suite** for the V
 - 💻 **Source Code:** Hosted in this GitHub repository.
 
 These scripts demonstrate that the model simultaneously resolves:
-- **Hubble Tension** ($H_0 \approx 73$)
-- **$S_8$ Tension** ($S_8 \approx 0.765$)
-- **Lithium Problem** (2.76x Depletion)
+- **Hubble Tension** ($H_0 \approx 72.87$)
+- **$S_8$ Tension** ($\sigma_8 \approx 0.760$)
+- **Lithium Problem** (2.63x Depletion)
 
 ...while preserving $\Lambda$CDM successes in BBN, CMB, and Solar System gravity.
 
@@ -42,7 +42,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
 | `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.69$ |
-| `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $\sigms_8 \approx 0.760$ |
+| `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $\sigma_8 \approx 0.760$ |
 | `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2 \approx -2568$ |
 | `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2569$ |
 
@@ -65,7 +65,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | `verify_CMB_geometric_scaling.py` | CMB Spectrum Restoration (CAMB) | Peaks Aligned |
 | `hyperuniform_screening_check.py` | Cassini (Solar System) Screening | Range $< 12$mm |
 | `validate_CMB_invariance.py` | Acoustic Scale Stability ($\theta_*$) | Error $< 0.01\%$ |
-| `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.22$ |
+| `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.28$ |
 | `Universe_age.py` | Cosmic Age Calculation | $12.52$ Gyr |
 | `validate_ISW_stability.py` | Integrated Sachs-Wolfe (Supervoids) | Signal $\times 1.22$ |
 | `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +0.86$ |
@@ -88,8 +88,8 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 
 | Script Name | Objective | Result |
 | :--- | :--- | :--- |
-| `validate_global_stats.py` | Global Likelihood Sum (Net) | $\Delta\chi^2 \approx -2524$ |
-| `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.86 \pm 0.24$ |
+| `validate_global_stats.py` | Global Likelihood Sum (Net) | $\Delta\chi^2 \approx -2533$ |
+| `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.87 \pm 0.24$ |
 
 ---
 
