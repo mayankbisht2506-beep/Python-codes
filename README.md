@@ -17,7 +17,7 @@ This repository contains the complete **"Steel Man" Validation Suite** for the V
 
 These scripts demonstrate that the model simultaneously resolves:
 - **Hubble Tension** ($H_0 \approx 72.87$)
-- **$S_8$ Tension** ($S_8 \approx 0.765$)
+- **$S_8$ Tension** ($S_8 \approx 0.767$)
 - **Lithium Problem** (2.63x Depletion)
 
 ...while preserving $\Lambda$CDM successes in BBN, CMB, and Solar System gravity.
@@ -42,7 +42,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
 | `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.69$ |
-| `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $S_8 \approx 0.775$ |
+| `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $S_8 \approx 0.767$ |
 | `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2 \approx -2568$ |
 | `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2569$ |
 
@@ -63,7 +63,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
 | `verify_CMB_geometric_scaling.py` | CMB Spectrum Restoration (CAMB) | Peaks Aligned |
-| `hyperuniform_screening_check.py` | Cassini (Solar System) Screening | Range $< 12$mm |
+| `hyperuniform_screening_check.py` | Cassini (Solar System) Screening | Range $< 100$m |
 | `validate_CMB_invariance.py` | Acoustic Scale Stability ($\theta_*$) | Error $< 0.01\%$ |
 | `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.28$ |
 | `Universe_age.py` | Cosmic Age Calculation | $12.52$ Gyr |
@@ -101,7 +101,7 @@ Running `src/validate_global_stats.py` reproduces the main conclusion:
 
 ### Summary Scorecard
 *   **Supernovae:** $H_0 \approx 72.87$ km/s/Mpc (Matches SH0ES)
-*   **Structure Growth:** $S_8 \approx 0.775$ (Matches Weak Lensing)
+*   **Structure Growth:** $S_8 \approx 0.767$ (Matches Weak Lensing)
 *   **BBN:** Lithium-7 Solved, D/He Preserved
 *   **CMB:** Acoustic Scale Locked ($\theta_*$ invariant)
 *   **Solar System:** Fifth Force Screened (Hyperuniformity)
