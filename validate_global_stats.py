@@ -19,12 +19,12 @@ data = {
     ],
     "Physics Tested": [
         "Absolute Calibration (H_fast = 74.69)", 
-        "Absolute Amplitude (sigma8 approx 0.760)", 
+        "Absolute Amplitude (sigma8 approx 0.753)", 
         "Metric Scaling (rs = 133.3)",
         "Expansion History (H_local = 72.71)"
     ],
     # UPDATED VALUES (From finalized Table 8 of the manuscript):
-    "Delta Chi2": [-2568.08, -1.11, 1.61, 14.40],
+    "Delta Chi2": [-2568.08, -2.09, 1.61, 14.40],
     "Verdict": [
         "Decisive Resolution", 
         "Statistically Preferred", 
