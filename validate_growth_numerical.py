@@ -30,7 +30,7 @@ data_rsd = np.array([
 # ==========================================
 H0_LCDM       = 67.36   # EXACT: Planck 2018 Baseline
 OM_PLANCK     = 0.3153  # EXACT: Planck 2018 Baseline
-SIGMA8_0_LCDM = 0.8111  # EXACT: Planck 2018 Baseline
+SIGMA8_0_LCDM = 0.8116  # Derived PlancK Baseline
 
 OM_PRIMORDIAL = 0.3116  # EXACT: Frictionless Bare Density (Drives Gravity)
 OM_EFFECTIVE  = 0.3639  # EXACT: Viscous Load (Drives Expansion Friction)
