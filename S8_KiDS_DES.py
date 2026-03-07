@@ -54,23 +54,27 @@ def get_viscosity(z):
 def growth_ode_rigorous(y, a, model='lcdm'):
     """
     Solves the Linear Perturbation Growth Equation.
-    Vacuum Model adds the (1+zeta)^2 friction term.
+    Vacuum Model adds the (1+zeta)^2 friction term and isolates bare mass for gravity.
     """
     delta, delta_prime = y
     z = 1.0/a - 1.0
 
-    # 1. Dynamic Density Transition
+    # 1. Dynamic Density Separation (Expansion vs Gravity)
     if model == 'viscous':
-        om_z = OM_BARE + (OM_EFFECTIVE - OM_BARE) * expit((Z_TRANS - z) / WIDTH)
+        # The background metric feels the viscous load (0.3116 -> 0.3639)
+        om_expansion = OM_BARE + (OM_EFFECTIVE - OM_BARE) * expit((Z_TRANS - z) / WIDTH)
+        # Gravity ONLY feels the bare topological mass (per VED Eq. 110)
+        om_gravity = OM_BARE 
     else:
-        om_z = OM_PLANCK
+        om_expansion = OM_PLANCK
+        om_gravity = OM_PLANCK
 
-    # Hubble Expansion Function E(z)
-    E = np.sqrt(om_z*(1+z)**3 + (1-om_z))
-    dE_da = -1.5 * om_z * (a**-4) / E
+    # Hubble Expansion Function E(z) - Uses om_expansion
+    E = np.sqrt(om_expansion*(1+z)**3 + (1-om_expansion))
+    dE_da = -1.5 * om_expansion * (a**-4) / E
 
-    # 2. Gravity Source Term (Driving Clustering)
-    source = 1.5 * om_z / (a**5 * E**2)
+    # 2. Gravity Source Term (Driving Clustering) - Uses om_gravity
+    source = 1.5 * om_gravity / (a**5 * E**2)
 
     # 3. Friction Term (Resisting Clustering)
     if model == 'viscous':
