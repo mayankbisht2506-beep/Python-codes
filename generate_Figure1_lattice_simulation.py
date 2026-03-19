@@ -15,7 +15,7 @@ np.random.seed(42)
 # The microscopic yield strength of the lattice (Frenkel Sinusoidal Limit).
 GAMMA_CRIT = 1 / (2 * np.pi)  # approx 0.15915
 
-# Source: Section 5.1.2
+# Source: Section 5.1.1
 # Geometric Masses derived from lattice strain ratios.
 M_e_GEO = 0.511     # Electron Baseline (MeV)
 M_mu_GEO = 106.4    # Muon Geometric Prediction (MeV)
