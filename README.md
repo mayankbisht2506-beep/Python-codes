@@ -81,7 +81,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | `validate_growth_numerical.py` | Linear Growth Rate ($f\sigma_8$) | $∆χ2 ≈ −1.11$ |
 | `check_magnitude_shift.py` | SNe Magnitude Bias (Geometric) | $ < 1σ$ |
 | `validate_JWST_growth.py` | JWST "Impossible Galaxies" | Luminosity Boost |
-| `cosmic_chronometers_test.py` | Cosmic Chronometers ($H(z)$) | $\chi^2_\nu \approx 0.95$ |
+| `cosmic_chronometers_test.py` | Cosmic Chronometers ($H(z)$) | $\chi^2_\nu \approx 0.90$ |
 
 ### 5. Global Statistical Verdict
 *The final Bayesian evidence summary.*
