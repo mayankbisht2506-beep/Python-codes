@@ -1,6 +1,3 @@
-# Uncomment the line below if running in Google Colab / Jupyter
-# !pip install scipy numpy matplotlib pandas requests
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -79,10 +76,9 @@ OL_PLANCK = 1.0 - OM_PLANCK
 # ==========================================
 Z_TRANS = 0.641
 WIDTH = 0.10
-H_FAST = 74.69         # EXACT: Early Geometric Ceiling
+H_FAST = 74.69        # EXACT: Early Geometric Ceiling
 OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Density
 OM_EFFECTIVE  = 0.3639 # EXACT: Viscous Braking Density
-W_EFF = -1.0358        # EXACT: Phantom Viscoplastic Flow Stress
 
 def integrate_distance_vectorized(z_values, h_func):
     # Upgraded to 10,000 grid points for ultra-low z precision
@@ -124,12 +120,7 @@ def objective_vacuum(h0_param):
         # 2. Hubble Trajectory Transition
         H_Z = H_FAST + (H_LOCAL - H_FAST) * sigmoid
         
-        # 3. Equation of State Transition (Phantom turn-on)
-        W_SUPERFLUID = -1.0
-        W_Z = W_SUPERFLUID + (W_EFF - W_SUPERFLUID) * sigmoid
-        phantom_exponent = 3 * (1 + W_Z)
-        
-        E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z * (1 + z)**phantom_exponent)
+        E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
         return H_Z * E_z
 
     dl_visc = (1 + z_obs) * integrate_distance_vectorized(z_obs, h_viscous)
@@ -161,16 +152,10 @@ plt.errorbar(z_obs, R_planck, yerr=err_diag,
 def h_best(z):
     arg = (Z_TRANS - z) / WIDTH
     sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
-    
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
     H_Z = H_FAST + (best_H0 - H_FAST) * sigmoid
-    
-    W_SUPERFLUID = -1.0
-    W_Z = W_SUPERFLUID + (W_EFF - W_SUPERFLUID) * sigmoid
-    phantom_exponent = 3 * (1 + W_Z)
-    
-    return H_Z * np.sqrt(OM_Z * (1 + z)**3 + OL_Z * (1 + z)**phantom_exponent)
+    return H_Z * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
 
 z_sort = np.sort(z_obs)
 dl_best = (1 + z_sort) * integrate_distance_vectorized(z_sort, h_best)
@@ -181,7 +166,9 @@ mu_planck_sort = 5 * np.log10(dl_planck_sort + 1e-12) + 25
 
 curve_opt = mu_best - mu_planck_sort
 
-plt.plot(z_sort, curve_opt, 'r-', linewidth=3, label=rf'Optimized VED Model ($w_{{eff}}={W_EFF}$, Terminal $H_0={best_H0:.2f}$)')
+
+
+plt.plot(z_sort, curve_opt, 'r-', linewidth=3, label=f'Optimized Vacuum Model (Terminal $H_0={best_H0:.2f}$)')
 
 plt.axhline(0, color='k', linestyle='--')
 plt.xlabel('Redshift z', fontsize=12)
@@ -191,6 +178,6 @@ plt.legend(fontsize=10)
 plt.ylim(-0.6, 0.4)
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('Figure_Test1_RawStressTest_Phantom.png', dpi=300)
-print("\nPlot saved as 'Figure_Test1_RawStressTest_Phantom.png'")
+plt.savefig('Figure_Test1_RawStressTest.png', dpi=300)
+print("\nPlot saved as 'Figure_Test1_RawStressTest.png'")
 plt.show()
