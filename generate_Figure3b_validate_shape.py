@@ -37,7 +37,7 @@ download_file(DATA_URL, DATA_FILE)
 download_file(COV_URL, COV_FILE)
 
 df = pd.read_csv(DATA_FILE, sep=r'\s+')
-# Filter to bulk flow (N=1590) as specified in Section 8.3.3
+# Filter to bulk flow (N=1590) as specified in Section 8.3.5
 mask = df['zHD'] > 0.01
 df_clean = df[mask].reset_index(drop=True)
 
