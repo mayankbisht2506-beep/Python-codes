@@ -12,7 +12,7 @@ from scipy.optimize import minimize
 # 1. SETUP & DATA
 # ==========================================
 print("--- RUNNING PANTHEON+ SHAPE CONSISTENCY TEST (KINEMATIC) ---")
-print("Objective: Verify Metric 2 (Test III: Shape Consistency, Section 8.3.4)")
+print("Objective: Verify Metric 2 (Test III: Shape Consistency, Section 8.3.5)")
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
