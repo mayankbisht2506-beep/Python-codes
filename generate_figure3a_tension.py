@@ -82,60 +82,41 @@ H_FAST = 74.69         # EXACT: Theoretical E8 Geometry Limit
 H_LOCAL = 72.71        # EXACT: Theoretically Derived Terminal Velocity
 OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Density
 OM_EFFECTIVE = 0.3639  # EXACT: Theoretically Derived Viscous Load
-G_EARLY = 1.2177       # EXACT: Early Gravity scaling
-M_LUM_PENALTY = 0.160  # EXACT: Intrinsic source dimming
 
-def integrate_distance_custom(z_metric_array, h_func):
-    """Integrates comoving distance up to the physical z_metric bounds."""
-    z_grid = np.linspace(0, np.max(z_metric_array)*1.01, 10000)
+def integrate_distance_vectorized(z_values, h_func):
+    z_grid = np.linspace(0, np.max(z_values)*1.01, 10000)
     h_grid = h_func(z_grid)
     integrand = C_LIGHT / h_grid
     comoving = np.cumsum((integrand[:-1] + integrand[1:]) / 2 * np.diff(z_grid))
     comoving = np.insert(comoving, 0, 0)
-    return np.interp(z_metric_array, z_grid, comoving)
+    return np.interp(z_values, z_grid, comoving)
 
-# --- Planck History ---
+# Planck History
 def h_lcdm(z):
     return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + OL_PLANCK)
 
-# For LCDM, z_metric = z_obs
-dl_lcdm = (1 + df_clean['zHD']) * integrate_distance_custom(df_clean['zHD'], h_lcdm)
+dl_lcdm = (1 + df_clean['zHD']) * integrate_distance_vectorized(df_clean['zHD'], h_lcdm)
 mu_planck = 5 * np.log10(dl_lcdm) + 25
 
-# --- Vacuum Elastodynamics History ---
-def get_sigmoid(z):
-    arg = (Z_TRANS - z) / WIDTH
-    # 1.0 = Late Universe (Local), 0.0 = Early Universe (Superfluid)
-    return np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
-
+# Vacuum History
 def h_viscous(z):
-    sigmoid = get_sigmoid(z)
+    # Transition Logic
+    arg = (Z_TRANS - z) / WIDTH
+    # Safe sigmoid
+    sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
+    
+    # Density Transition
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
+    
+    # Hubble Trajectory Transition (Braking from 74.37 down to 72.40)
     H_Z = H_FAST + (H_LOCAL - H_FAST) * sigmoid
+    
     E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
     return H_Z * E_z
 
-# 1. Evaluate the phase state for each supernova
-sig_array = get_sigmoid(df_clean['zHD'])
-
-# 2. Calculate the dynamic G field (1.2177 early -> 1.0 late)
-G_array = G_EARLY + (1.0 - G_EARLY) * sig_array
-
-# 3. Apply Atomic Clock boundary condition to find true z_metric
-z_metric_array = (1 + df_clean['zHD']) * (G_array**-0.5) - 1
-
-# 4. Integrate Comoving Distance strictly up to z_metric
-comoving_dist = integrate_distance_custom(z_metric_array, h_viscous)
-
-# 5. Apply observer prefactor (z_obs) to get exact Luminosity Distance
-dl_visc = (1 + df_clean['zHD']) * comoving_dist
-
-# 6. Apply Intrinsic Dimming penalty to early-universe sources
-delta_M_lum = M_LUM_PENALTY * (1.0 - sig_array)
-
-# 7. Final Effective Distance Modulus
-mu_viscous = 5 * np.log10(dl_visc) + 25 + delta_M_lum
+dl_visc = (1 + df_clean['zHD']) * integrate_distance_vectorized(df_clean['zHD'], h_viscous)
+mu_viscous = 5 * np.log10(dl_visc) + 25
 
 # ==========================================
 # 4. STATISTICS (NO MARGINALIZATION)
