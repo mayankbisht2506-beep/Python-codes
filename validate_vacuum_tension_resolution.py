@@ -1,3 +1,6 @@
+# Uncomment the line below if running in Google Colab / Jupyter
+# !pip install scipy numpy matplotlib pandas requests
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -10,6 +13,7 @@ from scipy.optimize import minimize
 # ==========================================
 print("--- RUNNING PANTHEON+ TEST I: RAW STRESS TEST (N=1701) ---")
 print("Objective: Optimize H0 to find Maximum Headroom (Table 7)")
+print("Engine: Exact Covariant Geometry (z_metric truncation + continuous penalties)")
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
@@ -21,11 +25,16 @@ def download_file(url, filename):
         try:
             print(f"Downloading {filename}...")
             r = requests.get(url, stream=True)
+            r.raise_for_status()
             with open(filename, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
+            print("Download complete.")
         except Exception as e:
             print(f"Error downloading {filename}: {e}")
+            exit()
+    else:
+        print(f"Found {filename}, using local copy.")
 
 download_file(DATA_URL, DATA_FILE)
 download_file(COV_URL, COV_FILE)
@@ -71,25 +80,19 @@ H0_PLANCK = 67.36     # EXACT: Planck 2018 Baseline
 OM_PLANCK = 0.3153    # EXACT: Planck 2018 Baseline
 OL_PLANCK = 1.0 - OM_PLANCK
 
-# ==========================================
-# EXACT PURE THEORY PARAMETERS (VED)
-# ==========================================
-Z_TRANS = 0.641
-WIDTH = 0.10
-H_FAST = 74.69        # EXACT: Early Geometric Ceiling
-OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Density
-OM_EFFECTIVE  = 0.3639 # EXACT: Viscous Braking Density
-
 def integrate_distance_vectorized(z_values, h_func):
-    # Upgraded to 10,000 grid points for ultra-low z precision
-    z_grid = np.linspace(0, np.max(z_values)*1.01, 10000)
+    """Vectorized numerical integration of comoving distance."""
+    z_max = np.max(z_values)
+    if z_max <= 0: z_max = 0.01
+    
+    z_grid = np.linspace(0, z_max * 1.05, 10000)
     h_grid = h_func(z_grid)
     integrand = C_LIGHT / h_grid
     comoving = np.cumsum((integrand[:-1] + integrand[1:]) / 2 * np.diff(z_grid))
     comoving = np.insert(comoving, 0, 0)
     return np.interp(z_values, z_grid, comoving)
 
-# Planck History
+# --- LCDM Baseline ---
 def h_lcdm(z):
     return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + OL_PLANCK)
 
@@ -100,32 +103,61 @@ R_planck = mu_data - mu_planck
 chi2_planck = R_planck.T @ inv_cov @ R_planck
 
 # ==========================================
-# 4. RAW STRESS TEST OPTIMIZATION
+# 4. EXACT COVARIANT OPTIMIZATION (VED)
 # ==========================================
-print("Optimizing Vacuum Model Headroom...")
+# EXACT PURE THEORY PARAMETERS
+Z_TRANS = 0.641
+WIDTH = 0.10
+H_FAST = 74.69         # EXACT: Early Geometric Ceiling
+OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Density
+OM_EFFECTIVE  = 0.3639 # EXACT: Viscous Braking Density
 
-def objective_vacuum(h0_param):
-    # Optimize the local decelerated velocity while locking the geometric ceiling
-    H_LOCAL = h0_param[0]
+print("Optimizing Vacuum Model Headroom (Exact Covariant Engine)...")
+
+def get_exact_mu_visc(z_array, h_local_opt):
+    """Exact Covariant Distance Modulus Engine parameterized for optimization."""
+    # 1. Evaluate S(z)
+    arg_obs = (Z_TRANS - z_array) / WIDTH
+    S_z = np.where(arg_obs > 100, 1.0, np.where(arg_obs < -100, 0.0, 1.0 / (1.0 + np.exp(-arg_obs))))
     
-    def h_viscous(z):
+    # 2. Continuous Early Gravity Field G(z)
+    G_z = 1.0 + 0.2177 * (1.0 - S_z)
+    
+    # 3. Dynamically Shifted Metric Boundary
+    z_metric = (1.0 + z_array) / np.sqrt(G_z) - 1.0
+    z_metric = np.maximum(z_metric, 0.0) # Safety against negative bounds
+    
+    # 4. Define optimized H(z) inside the engine
+    def h_viscous_opt(z):
         arg = (Z_TRANS - z) / WIDTH
-        # Safe sigmoid computation
         sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
-        
-        # 1. Density Transition
         OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
         OL_Z = 1.0 - OM_Z
-        
-        # 2. Hubble Trajectory Transition
-        H_Z = H_FAST + (H_LOCAL - H_FAST) * sigmoid
-        
+        H_Z = H_FAST + (h_local_opt - H_FAST) * sigmoid
         E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
         return H_Z * E_z
-
-    dl_visc = (1 + z_obs) * integrate_distance_vectorized(z_obs, h_viscous)
-    mu_vacuum = 5 * np.log10(dl_visc + 1e-12) + 25
     
+    # 5. Exact Covariant Integration (Truncated at z_metric)
+    comoving_at_z_metric = integrate_distance_vectorized(z_metric, h_viscous_opt)
+    dl_mpc = (1.0 + z_array) * comoving_at_z_metric
+    
+    # 6. Flux dilution standard prefactor
+    dl_mpc_safe = np.maximum(dl_mpc, 1e-10)
+    mu_raw = 5.0 * np.log10(dl_mpc_safe) + 25.0
+    
+    # 7. Superimpose Continuous Source Penalties (+0.410 max)
+    penalties = 0.410 * (1.0 - S_z)
+    
+    return mu_raw + penalties
+
+def objective_vacuum(h0_param):
+    """Objective function to minimize Chi2 by tuning H_LOCAL."""
+    H_LOCAL_OPT = h0_param[0]
+    
+    # Generate exact covariant magnitudes
+    mu_vacuum = get_exact_mu_visc(z_obs, H_LOCAL_OPT)
+    
+    # Calculate Chi2
     R_vacuum = mu_data - mu_vacuum
     chi2_vac = R_vacuum.T @ inv_cov @ R_vacuum
     return chi2_vac
@@ -146,38 +178,34 @@ print(f"Delta Chi2:          {d_chi2:.2f}")
 # 5. PLOTTING
 # ==========================================
 plt.figure(figsize=(10,6))
+
+# Plot Baseline Residuals
 plt.errorbar(z_obs, R_planck, yerr=err_diag, 
              fmt='o', color='lightgrey', alpha=0.3, label='Pantheon+ Residuals (SH0ES Calibrated)')
 
-def h_best(z):
-    arg = (Z_TRANS - z) / WIDTH
-    sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
-    OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
-    OL_Z = 1.0 - OM_Z
-    H_Z = H_FAST + (best_H0 - H_FAST) * sigmoid
-    return H_Z * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
-
+# Generate Sorted Curves for Smooth Plotting
 z_sort = np.sort(z_obs)
-dl_best = (1 + z_sort) * integrate_distance_vectorized(z_sort, h_best)
-mu_best = 5 * np.log10(dl_best + 1e-12) + 25
 
+# 1. Exact Covariant Optimized Curve
+mu_best_sort = get_exact_mu_visc(z_sort, best_H0)
+
+# 2. Planck Baseline Sorted Curve
 dl_planck_sort = (1 + z_sort) * integrate_distance_vectorized(z_sort, h_lcdm)
 mu_planck_sort = 5 * np.log10(dl_planck_sort + 1e-12) + 25
 
-curve_opt = mu_best - mu_planck_sort
+# 3. Residual Difference Curve
+curve_opt = mu_best_sort - mu_planck_sort
 
-
-
-plt.plot(z_sort, curve_opt, 'r-', linewidth=3, label=f'Optimized Vacuum Model (Terminal $H_0={best_H0:.2f}$)')
+plt.plot(z_sort, curve_opt, 'r-', linewidth=3, label=f'Optimized Covariant Theory (Terminal $H_0={best_H0:.2f}$)')
 
 plt.axhline(0, color='k', linestyle='--')
 plt.xlabel('Redshift z', fontsize=12)
 plt.ylabel(r'Magnitude Residual $\mu - \mu_{Planck}$', fontsize=12)
-plt.title(rf'Test I: Raw Stress Test (Maximum Headroom)' + '\n' + rf'$\Delta\chi^2 \approx {d_chi2:.1f}$', fontsize=14)
+plt.title(rf'Test I: Raw Stress Test (Maximum Headroom)' + '\n' + rf'Exact Covariant Engine: $\Delta\chi^2 \approx {d_chi2:.1f}$', fontsize=14)
 plt.legend(fontsize=10)
 plt.ylim(-0.6, 0.4)
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('Figure_Test1_RawStressTest.png', dpi=300)
-print("\nPlot saved as 'Figure_Test1_RawStressTest.png'")
+plt.savefig('Figure_Test1_ExactCovariant_StressTest.png', dpi=300)
+print("\nPlot saved as 'Figure_Test1_ExactCovariant_StressTest.png'")
 plt.show()
