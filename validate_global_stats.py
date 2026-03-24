@@ -24,7 +24,7 @@ data = {
         "Expansion History (H_local = 72.71)"
     ],
     # UPDATED VALUES (From finalized Table 8 of the manuscript):
-    "Delta Chi2": [-2568.08, -2.09, 1.61, 14.40],
+    "Delta Chi2": [-2475.72, -2.09, 1.61, 14.40],
     "Verdict": [
         "Decisive Resolution", 
         "Statistically Preferred", 
