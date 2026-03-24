@@ -8,7 +8,7 @@
 
 ## 📂 Overview
 
-This repository contains the complete **"Steel Man" Validation Suite** for the Vacuum Elastodynamics (VED) framework. It consists of **25 independent Python scripts** designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
+This repository contains the complete **"Steel Man" Validation Suite** for the Vacuum Elastodynamics (VED) framework. It consists of **24 independent Python scripts** designed to rigorously stress-test the theoretical claims, mathematical derivations, and observational fits presented in the manuscript.
 
 ### Resources
 
@@ -43,8 +43,8 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | :--- | :--- | :--- |
 | `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.69$ |
 | `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $S_8 \approx 0.767$ |
-| `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2 \approx -2568$ |
-| `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2569$ |
+| `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2 \approx -2475.72$ |
+| `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2492.58$ |
 
 ### 2. Microphysics & Fundamental Constants
 *Verifying the geometric derivation of constants and particle stability.*
@@ -65,10 +65,10 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | `verify_CMB_geometric_scaling.py` | CMB Spectrum Restoration (CAMB) | Peaks Aligned |
 | `hyperuniform_screening_check.py` | Cassini (Solar System) Screening | Range $< 100$m |
 | `validate_CMB_invariance.py` | Acoustic Scale Stability ($\theta_*$) | Error $< 0.01\%$ |
-| `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.28$ |
+| `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.3$ |
 | `Universe_age.py` | Cosmic Age Calculation | $12.52$ Gyr |
 | `validate_ISW_stability.py` | Integrated Sachs-Wolfe (Supervoids) | Signal $\times 1.22$ |
-| `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +0.86$ |
+| `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +9.23$ |
 | `hubble_transition_model.py` | Phase Transition Smoothness | Smooth |
 
 ### 4. Observational Probes (BAO, Growth, Galaxies)
@@ -79,7 +79,6 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | `validate_Pk_screening.py` | Matter Power Spectrum Shape | $0.00\%$ Deviation |
 | `validate_BAO_ladder.py` | BAO Distance Ladder (8-Point) | $∆χ2≈ 1.61$ |
 | `validate_growth_numerical.py` | Linear Growth Rate ($f\sigma_8$) | $∆χ2 ≈ −1.11$ |
-| `check_magnitude_shift.py` | SNe Magnitude Bias (Geometric) | $ < 1σ$ |
 | `validate_JWST_growth.py` | JWST "Impossible Galaxies" | Luminosity Boost |
 | `cosmic_chronometers_test.py` | Cosmic Chronometers ($H(z)$) | $\chi^2_\nu \approx 0.95$ |
 
@@ -88,8 +87,8 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 
 | Script Name | Objective | Result |
 | :--- | :--- | :--- |
-| `validate_global_stats.py` | Global Likelihood Sum (Net) | $\Delta\chi^2 \approx -2533$ |
-| `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.87 \pm 0.24$ |
+| `validate_global_stats.py` | Global Likelihood Sum (Net) | $\Delta\chi^2 \approx -2461.80$ |
+| `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.36 \pm 0.24$ |
 
 ---
 
