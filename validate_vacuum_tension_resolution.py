@@ -64,35 +64,36 @@ inv_cov = np.linalg.pinv(cov_filtered)
 err_diag = np.sqrt(np.diag(cov_filtered))
 
 # ==========================================
-# 3. PHYSICS BASELINE & EXACT THEORY PARAMETERS
+# 3. PHYSICS BASELINE (PLANCK 2018 EXACT)
 # ==========================================
 C_LIGHT = 299792.458
 H0_PLANCK = 67.36     # EXACT: Planck 2018 Baseline
 OM_PLANCK = 0.3153    # EXACT: Planck 2018 Baseline
 OL_PLANCK = 1.0 - OM_PLANCK
 
+# ==========================================
+# EXACT PURE THEORY PARAMETERS (VED)
+# ==========================================
 Z_TRANS = 0.641
 WIDTH = 0.10
-H_FAST = 74.69         # EXACT: Early Geometric Ceiling
+H_FAST = 74.69        # EXACT: Early Geometric Ceiling
 OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Density
 OM_EFFECTIVE  = 0.3639 # EXACT: Viscous Braking Density
-G_EARLY = 1.2177       # EXACT: Early Gravity scaling
-M_LUM_PENALTY = 0.160  # EXACT: Intrinsic source dimming
 
-def integrate_distance_custom(z_metric_array, h_func):
-    """Integrates comoving distance up to the physical z_metric bounds."""
-    z_grid = np.linspace(0, np.max(z_metric_array)*1.01, 10000)
+def integrate_distance_vectorized(z_values, h_func):
+    # Upgraded to 10,000 grid points for ultra-low z precision
+    z_grid = np.linspace(0, np.max(z_values)*1.01, 10000)
     h_grid = h_func(z_grid)
     integrand = C_LIGHT / h_grid
     comoving = np.cumsum((integrand[:-1] + integrand[1:]) / 2 * np.diff(z_grid))
     comoving = np.insert(comoving, 0, 0)
-    return np.interp(z_metric_array, z_grid, comoving)
+    return np.interp(z_values, z_grid, comoving)
 
-# --- Planck History ---
+# Planck History
 def h_lcdm(z):
     return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + OL_PLANCK)
 
-dl_lcdm = (1 + z_obs) * integrate_distance_custom(z_obs, h_lcdm)
+dl_lcdm = (1 + z_obs) * integrate_distance_vectorized(z_obs, h_lcdm)
 mu_planck = 5 * np.log10(dl_lcdm + 1e-12) + 25
 
 R_planck = mu_data - mu_planck
@@ -103,42 +104,27 @@ chi2_planck = R_planck.T @ inv_cov @ R_planck
 # ==========================================
 print("Optimizing Vacuum Model Headroom...")
 
-def get_sigmoid(z_array):
-    arg = (Z_TRANS - z_array) / WIDTH
-    return np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
-
 def objective_vacuum(h0_param):
     # Optimize the local decelerated velocity while locking the geometric ceiling
     H_LOCAL = h0_param[0]
     
     def h_viscous(z):
-        sigmoid = get_sigmoid(z)
+        arg = (Z_TRANS - z) / WIDTH
+        # Safe sigmoid computation
+        sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
+        
+        # 1. Density Transition
         OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
         OL_Z = 1.0 - OM_Z
+        
+        # 2. Hubble Trajectory Transition
         H_Z = H_FAST + (H_LOCAL - H_FAST) * sigmoid
+        
         E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
         return H_Z * E_z
 
-    # 1. Evaluate phase state
-    sig_array = get_sigmoid(z_obs)
-    
-    # 2. Calculate dynamic G field
-    G_array = G_EARLY + (1.0 - G_EARLY) * sig_array
-    
-    # 3. Apply Atomic Clock boundary condition
-    z_metric_array = (1 + z_obs) * (G_array**-0.5) - 1
-    
-    # 4. Integrate up to true metric boundary
-    comoving_dist = integrate_distance_custom(z_metric_array, h_viscous)
-    
-    # 5. Apply observer prefactor
-    dl_visc = (1 + z_obs) * comoving_dist
-    
-    # 6. Apply Intrinsic Dimming penalty
-    delta_M_lum = M_LUM_PENALTY * (1.0 - sig_array)
-    
-    # 7. Final Distance Modulus
-    mu_vacuum = 5 * np.log10(dl_visc + 1e-12) + 25 + delta_M_lum
+    dl_visc = (1 + z_obs) * integrate_distance_vectorized(z_obs, h_viscous)
+    mu_vacuum = 5 * np.log10(dl_visc + 1e-12) + 25
     
     R_vacuum = mu_data - mu_vacuum
     chi2_vac = R_vacuum.T @ inv_cov @ R_vacuum
@@ -164,26 +150,23 @@ plt.errorbar(z_obs, R_planck, yerr=err_diag,
              fmt='o', color='lightgrey', alpha=0.3, label='Pantheon+ Residuals (SH0ES Calibrated)')
 
 def h_best(z):
-    sigmoid = get_sigmoid(z)
+    arg = (Z_TRANS - z) / WIDTH
+    sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
     H_Z = H_FAST + (best_H0 - H_FAST) * sigmoid
     return H_Z * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
 
 z_sort = np.sort(z_obs)
-sig_sort = get_sigmoid(z_sort)
-G_sort = G_EARLY + (1.0 - G_EARLY) * sig_sort
-z_metric_sort = (1 + z_sort) * (G_sort**-0.5) - 1
+dl_best = (1 + z_sort) * integrate_distance_vectorized(z_sort, h_best)
+mu_best = 5 * np.log10(dl_best + 1e-12) + 25
 
-comoving_best = integrate_distance_custom(z_metric_sort, h_best)
-dl_best = (1 + z_sort) * comoving_best
-delta_M_lum_sort = M_LUM_PENALTY * (1.0 - sig_sort)
-mu_best = 5 * np.log10(dl_best + 1e-12) + 25 + delta_M_lum_sort
-
-dl_planck_sort = (1 + z_sort) * integrate_distance_custom(z_sort, h_lcdm)
+dl_planck_sort = (1 + z_sort) * integrate_distance_vectorized(z_sort, h_lcdm)
 mu_planck_sort = 5 * np.log10(dl_planck_sort + 1e-12) + 25
 
 curve_opt = mu_best - mu_planck_sort
+
+
 
 plt.plot(z_sort, curve_opt, 'r-', linewidth=3, label=f'Optimized Vacuum Model (Terminal $H_0={best_H0:.2f}$)')
 
