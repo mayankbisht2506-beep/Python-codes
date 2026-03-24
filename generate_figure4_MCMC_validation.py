@@ -1,5 +1,6 @@
 # Uncomment the line below if running in Google Colab / Jupyter
-# !pip install -q emcee corner pandas requests matplotlib numpy scipy
+!pip install -q emcee corner pandas requests matplotlib numpy scipy
+
 import numpy as np
 import pandas as pd
 import emcee
@@ -9,10 +10,10 @@ import os
 import matplotlib.pyplot as plt
 
 print("--- VACUUM ELASTODYNAMICS: FULL JOINT MCMC (N=1701 + 31) ---")
-print("MODE: EXACT GEOMETRY (Unified Phase Transition Engine)")
+print("MODE: EXACT COVARIANT GEOMETRY (Unified Phase Transition Engine)")
 
 # ==========================================
-# 1. AUTO-DOWNLOADER
+# 1. AUTO-DOWNLOADER (Pantheon+ & Covariance)
 # ==========================================
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
@@ -53,7 +54,7 @@ hz_data = np.array([
 print("Loading Pantheon+ Data...")
 df = pd.read_csv(DATA_FILE, sep=r'\s+')
 
-# CORRECTION: The paper uses the FULL dataset including local calibrators.
+# PAPER SPECIFICATION: Full dataset including local calibrators
 mask = df['zHD'] > -1.00 
 z_sn = df[mask]['zHD'].values
 mu_sn = df[mask]['MU_SH0ES'].values
@@ -65,6 +66,7 @@ print("Inverting Covariance Matrix...")
 with open(COV_FILE, 'r') as f:
     content = f.read().split()
 data_flat = np.array(content, dtype=float)
+
 if len(data_flat) == 1701**2 + 1:
     cov_matrix = data_flat[1:].reshape((1701, 1701))
 else:
@@ -72,100 +74,118 @@ else:
     
 indices = np.where(mask)[0]
 cov_filtered = cov_matrix[np.ix_(indices, indices)]
-# Using pseudo-inverse for stability
+
+# Using pseudo-inverse for high-dimensional stability
 inv_cov_sn = np.linalg.pinv(cov_filtered)
 
+
 # ==========================================
-# 3. UNIFIED PHYSICS ENGINE (EXACT HIGH-PRECISION ROOTS)
+# 3. UNIFIED PHYSICS ENGINE (SECTION 7.3 & 8.3)
 # ==========================================
 c_light = 299792.458
-Z_TRANS = 0.641 # Theoretically derived Section 2.4
-WIDTH = 0.10
+Z_TRANS = 0.641        # Theoretically derived phase boundary
+WIDTH = 0.10           # Sigmoid relaxation width
 OM_PRIMORDIAL = 0.3116 # Exact Frictionless Baseline 
-
-# STRICT GEOMETRIC CEILING (Matches exact pure integral root)
-H_FAST = 74.69         
+H_FAST = 74.69         # Strict early-universe expansion ceiling
 
 def hubble_model(z, params):
-    # Free Parameters: Local Decelerated H0, and the Effective Late-Time Density
+    """Calculates the continuous expansion history H(z)."""
     H0_local, Om_effective = params
 
-    # The phase transition activates at z=0.641
+    # Sigmoid Phase Transition S(z)
     arg = (Z_TRANS - z) / WIDTH
     sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
     
-    # 1. Density Transition
+    # Dynamic Density and Hubble Pole Transition
     OM_Z = OM_PRIMORDIAL + (Om_effective - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
-    
-    # 2. Hubble Trajectory Transition
     H_Z = H_FAST + (H0_local - H_FAST) * sigmoid
     
-    # Standard Friedmann Expansion parameter using the dynamic density
     E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
-    
     return H_Z * E_z
 
 def get_dist_mod(z_array, params):
-    # Calculates the distance modulus by integrating the inverse Hubble parameter
-    z_max = np.max(z_array) * 1.01
-    z_grid = np.linspace(0, z_max, 10000)
+    """Calculates the exact covariant distance modulus (Section 7.3)."""
+    H0_local, Om_effective = params
+    
+    # 1. Evaluate S(z) for the specific observational redshifts
+    arg_obs = (Z_TRANS - z_array) / WIDTH
+    sigmoid_obs = np.where(arg_obs > 100, 1.0, np.where(arg_obs < -100, 0.0, 1.0 / (1.0 + np.exp(-arg_obs))))
+    
+    # 2. Continuous Early Gravity Field G(z)
+    G_z = 1.0 + 0.2177 * (1.0 - sigmoid_obs)
+    
+    # 3. Dynamically Shifted Metric Boundary (Atomic Drift limit)
+    z_metric = (1.0 + z_array) / np.sqrt(G_z) - 1.0
+    
+    # 4. Exact Covariant Integration (Comoving path strictly up to z_metric)
+    z_max_int = np.max(z_metric) * 1.01
+    z_grid = np.linspace(0, z_max_int, 10000)
     H_vals = hubble_model(z_grid, params)
     integrand = 1.0 / H_vals
     
-    # Trapezoidal Integration
-    comoving = np.cumsum((integrand[:-1] + integrand[1:]) / 2 * np.diff(z_grid))
-    comoving = np.insert(comoving, 0, 0)
-    dl_mpc = c_light * np.interp(z_array, z_grid, comoving)
+    comoving_grid = np.cumsum((integrand[:-1] + integrand[1:]) / 2 * np.diff(z_grid))
+    comoving_grid = np.insert(comoving_grid, 0, 0)
     
-    return 5.0 * np.log10((1+z_array) * dl_mpc) + 25.0
+    # Evaluate comoving distance at the truncated z_metric boundary
+    dl_mpc = c_light * np.interp(z_metric, z_grid, comoving_grid)
+    
+    # Flux dilution standard prefactor (based on observer redshift)
+    mu_raw = 5.0 * np.log10((1.0 + z_array) * dl_mpc) + 25.0
+    
+    # 5. Superimpose Continuous Source Penalties (Section 7.3)
+    # Lum Dimming (+0.160) + Visc Strain (+0.250) = +0.410 max penalty
+    penalties = 0.410 * (1.0 - sigmoid_obs)
+    
+    return mu_raw + penalties
+
 
 # ==========================================
-# 4. LIKELIHOOD
+# 4. LIKELIHOOD FUNCTION
 # ==========================================
 def log_likelihood(params):
     H0_local, Om_effective = params
     
-    # Broad Priors
+    # Broad Uninformative Priors
     if not (60.0 < H0_local < 80.0 and 0.2 < Om_effective < 0.5):
         return -np.inf
     
-    # 1. Cosmic Chronometers
+    # 1. Cosmic Chronometers (Hz data)
     model_hz = hubble_model(hz_data[:,0], params)
     chi2_hz = np.sum(((hz_data[:,1] - model_hz) / hz_data[:,2])**2)
     
-    # 2. Pantheon+
+    # 2. Pantheon+ Supernovae (Exact Covariant formulation)
     model_mu = get_dist_mod(z_sn, params)
     residuals = mu_sn - model_mu
     chi2_sn = residuals.T @ inv_cov_sn @ residuals 
 
     return -0.5 * (chi2_hz + chi2_sn)
 
+
 # ==========================================
-# 5. RUN MCMC
+# 5. EXECUTE MCMC
 # ==========================================
 ndim = 2   
 nwalkers = 32
 
-# p0: TRULY BLIND INITIALIZATION
+# Truly blind initialization
 p0 = np.random.uniform(low=[60.0, 0.2], high=[80.0, 0.5], size=(nwalkers, ndim))
 
-print("\nRunning Chain for 10,000 steps (may take ~20 mins)...")
+print("\nRunning Chain for 10,000 steps (Evaluating Covariant Integrals)...")
 sampler = emcee.EnsembleSampler(nwalkers, ndim, log_likelihood)
 sampler.run_mcmc(p0, 10000, progress=True)
 
-# --- Autocorrelation Diagnostic ---
+# --- Diagnostics ---
 print("\n--- CONVERGENCE DIAGNOSTICS ---")
 try:
     tau = sampler.get_autocorr_time()
     print(f"Autocorrelation time (tau): {tau}")
-    print(f"Chain length is {10000 / np.mean(tau):.1f} times the autocorrelation time.")
     if (10000 / np.mean(tau)) > 100:
         print("STATUS: Convergence is mathematically rigorous (>100x tau).")
 except emcee.autocorr.AutocorrError as e:
     print(f"Autocorrelation Warning: {e}")
 
-# Results
+# --- Results ---
 flat_samples = sampler.get_chain(discard=2000, thin=15, flat=True)
 labels = [r"$H_0^{local}$", r"$\Omega_{m}^{eff}$"]
 
@@ -174,8 +194,8 @@ for i in range(ndim):
     mcmc = np.percentile(flat_samples[:, i], [16, 50, 84])
     print(f"{labels[i]}: {mcmc[1]:.3f}  +{np.diff(mcmc)[1]:.3f} / -{np.diff(mcmc)[0]:.3f}")
 
-# Plot
-# STRICT GEOMETRIC TERMINAL (Matches exact viscous terminal velocity)
+# --- Plotting ---
+# Exact theoretical boundaries derived in the paper
 H_OBS_THEORY = 72.71
 OM_EFF_THEORY = 0.3639
 
@@ -186,6 +206,6 @@ fig = corner.corner(
     truth_color="#ff4444",
     title_kwargs={"fontsize": 14}
 )
-plt.suptitle("Vacuum Elastodynamics: Joint MCMC (Pantheon+ & CC)", fontsize=16, y=1.02)
-plt.savefig("Joint_MCMC_Unified_10k_Exact.pdf", bbox_inches='tight', dpi=300)
-print("Saved 10,000-step exact geometry corner plot.")
+plt.suptitle("Vacuum Elastodynamics: Exact Covariant Joint MCMC", fontsize=16, y=1.02)
+plt.savefig("Joint_MCMC_Exact_Covariant.pdf", bbox_inches='tight', dpi=300)
+print("Saved Exact Covariant MCMC corner plot as PDF.")
