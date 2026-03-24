@@ -13,6 +13,7 @@ from scipy.optimize import minimize
 # ==========================================
 print("--- RUNNING PANTHEON+ SHAPE CONSISTENCY TEST (KINEMATIC) ---")
 print("Objective: Verify Metric 2 (Test III: Shape Consistency, Section 8.3.5)")
+print("Engine: Exact Covariant Geometry (z_metric truncation + continuous penalties)")
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
@@ -77,27 +78,31 @@ OM_PRIMORDIAL = 0.3116 # EXACT: Frictionless Bare Density
 OM_EFFECTIVE = 0.3639  # EXACT: Viscous late universe (Inertial Counter-Load)
 
 def integrate_distance_vectorized(z_values, h_func):
-    z_grid = np.linspace(0, np.max(z_values)*1.01, 10000)
+    """Vectorized numerical integration of comoving distance."""
+    z_max = np.max(z_values)
+    # Guard against negative/zero bounds during testing
+    if z_max <= 0: z_max = 0.01 
+    
+    z_grid = np.linspace(0, z_max * 1.05, 10000)
     h_grid = h_func(z_grid)
     integrand = C_LIGHT / h_grid
     comoving = np.cumsum((integrand[:-1] + integrand[1:]) / 2 * np.diff(z_grid))
     comoving = np.insert(comoving, 0, 0)
     return np.interp(z_values, z_grid, comoving)
 
-# Planck History
+# --- LCDM Baseline ---
 def h_lcdm(z):
     return H0_A * np.sqrt(OM_A * (1 + z)**3 + OL_A)
 
 dl_lcdm = (1 + df_clean['zHD']) * integrate_distance_vectorized(df_clean['zHD'], h_lcdm)
 mu_lcdm = 5 * np.log10(dl_lcdm) + 25
 
-# Vacuum History (Dynamic Phase Transition)
+# --- Vacuum Elastodynamics Engine ---
 def h_viscous(z):
+    """Continuous expansion history H(z) for the Vacuum phase transition."""
     arg = (Z_TRANS - z) / WIDTH
-    # Safe sigmoid computation
     sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
     
-    # Dual Transition: Density AND Expansion Rate
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
     H_Z = H_FAST + (H_LOCAL - H_FAST) * sigmoid
@@ -105,8 +110,35 @@ def h_viscous(z):
     E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
     return H_Z * E_z
 
-dl_visc = (1 + df_clean['zHD']) * integrate_distance_vectorized(df_clean['zHD'], h_viscous)
-mu_visc = 5 * np.log10(dl_visc) + 25
+def get_exact_mu_visc(z_array):
+    """Exact Covariant Distance Modulus including z_metric shift and source penalties."""
+    # 1. Evaluate S(z) for observational redshifts
+    arg_obs = (Z_TRANS - z_array) / WIDTH
+    S_z = np.where(arg_obs > 100, 1.0, np.where(arg_obs < -100, 0.0, 1.0 / (1.0 + np.exp(-arg_obs))))
+    
+    # 2. Continuous Early Gravity Field G(z)
+    G_z = 1.0 + 0.2177 * (1.0 - S_z)
+    
+    # 3. Dynamically Shifted Metric Boundary (Atomic Drift limit)
+    z_metric = (1.0 + z_array) / np.sqrt(G_z) - 1.0
+    
+    # Ensure z_metric doesn't drop below 0 due to numerical artifacts at very low z
+    z_metric = np.maximum(z_metric, 0.0)
+    
+    # 4. Exact Covariant Integration (Truncated at z_metric)
+    comoving_at_z_metric = integrate_distance_vectorized(z_metric, h_viscous)
+    dl_mpc = (1.0 + z_array) * comoving_at_z_metric
+    
+    # 5. Flux dilution standard prefactor
+    mu_raw = 5.0 * np.log10(dl_mpc) + 25.0
+    
+    # 6. Superimpose Continuous Source Penalties (+0.410 max)
+    penalties = 0.410 * (1.0 - S_z)
+    
+    return mu_raw + penalties
+
+# Execute the exact covariant model
+mu_visc = get_exact_mu_visc(df_clean['zHD'].values)
 
 # ==========================================
 # 3. STATISTICAL TEST (MARGINALIZED SHAPE)
@@ -139,8 +171,8 @@ print("-" * 40)
 
 if d_chi2 < 10.0:
     print("\nVERDICT: SUCCESS (Consistent).")
-    print("The Vacuum Model shape is statistically indistinguishable from LCDM.")
-    print("This proves the dynamic 'Inertial Counter-Load' flawlessly traverses the degeneracy diagonal.")
+    print("The Exact Covariant Vacuum Model shape is statistically indistinguishable from LCDM.")
+    print("This proves the dynamic physics flawlessly traverses the degeneracy diagonal.")
 else:
     print("\nVERDICT: FAIL.")
 
@@ -155,16 +187,16 @@ plt.errorbar(df_clean['zHD'], resid_plot, yerr=err_diag,
 diff_curve = (mu_visc + offset_visc) - (mu_lcdm + offset_lcdm)
 z_sort = np.argsort(df_clean['zHD'].values)
 
-plt.plot(df_clean['zHD'].values[z_sort], diff_curve[z_sort], 'r-', linewidth=3, label=f'Theoretical Model Shape Difference')
+plt.plot(df_clean['zHD'].values[z_sort], diff_curve[z_sort], 'r-', linewidth=3, label=f'Exact Covariant Shape Difference')
 
 plt.axhline(0, color='k', linestyle='--')
-plt.title(rf'Pantheon+ Shape Test: $\Delta\chi^2 = {d_chi2:.2f}$ (Consistent)', fontsize=14)
+plt.title(rf'Pantheon+ Exact Shape Test: $\Delta\chi^2 = {d_chi2:.2f}$', fontsize=14)
 plt.xlabel('Redshift z', fontsize=12)
 plt.ylabel('Residual Magnitude (Shape Only)', fontsize=12)
 plt.legend(fontsize=10, loc='lower left')
 plt.ylim(-0.25, 0.25)
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('Figure3b_Pantheon_Shape_Test_Kinematic.png', dpi=300)
-print("\nSaved Figure3b_Pantheon_Shape_Test_Kinematic.png")
+plt.savefig('Figure3b_Pantheon_Shape_Test_Covariant.png', dpi=300)
+print("\nSaved Figure3b_Pantheon_Shape_Test_Covariant.png")
 plt.show()
