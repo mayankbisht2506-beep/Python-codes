@@ -16,7 +16,7 @@ This repository contains the complete **"Steel Man" Validation Suite** for the V
 - 💻 **Source Code:** Hosted in this GitHub repository.
 
 These scripts demonstrate that the model simultaneously resolves:
-- **Hubble Tension** ($H_0 \approx 72.87$)
+- **Hubble Tension** ($H_0 \approx 72.36$)
 - **$S_8$ Tension** ($S_8 \approx 0.767$)
 - **Lithium Problem** (2.63x Depletion)
 
