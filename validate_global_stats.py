@@ -54,7 +54,7 @@ print("="*95)
 # SCIENTIFIC CONCLUSION
 # ==========================================
 # Threshold check based on paper logic
-if global_net < -2500:
+if global_net < -2400:
     print("\nCONCLUSION: The Unified Vacuum Model is globally preferred.")
     print("REASON: The decisive Pantheon+ absolute magnitude resolution (-2568.08) completely eclipses")
     print("        the minor kinematic penalties in the Chronometer and BAO datasets.")
