@@ -99,7 +99,7 @@ Running `src/validate_global_stats.py` reproduces the main conclusion:
 > **The Unified Vacuum Model is globally preferred by >5σ over ΛCDM.**
 
 ### Summary Scorecard
-*   **Supernovae:** $H_0 \approx 72.87$ km/s/Mpc (Matches SH0ES)
+*   **Supernovae:** $H_0 \approx 72.36$ km/s/Mpc (Matches SH0ES)
 *   **Structure Growth:** $S_8 \approx 0.767$ (Matches Weak Lensing)
 *   **BBN:** Lithium-7 Solved, D/He Preserved
 *   **CMB:** Acoustic Scale Locked ($\theta_*$ invariant)
