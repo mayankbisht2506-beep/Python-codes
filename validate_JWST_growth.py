@@ -16,7 +16,7 @@ print("Objective: Quantify the mass correction due to VED Thermodynamic Brighten
 h = 0.7271       # VED Terminal Velocity (H_local)
 Om0 = 0.3116     # VED Bare Primordial Density
 Ol0 = 1.0 - 0.3639 # VED Macroscopic Tension (1 - Om_eff)
-Ob0 = 0.049      # Standard Baryon Density
+Ob0 = 0.04959      # VED Geometric Baryon Density (p_c * gamma_crit)
 rho_crit_0 = 2.775e11 * h**2 # M_sun / Mpc^3
 rho_m_0 = Om0 * rho_crit_0
 fb = Ob0 / Om0   # Cosmic Baryon Fraction
@@ -24,10 +24,7 @@ fb = Ob0 / Om0   # Cosmic Baryon Fraction
 # VED PARAMETERS (For the Correction)
 G_RATIO = 1.218  # Exact G_early / G_0 topological derivation
 
-# Stellar Physics Scaling: L ~ G^alpha
-# Conservative range for Main Sequence stars (opacity/pressure limited)
-ALPHA_LOW = 4.0
-ALPHA_HIGH = 7.0
+
 
 # ==========================================
 # 2. PHYSICS ENGINE: STANDARD GROWTH (Baseline)
@@ -85,15 +82,12 @@ jwst_data = [
     (1e11, 4e-6)    # The "Impossible" massive candidates
 ]
 
-# Calculate Luminosity Boost Factor
-# L_ved = L_std * (G_ratio)^alpha
-# Mass_true = Mass_obs / (G_ratio)^alpha
-boost_factor_low = G_RATIO**ALPHA_LOW   # Conservative (alpha=4)
-boost_factor_high = G_RATIO**ALPHA_HIGH # Aggressive (alpha=7)
+# Calculate Luminosity Boost Factor (Strictly Thomson Scattering for Pop III)
+ALPHA_THOMSON = 4.0
+boost_factor = G_RATIO**ALPHA_THOMSON   
 
 print(f"\nVED High-G Factor: {G_RATIO:.3f}x")
-print(f"Luminosity Boost (alpha={ALPHA_LOW}): {boost_factor_low:.2f}x")
-print(f"Luminosity Boost (alpha={ALPHA_HIGH}): {boost_factor_high:.2f}x")
+print(f"Luminosity Boost (Thomson, alpha={ALPHA_THOMSON}): {boost_factor:.2f}x")
 print("-" * 40)
 
 # ==========================================
@@ -103,17 +97,11 @@ z_target = 10
 mass_grid = np.logspace(9, 12, 100)
 
 # Calculate Theoretical Limit (Cumulative Number Density)
-# Limit = Baryon Fraction * Halo Mass Function
-# i.e., Assuming 100% efficiency of converting Baryons to Stars (Absolute Max)
 n_cumulative = []
 for M in mass_grid:
-    # Get n(>M_halo) where M_halo = M_star / fb
     M_halo_req = M / fb
-    # Integrate density above this mass
     M_integ = np.logspace(np.log10(M_halo_req), 14, 50)
     dn = [get_abundance(m, z_target) for m in M_integ]
-    
-    # Use np.trapz for universal compatibility
     n_cum = np.trapz(dn, np.log(M_integ)) 
     n_cumulative.append(n_cum)
 
@@ -134,20 +122,14 @@ masses_obs = [p[0] for p in jwst_data]
 densities = [p[1] for p in jwst_data]
 plt.errorbar(masses_obs, densities, yerr=[[1e-4, 2e-6], [1e-4, 2e-6]], fmt='ko', markersize=8, capsize=5, label='JWST Observed (Labbé et al. 2023)')
 
-# 3. VED Corrected Data
-# Shift masses to the LEFT (True Mass is lower)
-masses_corr_low = [m / boost_factor_low for m in masses_obs]
-masses_corr_high = [m / boost_factor_high for m in masses_obs]
+# 3. VED Corrected Data (Strict Thomson Limit)
+masses_corr = [m / boost_factor for m in masses_obs]
 
-plt.plot(masses_corr_low, densities, 'bo', markersize=8, alpha=0.6, label=f'VED Corrected ($\\alpha={ALPHA_LOW}$)')
-plt.plot(masses_corr_high, densities, 'go', markersize=8, alpha=0.6, label=f'VED Corrected ($\\alpha={ALPHA_HIGH}$)')
-
+plt.plot(masses_corr, densities, 'bo', markersize=8, alpha=0.8, label=f'VED Corrected (Thomson $\\alpha=4$)')
 
 for i in range(len(masses_obs)):
-    plt.arrow(masses_obs[i], densities[i], masses_corr_low[i] - masses_obs[i], 0,
-              color='b', alpha=0.3, length_includes_head=True, head_width=densities[i]*0.1)
-    plt.arrow(masses_obs[i], densities[i], masses_corr_high[i] - masses_obs[i], 0,
-              color='g', alpha=0.3, length_includes_head=True, head_width=densities[i]*0.1)
+    plt.arrow(masses_obs[i], densities[i], masses_corr[i] - masses_obs[i], 0,
+              color='b', alpha=0.4, length_includes_head=True, head_width=densities[i]*0.1)
 
 plt.xscale('log')
 plt.yscale('log')
