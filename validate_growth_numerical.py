@@ -35,7 +35,7 @@ SIGMA8_0_LCDM = 0.8116  # Derived PlancK Baseline
 OM_PRIMORDIAL = 0.3116  # EXACT: Frictionless Bare Density (Drives Gravity)
 OM_EFFECTIVE  = 0.3639  # EXACT: Viscous Load (Drives Expansion Friction)
 
-ETA_FLOOR = 0.1569      # EXACT: Lepton Saturation Viscosity
+ETA_FLOOR = 0.15683      # EXACT: Lepton Saturation Viscosity
 ETA_PEAK  = 0.3116      # EXACT: Simple cubic percolation limit
 Z_TRANS   = 0.641       # EXACT: Percolation redshift
 WIDTH     = 0.10
