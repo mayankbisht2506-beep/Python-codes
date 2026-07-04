@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # =============================================================================
-# VACUUM ELASTODYNAMICS: VALIDATION SUITE (UPDATED)
+# VACUUM ELASTODYNAMICS: VALIDATION SUITE (FINAL)
 # =============================================================================
 
 # --- CONFIGURATION ---
@@ -21,6 +21,7 @@ SAFETY_MARGIN = 1 - (2 / 137) # exactly 0.985401...
 # Source: Appendix H.4 (Geometric Barut Ratios using bare alpha=137)
 RATIO_MU = 206.5
 RATIO_TAU = 3494.5
+RATIO_4TH = 20140.0  # Exact geometric ratio for 4th generation (n=3)
 BARUT_SUM = 1 + np.sqrt(RATIO_MU) + np.sqrt(RATIO_TAU) # approx 74.484
 
 # Source: Section 5.1 (Derivation of Dressed Strain)
@@ -30,10 +31,7 @@ GAMMA_EFF = (SAFETY_MARGIN * GAMMA_CRIT) / BARUT_SUM # approx 0.0021055
 M_e_GEO = 0.520  # Pure Topological Electron Mass (MeV)
 M_mu_GEO = M_e_GEO * RATIO_MU    # approx 107.4 MeV (Bare Muon)
 M_tau_GEO = M_e_GEO * RATIO_TAU  # approx 1817.1 MeV (Bare Tau)
-
-# Source: Appendix H.4 & Section 5.2
-# Conservative lower bound test mass of 10 GeV for 4th generation.
-M_4th_TEST = 10000.0 
+M_4th_GEO = M_e_GEO * RATIO_4TH  # approx 10472.8 MeV (Bare 4th Gen)
 
 # --- 2. HELPER FUNCTIONS ---
 
@@ -130,7 +128,7 @@ def run_lepton_stability_analysis():
     gamma_e = GAMMA_EFF
     gamma_mu = calculate_strain(M_mu_GEO, gamma_e)
     gamma_tau = calculate_strain(M_tau_GEO, gamma_e)
-    gamma_4th = calculate_strain(M_4th_TEST, gamma_e)
+    gamma_4th = calculate_strain(M_4th_GEO, gamma_e)  # USING EXACT GEOMETRY NOW
     
     # B. Saturation Check
     total_load = gamma_e + gamma_mu + gamma_tau
