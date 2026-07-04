@@ -14,7 +14,7 @@ print("Objective: Calculate the True ISW Temperature Amplitude (A_ISW) with High
 # ==========================================
 OM_PRIMORDIAL = 0.3116  # Exact Bare Density (Gravity Source)
 OM_EFFECTIVE  = 0.3639  # Exact Macroscopic Inertial Load (Kinematic Drag)
-ZETA_FLOOR    = 0.1569  # Lepton Saturation Viscosity (Frenkel limit)
+ZETA_FLOOR    = 0.15683  # Lepton Saturation Viscosity (Frenkel limit)
 ZETA_PEAK     = 0.3116  # Percolation Jamming Limit (p_c)
 Z_TRANS       = 0.641   # Exact Topological Phase Transition Redshift
 WIDTH         = 0.10    # Transition Smoothness
