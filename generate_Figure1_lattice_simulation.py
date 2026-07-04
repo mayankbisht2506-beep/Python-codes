@@ -26,10 +26,10 @@ BARUT_SUM = 1 + np.sqrt(RATIO_MU) + np.sqrt(RATIO_TAU) # approx 74.484
 # Source: Section 5.1 (Derivation of Dressed Strain)
 GAMMA_EFF = (SAFETY_MARGIN * GAMMA_CRIT) / BARUT_SUM # approx 0.0021055
 
-# True Geometric Masses (using M_e = 0.511)
-M_e_GEO = 0.511
-M_mu_GEO = M_e_GEO * RATIO_MU    # approx 105.5 MeV
-M_tau_GEO = M_e_GEO * RATIO_TAU  # approx 1785.7 MeV
+# Bare Geometric Masses derived ab initio (Section 4.2)
+M_e_GEO = 0.520  # Pure Topological Electron Mass (MeV)
+M_mu_GEO = M_e_GEO * RATIO_MU    # approx 107.4 MeV (Bare Muon)
+M_tau_GEO = M_e_GEO * RATIO_TAU  # approx 1817.1 MeV (Bare Tau)
 
 # Source: Appendix H.4 & Section 5.2
 # Conservative lower bound test mass of 10 GeV for 4th generation.
@@ -172,7 +172,7 @@ def run_lepton_stability_analysis():
                  xytext=(gamma_tau + 0.02, 0.05),
                  arrowprops=dict(facecolor='black', shrink=0.05))
 
-    plt.title('Vacuum Elastodynamics: Lepton Stability Analysis (Figure 1)', fontsize=14)
+    plt.title('Vacuum Elastodynamics: Lepton Stability Analysis', fontsize=14)
     plt.xlabel(r'Lattice Shear Strain ($\gamma$)', fontsize=12)
     plt.ylabel(r'Restoring Stress ($\tau$)', fontsize=12)
     plt.legend(loc='upper right')
