@@ -20,7 +20,7 @@ OM_PLANCK     = 0.3153 # EXACT: Planck 2018 Baseline
 # Vacuum Model Inputs (Pure Theoretical Derivations)
 OM_BARE       = 0.3116 # EXACT: Topological Frictionless Bare Density (Used for Clustering)
 OM_EFFECTIVE  = 0.3639 # EXACT: Kinematic Viscous Load (Drives expansion, NOT clustering)
-ZETA_FLOOR    = 0.15683 # EXACT: Lepton Saturation Viscosity (zeta_sat)
+ZETA_FLOOR    = 0.15683 # EXACT: Vacuum Saturation Viscosity (zeta_sat)
 ZETA_PEAK     = 0.3116 # EXACT: Jamming/Percolation Threshold (zeta_peak)
 Z_TRANS       = 0.641  # EXACT: Topological Phase Transition Redshift
 WIDTH         = 0.10   # Phase Transition Width
