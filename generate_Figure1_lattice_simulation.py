@@ -135,7 +135,7 @@ def run_independent_uniqueness_check(n_trials=10000000):
 # --- 5. SIMULATION C: LEPTON STABILITY PLOT (Figure 1 & Table 1) ---
 
 def run_lepton_stability_analysis():
-    print(f"\n=== SIMULATION C: LEPTON SATURATION PLOT (Figure 1 & Table 1) ===")
+    print(f"\n=== SIMULATION C: Vacuum SATURATION PLOT (Figure 1 & Table 1) ===")
     print(f"Applying Harmonic Superposition Scaling (M_n ~ Sum k^4)")
     
     # A. Calculate Strains
@@ -184,7 +184,7 @@ def run_lepton_stability_analysis():
                  xytext=(gamma_tau + 0.02, 0.05),
                  arrowprops=dict(facecolor='black', shrink=0.05))
 
-    plt.title('Vacuum Elastodynamics: Lepton Stability Analysis', fontsize=14)
+    plt.title('Vacuum Elastodynamics: Vacuum Stability Analysis', fontsize=14)
     plt.xlabel(r'Lattice Shear Strain ($\gamma$)', fontsize=12)
     plt.ylabel(r'Restoring Stress ($\tau$)', fontsize=12)
     plt.legend(loc='upper right')
