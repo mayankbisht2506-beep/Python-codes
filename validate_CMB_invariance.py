@@ -2,7 +2,7 @@ import numpy as np
 from scipy.integrate import quad
 
 print("--- VACUUM ELASTODYNAMICS: COVARIANT CMB CONSISTENCY CHECK ---")
-print("Model: Exact Equation 87 Integration & Strict Thermodynamic Scaling")
+print("Model: Exact Equation Integration & Strict Thermodynamic Scaling")
 print("Target: Validate Geometric Lock and Primordial Scale Invariance")
 print("-" * 65)
 
@@ -26,7 +26,7 @@ DELTA_EFF = DELTA_GEO * (1.0 - Y_MAX)
 G_RATIO = 1.0 / (1.0 - DELTA_EFF)  # Exactly 1.21767...
 
 # ==========================================
-# 2. EXACT COMOVING INTEGRALS (Equation 87)
+# 2. EXACT COMOVING INTEGRALS
 # ==========================================
 # --- A. STANDARD LCDM (Control) ---
 def get_da_lcdm():
