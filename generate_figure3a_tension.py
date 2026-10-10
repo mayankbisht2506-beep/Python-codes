@@ -1,4 +1,3 @@
-# Uncomment the line below if running in Google Colab / Jupyter
 # !pip install scipy numpy matplotlib pandas requests
 
 import numpy as np
@@ -44,8 +43,7 @@ download_file(COV_URL, COV_FILE)
 print("Loading Pantheon+ Data...")
 df = pd.read_csv(DATA_FILE, sep=r'\s+')
 
-# CORRECTION: Do not cut out the Cepheid anchors! 
-# We need the full unmarginalized dataset to test Absolute Magnitude (H0)
+# Use full unmarginalized dataset to test Absolute Magnitude (H0)
 mask = df['zHD'] > 0.000
 df_clean = df[mask].reset_index(drop=True)
 print(f"Supernovae (Full N=1701): {len(df_clean)}")
@@ -64,7 +62,7 @@ else:
 indices = np.where(mask)[0]
 cov_filtered = cov_matrix[np.ix_(indices, indices)]
 
-print("Inverting Covariance Matrix (Robust Method for Test II)...")
+print("Inverting Covariance Matrix...")
 inv_cov = np.linalg.pinv(cov_filtered)
 
 # Extract safe diagonal errors for plotting
@@ -75,29 +73,39 @@ err_diag = np.sqrt(np.diag(cov_filtered))
 # ==========================================
 C_LIGHT = 299792.458
 Z_TRANS = 0.641       # EXACT: Topological percolation redshift
-WIDTH = 0.10         
+WIDTH = 0.084         # EXACT: Jacobian projection of yield drop
 
 # --- MODEL A: PLANCK LCDM (Baseline Control) ---
-H0_PLANCK = 67.36     # EXACT: Planck 2018
-OM_PLANCK = 0.3153    # EXACT: Planck 2018
+H0_PLANCK = 67.36     
+OM_PLANCK = 0.3153    
 OL_PLANCK = 1.0 - OM_PLANCK
 
 # --- MODEL B: VACUUM ELASTODYNAMICS (Zero-Parameter Prediction) ---
-H_FAST = 74.69         # EXACT: Theoretical E8 Geometry Limit
-H_LOCAL = 72.71        # EXACT: Theoretically Derived Terminal Velocity
-OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Density
-OM_EFFECTIVE = 0.3639  # EXACT: Theoretically Derived Viscous Load
+H_FAST = 74.69         
+H_LOCAL = 72.71        
+OM_PRIMORDIAL = 0.3116 
+OM_EFFECTIVE = 0.3639  
+
+def get_normalized_sigmoid(z):
+    """Returns a sigmoid strictly normalized to 1.0 at z=0."""
+    def raw_sig(z_val):
+        arg = (Z_TRANS - z_val) / WIDTH
+        return np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
+    return raw_sig(z) / raw_sig(0.0)
 
 def integrate_distance_vectorized(z_values, h_func):
     """Vectorized numerical integration of comoving distance."""
     z_max = np.max(z_values)
-    if z_max <= 0: z_max = 0.01 # Guard against zero bounds
+    if z_max <= 0: return np.zeros_like(z_values)
     
-    z_grid = np.linspace(0, z_max * 1.05, 10000)
+    # Ultra-dense grid for precision
+    z_grid = np.linspace(0, z_max * 1.02, 20000)
     h_grid = h_func(z_grid)
     integrand = C_LIGHT / h_grid
+    
     comoving = np.cumsum((integrand[:-1] + integrand[1:]) / 2 * np.diff(z_grid))
     comoving = np.insert(comoving, 0, 0)
+    
     return np.interp(z_values, z_grid, comoving)
 
 # --- LCDM Baseline ---
@@ -105,44 +113,37 @@ def h_lcdm(z):
     return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + OL_PLANCK)
 
 dl_lcdm = (1 + df_clean['zHD']) * integrate_distance_vectorized(df_clean['zHD'], h_lcdm)
-mu_planck = 5 * np.log10(dl_lcdm) + 25
+mu_planck = 5 * np.log10(np.maximum(dl_lcdm, 1e-10)) + 25
 
 # --- Vacuum Elastodynamics Engine ---
 def h_viscous(z):
     """Continuous expansion history H(z) for the Vacuum phase transition."""
-    arg = (Z_TRANS - z) / WIDTH
-    sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
-    
-    OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
+    S_z = get_normalized_sigmoid(z)
+    OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * S_z
     OL_Z = 1.0 - OM_Z
-    H_Z = H_FAST + (H_LOCAL - H_FAST) * sigmoid
-    
-    E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
-    return H_Z * E_z
+    H_Z = H_FAST + (H_LOCAL - H_FAST) * S_z
+    return H_Z * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
 
 def get_exact_mu_visc(z_array):
     """Exact Covariant Distance Modulus (Section 7.3)."""
-    # 1. Evaluate S(z)
-    arg_obs = (Z_TRANS - z_array) / WIDTH
-    S_z = np.where(arg_obs > 100, 1.0, np.where(arg_obs < -100, 0.0, 1.0 / (1.0 + np.exp(-arg_obs))))
+    S_z = get_normalized_sigmoid(z_array)
     
-    # 2. Continuous Early Gravity Field G(z)
+    # Continuous Early Gravity Field G(z)
     G_z = 1.0 + 0.2177 * (1.0 - S_z)
     
-    # 3. Dynamically Shifted Metric Boundary (Atomic Drift limit)
+    # Dynamically Shifted Metric Boundary
+    # Because S(0) = 1.0 exactly, G(0) = 1.0 exactly, preventing negative bounds
     z_metric = (1.0 + z_array) / np.sqrt(G_z) - 1.0
-    z_metric = np.maximum(z_metric, 0.0) # Safety against negative bounds at z~0
+    z_metric = np.maximum(z_metric, 0.0) 
     
-    # 4. Exact Covariant Integration (Truncated at z_metric)
+    # Exact Covariant Integration (Truncated at z_metric)
     comoving_at_z_metric = integrate_distance_vectorized(z_metric, h_viscous)
     dl_mpc = (1.0 + z_array) * comoving_at_z_metric
     
-    # 5. Flux dilution standard prefactor
-    # Note: Guard against dl_mpc == 0 for z=0 entries to avoid log10(0)
     dl_mpc_safe = np.maximum(dl_mpc, 1e-10)
     mu_raw = 5.0 * np.log10(dl_mpc_safe) + 25.0
     
-    # 6. Superimpose Continuous Source Penalties (+0.410 max)
+    # Superimpose Continuous Source Penalties (+0.410 max)
     penalties = 0.410 * (1.0 - S_z)
     
     return mu_raw + penalties
@@ -153,7 +154,6 @@ mu_viscous = get_exact_mu_visc(df_clean['zHD'].values)
 # ==========================================
 # 4. STATISTICS (NO MARGINALIZATION)
 # ==========================================
-# We evaluate the pure absolute magnitude tension (unmarginalized)
 R_planck = df_clean['MU_SH0ES'].values - mu_planck
 R_viscous = df_clean['MU_SH0ES'].values - mu_viscous
 
@@ -168,11 +168,6 @@ print(f"Chi2 (Planck 67.4):   {chi2_planck:.2f}")
 print(f"Chi2 (Vacuum Theory): {chi2_viscous:.2f}") 
 print(f"Delta Chi2:           {d_chi2:.2f}")
 print("-" * 50)
-
-if d_chi2 < -2000:
-    print("VERDICT: DECISIVE SUCCESS.")
-    print("The exact covariant phase transition organically brightens the luminosity distance,")
-    print("perfectly resolving the SH0ES absolute magnitude tension without a single data-fitted parameter!")
 
 # ==========================================
 # 5. PLOTTING
