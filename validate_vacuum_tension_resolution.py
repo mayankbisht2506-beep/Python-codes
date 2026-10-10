@@ -1,4 +1,3 @@
-# Uncomment the line below if running in Google Colab / Jupyter
 # !pip install scipy numpy matplotlib pandas requests
 
 import numpy as np
@@ -83,9 +82,10 @@ OL_PLANCK = 1.0 - OM_PLANCK
 def integrate_distance_vectorized(z_values, h_func):
     """Vectorized numerical integration of comoving distance."""
     z_max = np.max(z_values)
-    if z_max <= 0: z_max = 0.01
+    if z_max <= 0: return np.zeros_like(z_values)
     
-    z_grid = np.linspace(0, z_max * 1.05, 10000)
+    # Ultra-dense grid for precision matching the transition width
+    z_grid = np.linspace(0, z_max * 1.02, 20000)
     h_grid = h_func(z_grid)
     integrand = C_LIGHT / h_grid
     comoving = np.cumsum((integrand[:-1] + integrand[1:]) / 2 * np.diff(z_grid))
@@ -97,7 +97,7 @@ def h_lcdm(z):
     return H0_PLANCK * np.sqrt(OM_PLANCK * (1 + z)**3 + OL_PLANCK)
 
 dl_lcdm = (1 + z_obs) * integrate_distance_vectorized(z_obs, h_lcdm)
-mu_planck = 5 * np.log10(dl_lcdm + 1e-12) + 25
+mu_planck = 5 * np.log10(np.maximum(dl_lcdm, 1e-10)) + 25
 
 R_planck = mu_data - mu_planck
 chi2_planck = R_planck.T @ inv_cov @ R_planck
@@ -107,30 +107,36 @@ chi2_planck = R_planck.T @ inv_cov @ R_planck
 # ==========================================
 # EXACT PURE THEORY PARAMETERS
 Z_TRANS = 0.641
-WIDTH = 0.10
+WIDTH = 0.084          # EXACT: Jacobian projection of yield drop
 H_FAST = 74.69         # EXACT: Early Geometric Ceiling
 OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Density
 OM_EFFECTIVE  = 0.3639 # EXACT: Viscous Braking Density
 
 print("Optimizing Vacuum Model Headroom (Exact Covariant Engine)...")
 
+def get_normalized_sigmoid(z):
+    """Returns a sigmoid strictly normalized to 1.0 at z=0."""
+    def raw_sig(z_val):
+        arg = (Z_TRANS - z_val) / WIDTH
+        return np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
+    return raw_sig(z) / raw_sig(0.0)
+
 def get_exact_mu_visc(z_array, h_local_opt):
     """Exact Covariant Distance Modulus Engine parameterized for optimization."""
     # 1. Evaluate S(z)
-    arg_obs = (Z_TRANS - z_array) / WIDTH
-    S_z = np.where(arg_obs > 100, 1.0, np.where(arg_obs < -100, 0.0, 1.0 / (1.0 + np.exp(-arg_obs))))
+    S_z = get_normalized_sigmoid(z_array)
     
     # 2. Continuous Early Gravity Field G(z)
     G_z = 1.0 + 0.2177 * (1.0 - S_z)
     
     # 3. Dynamically Shifted Metric Boundary
+    # Because S(0) = 1.0 exactly, G(0) = 1.0 exactly, preventing negative bounds
     z_metric = (1.0 + z_array) / np.sqrt(G_z) - 1.0
-    z_metric = np.maximum(z_metric, 0.0) # Safety against negative bounds
+    z_metric = np.maximum(z_metric, 0.0)
     
     # 4. Define optimized H(z) inside the engine
     def h_viscous_opt(z):
-        arg = (Z_TRANS - z) / WIDTH
-        sigmoid = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
+        sigmoid = get_normalized_sigmoid(z)
         OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
         OL_Z = 1.0 - OM_Z
         H_Z = H_FAST + (h_local_opt - H_FAST) * sigmoid
@@ -141,7 +147,7 @@ def get_exact_mu_visc(z_array, h_local_opt):
     comoving_at_z_metric = integrate_distance_vectorized(z_metric, h_viscous_opt)
     dl_mpc = (1.0 + z_array) * comoving_at_z_metric
     
-    # 6. Flux dilution standard prefactor
+    # 6. Flux dilution standard prefactor (safe bound applied)
     dl_mpc_safe = np.maximum(dl_mpc, 1e-10)
     mu_raw = 5.0 * np.log10(dl_mpc_safe) + 25.0
     
@@ -191,7 +197,7 @@ mu_best_sort = get_exact_mu_visc(z_sort, best_H0)
 
 # 2. Planck Baseline Sorted Curve
 dl_planck_sort = (1 + z_sort) * integrate_distance_vectorized(z_sort, h_lcdm)
-mu_planck_sort = 5 * np.log10(dl_planck_sort + 1e-12) + 25
+mu_planck_sort = 5 * np.log10(np.maximum(dl_planck_sort, 1e-10)) + 25
 
 # 3. Residual Difference Curve
 curve_opt = mu_best_sort - mu_planck_sort
