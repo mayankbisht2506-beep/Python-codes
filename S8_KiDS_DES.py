@@ -35,24 +35,30 @@ S8_TARGET_HIGH = S8_TARGET_MEAN + S8_TARGET_ERR
 # ==========================================
 
 def get_sigmoid(z):
-    """Pure, unnormalized theoretical transition function."""
-    arg = (Z_TRANS - z) / WIDTH
-    return np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
+    """Pure, unnormalized theoretical transition function (overflow-safe)."""
+    arg = np.clip((Z_TRANS - z) / WIDTH, -100.0, 100.0)
+    return 1.0 / (1.0 + np.exp(-arg))
 
 def get_viscosity(z):
     """
     Calculates the macroscopic bulk viscosity of the vacuum lattice.
-    Includes the Gaussian jamming spike at z~0.641 and the late-time saturation floor.
+    Both the background transition and the critical jamming spike are
+    strictly governed by the derived geometric width WIDTH = 0.084.
     """
     late_trigger = get_sigmoid(z)
-    
-    # Base Lepton Viscosity (saturates in Epoch III)
     base_viscosity = ZETA_FLOOR * late_trigger
+    
+    # Safe exponent to prevent underflow/overflow warnings at high z
+    spike_arg = np.clip(-0.5 * ((z - Z_TRANS) / WIDTH)**2, -100.0, 0.0)
+    spike = (ZETA_PEAK - ZETA_FLOOR) * np.exp(spike_arg)
+    
+    return base_viscosity + spike
+
     
     # Gaussian spike modeling the phase transition jamming event
     # Tied strictly to WIDTH to eliminate free parameters
     spike = (ZETA_PEAK - ZETA_FLOOR) * np.exp(-0.5 * ((z - Z_TRANS) / WIDTH)**2)
-    
+
     return base_viscosity + spike
 
 def growth_ode_rigorous(y, a, model='lcdm'):
@@ -69,7 +75,7 @@ def growth_ode_rigorous(y, a, model='lcdm'):
         S_z = get_sigmoid(z)
         om_expansion = OM_BARE + (OM_EFFECTIVE - OM_BARE) * S_z
         # Gravity ONLY feels the bare topological mass (Eq. 126)
-        om_gravity = OM_BARE 
+        om_gravity = OM_BARE
     else:
         om_expansion = OM_PLANCK
         om_gravity = OM_PLANCK
@@ -116,7 +122,7 @@ early_scalar = np.sqrt(OM_BARE / OM_PLANCK)
 sigma8_visc = sigma8_lcdm * early_scalar * growth_suppression
 
 # True Weak Lensing Observable (Uses bare gravitating mass: 0.3116)
-s8_true_wl = sigma8_visc * np.sqrt(OM_BARE / 0.3) 
+s8_true_wl = sigma8_visc * np.sqrt(OM_BARE / 0.3)
 
 print(f"\n--- PHYSICS AUDIT ---")
 print(f"1. Standard LCDM Sigma_8:    {sigma8_lcdm:.4f} (Frictionless Extrapolation Artifact)")
@@ -147,7 +153,7 @@ for i, (label, val) in enumerate(targets.items()):
 plt.axhspan(S8_TARGET_LOW, S8_TARGET_HIGH, color='blue', alpha=0.1, label=r'DES Y3 $1\sigma$ Concordance')
 plt.axhline(S8_TARGET_MEAN, color='blue', linestyle='--', alpha=0.3)
 
-plt.annotate(rf"Viscous Suppression\n(-{100*(1-growth_suppression):.1f}% in $\sigma_8$)", 
+plt.annotate(rf"Viscous Suppression\n(-{100*(1-growth_suppression):.1f}% in $\sigma_8$)",
              xy=(2, s8_true_wl), xytext=(1, 0.81),
              arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2", color='red'),
              fontsize=10, color='red', fontweight='bold')
