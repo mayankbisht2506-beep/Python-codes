@@ -1,3 +1,4 @@
+# Uncomment the line below if running in Google Colab / Jupyter
 # !pip install scipy numpy matplotlib pandas requests
 
 import numpy as np
@@ -12,7 +13,7 @@ from scipy.optimize import minimize
 # ==========================================
 print("--- RUNNING PANTHEON+ SHAPE CONSISTENCY TEST (KINEMATIC) ---")
 print("Objective: Verify Metric 2 (Test III: Shape Consistency, Section 8.3.5)")
-print("Engine: Exact Covariant Geometry (z_metric truncation + continuous penalties)")
+print("Engine: Exact Covariant Geometry (Pure Unnormalized Engine, Width=0.084)")
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
@@ -70,23 +71,20 @@ H0_A = 67.36
 OM_A = 0.3153         
 OL_A = 1.0 - OM_A
 
-# --- MODEL B: VACUUM ELASTODYNAMICS (Zero-Parameter Prediction) ---
+# --- MODEL B: VACUUM ELASTODYNAMICS (Zero Continuous Parameters) ---
 H_FAST = 74.69         
 H_LOCAL = 72.71        
 OM_PRIMORDIAL = 0.3116 
 OM_EFFECTIVE = 0.3639  
 
-def get_normalized_sigmoid(z):
-    """Returns a sigmoid strictly normalized to 1.0 at z=0."""
-    def raw_sig(z_val):
-        arg = (Z_TRANS - z_val) / WIDTH
-        return np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
-    return raw_sig(z) / raw_sig(0.0)
+def get_sigmoid(z):
+    """Pure, unnormalized theoretical transition function."""
+    arg = (Z_TRANS - z) / WIDTH
+    return np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
 
 def integrate_distance_vectorized(z_values, h_func):
     """Vectorized numerical integration of comoving distance."""
     z_max = np.max(z_values)
-    # Guard against negative/zero bounds during testing
     if z_max <= 0: return np.zeros_like(z_values)
     
     # Ultra-dense grid for precision matching the transition width
@@ -107,7 +105,7 @@ mu_lcdm = 5 * np.log10(np.maximum(dl_lcdm, 1e-10)) + 25
 # --- Vacuum Elastodynamics Engine ---
 def h_viscous(z):
     """Continuous expansion history H(z) for the Vacuum phase transition."""
-    S_z = get_normalized_sigmoid(z)
+    S_z = get_sigmoid(z)
     
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * S_z
     OL_Z = 1.0 - OM_Z
@@ -118,7 +116,7 @@ def h_viscous(z):
 
 def get_exact_mu_visc(z_array):
     """Exact Covariant Distance Modulus including z_metric shift and source penalties."""
-    S_z = get_normalized_sigmoid(z_array)
+    S_z = get_sigmoid(z_array)
     
     # Continuous Early Gravity Field G(z)
     G_z = 1.0 + 0.2177 * (1.0 - S_z)
