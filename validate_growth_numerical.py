@@ -44,7 +44,8 @@ def get_viscosity(z):
     arg = (z - Z_TRANS) / WIDTH
     late_trigger = 1.0 - expit(arg)
     base_visc = ETA_FLOOR * late_trigger
-    spike = (ETA_PEAK - ETA_FLOOR) * np.exp(-0.5 * ((z - Z_TRANS)/0.15)**2)
+    # Tying the spike strictly to the derived geometric width
+    spike = (ETA_PEAK - ETA_FLOOR) * np.exp(-0.5 * ((z - Z_TRANS) / WIDTH)**2)
     return base_visc + spike
 
 def growth_ode_rigorous(y, a, model='lcdm', env='background'):
