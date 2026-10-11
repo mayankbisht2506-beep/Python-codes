@@ -54,13 +54,6 @@ def get_viscosity(z):
     
     return base_viscosity + spike
 
-    
-    # Gaussian spike modeling the phase transition jamming event
-    # Tied strictly to WIDTH to eliminate free parameters
-    spike = (ZETA_PEAK - ZETA_FLOOR) * np.exp(-0.5 * ((z - Z_TRANS) / WIDTH)**2)
-
-    return base_viscosity + spike
-
 def growth_ode_rigorous(y, a, model='lcdm'):
     """
     Solves the Linear Perturbation Growth Equation.
