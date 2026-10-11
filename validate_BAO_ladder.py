@@ -30,7 +30,7 @@ bao_data = [
 C_LIGHT = 299792.458
 RD_FIDUCIAL = 147.78
 Z_TRANS = 0.641       # EXACT: Topological percolation redshift
-WIDTH = 0.10
+WIDTH = 0.084          # EXACT: Derived geometric Jacobian width
 
 # --- MODEL A: EXACT Planck 2018 (Baseline) ---
 H0_PLANCK = 67.36     # EXACT: High-Precision Baseline
