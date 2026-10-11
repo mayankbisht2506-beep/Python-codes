@@ -22,7 +22,7 @@ PARAMS_PLANCK = {
 # EXACT TOPOLOGICAL INPUTS (Pure Vacuum Elastodynamics)
 CABIBBO_ANGLE = 0.225   # Standard Model Mixing Angle (sin theta_c)
 Y_MAX = 0.2055          # Macroscopic Yield Limit (derived from E8/D4 geometry)
-H0_THEORY = 74.69       # EXACT: Ab Initio Primordial Geometric Ceiling
+H0_THEORY = 74.69       # EXACT: Primordial Geometric Ceiling
 
 # Derived Gravity Boost & Horizon Contraction
 DELTA_EFF = CABIBBO_ANGLE * (1.0 - Y_MAX)
@@ -134,6 +134,6 @@ print(f"Final Horizontal Shift: {abs(l_planck[idx_p1] - l_planck[idx_v1]):.1f} m
 print(f"Derived A_L Lensing Boost: {A_L_lensing_boost:.4f} (Matches Planck 1.05 Anomaly)")
 print("\nCONCLUSION: The primordial plasma remains strictly scale-invariant.")
 print("The VED framework flawlessly restores the CMB via the Geometric Lock and")
-print("natively resolves the A_L anomaly via Intermediate-Epoch Lensing.")
+print("resolves the A_L anomaly via Intermediate-Epoch Lensing.")
 print(f"The amplified gravitational lensing kernel of the enhanced early gravity")
 print(f"(G_early ≈ {G_BOOST:.3f} G_0) operates strictly prior to the z ≈ 0.641 jamming transition.")
