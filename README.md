@@ -17,7 +17,7 @@ This repository contains the complete **"Steel Man" Validation Suite** for the V
 
 These scripts demonstrate that the model simultaneously resolves:
 - **Hubble Tension** ($H_0 \approx 72.82$)
-- **$S_8$ Tension** ($S_8 \approx 0.767$)
+- **$S_8$ Tension** ($S_8 \approx 0.777$)
 - **Lithium Problem** (2.63x Depletion)
 
 ...while preserving $\Lambda$CDM successes in BBN, CMB, and Solar System gravity.
@@ -42,7 +42,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
 | `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.69$ |
-| `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $S_8 \approx 0.767$ |
+| `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $S_8 \approx 0.777$ |
 | `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2 \approx -2546.75$ |
 | `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2548.34$ |
 
@@ -99,8 +99,8 @@ Running `src/validate_global_stats.py` reproduces the main conclusion:
 > **The Unified Vacuum Model is globally preferred by >5σ over ΛCDM.**
 
 ### Summary Scorecard
-*   **Supernovae:** $H_0 \approx 72.36$ km/s/Mpc (Matches SH0ES)
-*   **Structure Growth:** $S_8 \approx 0.767$ (Matches Weak Lensing)
+*   **Supernovae:** $H_0 \approx 72.82$ km/s/Mpc (Matches SH0ES)
+*   **Structure Growth:** $S_8 \approx 0.777$ (Matches Weak Lensing)
 *   **BBN:** Lithium-7 Solved, D/He Preserved
 *   **CMB:** Acoustic Scale Locked ($\theta_*$ invariant)
 *   **Solar System:** Fifth Force Screened (Hyperuniformity)
