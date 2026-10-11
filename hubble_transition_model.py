@@ -19,7 +19,7 @@ Om_EFF = 0.3639          # EXACT: Effective Late-Time Density (0.3116 + 0.0523)
 H_OBS = 72.71            # EXACT: Terminal Decelerated Velocity
 
 Z_TRANS = 0.641          # EXACT: Percolation Threshold
-WIDTH = 0.1              # Transition Width (Sigmoidal Relaxation)
+WIDTH = 0.084              # EXACT: Derived geometric Jacobian width
 
 # ==========================================
 # 2. PHYSICS ENGINE (Dual Phase Transition)
