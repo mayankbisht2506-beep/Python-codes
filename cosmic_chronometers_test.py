@@ -27,7 +27,7 @@ err_cc = cc_data[:, 2]
 # 2. UNIFIED PHYSICS ENGINE (Pure Theory)
 # ==========================================
 Z_TRANS = 0.641      # EXACT: Topological percolation redshift
-WIDTH = 0.10         
+WIDTH = 0.084 # EXACT: Derived geometric Jacobian width         
 
 # --- MODEL A: PLANCK LCDM (Precision Baseline) ---
 H0_PLANCK = 67.36
