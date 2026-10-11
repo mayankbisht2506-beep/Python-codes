@@ -67,7 +67,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | `validate_CMB_invariance.py` | Acoustic Scale Stability ($\theta_*$) | Error $< 0.01\%$ |
 | `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.42$ |
 | `Universe_age.py` | Cosmic Age Calculation | $12.525$ Gyr |
-| `validate_ISW_stability.py` | Integrated Sachs-Wolfe (Supervoids) | Signal $\times 1.22$ |
+| `validate_ISW_stability.py` | Integrated Sachs-Wolfe (Supervoids) | Convolved Signal $\times 1.29$ (Local $\times 1.20$) |
 | `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +5.69$ |
 | `hubble_transition_model.py` | Phase Transition Smoothness | Smooth |
 
