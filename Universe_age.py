@@ -38,7 +38,7 @@ def get_sigmoid(z):
     return 1.0 / (1.0 + np.exp(-arg))
 
 def integrand_vacuum(z):
-    """Exact VED Covariant Expansion History (Eqs. 135 & 136)."""
+    """Exact VED Covariant Expansion History (Eqs. 134 & 135)."""
     # 1. Interpolate the foundational parameters
     S_z = get_sigmoid(z)
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * S_z
