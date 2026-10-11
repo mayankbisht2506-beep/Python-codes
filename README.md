@@ -65,8 +65,8 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | `verify_CMB_geometric_scaling.py` | CMB Spectrum Restoration (CAMB) | Peaks Aligned |
 | `hyperuniform_screening_check.py` | Cassini (Solar System) Screening | Range $< 100$m |
 | `validate_CMB_invariance.py` | Acoustic Scale Stability ($\theta_*$) | Error $< 0.01\%$ |
-| `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.3$ |
-| `Universe_age.py` | Cosmic Age Calculation | $12.52$ Gyr |
+| `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.42$ |
+| `Universe_age.py` | Cosmic Age Calculation | $12.525$ Gyr |
 | `validate_ISW_stability.py` | Integrated Sachs-Wolfe (Supervoids) | Signal $\times 1.22$ |
 | `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +5.69$ |
 | `hubble_transition_model.py` | Phase Transition Smoothness | Smooth |
@@ -77,10 +77,10 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
 | `validate_Pk_screening.py` | Matter Power Spectrum Shape | $0.00\%$ Deviation |
-| `validate_BAO_ladder.py` | BAO Distance Ladder (8-Point) | $∆χ2≈ 1.61$ |
-| `validate_growth_numerical.py` | Linear Growth Rate ($f\sigma_8$) | $∆χ2 ≈ −1.11$ |
+| `validate_BAO_ladder.py` | BAO Distance Ladder (8-Point) | $∆χ2≈ 1.60$ |
+| `validate_growth_numerical.py` | Linear Growth Rate ($f\sigma_8$) | $∆χ2 ≈ −1.78$ |
 | `validate_JWST_growth.py` | JWST "Impossible Galaxies" | Luminosity Boost |
-| `cosmic_chronometers_test.py` | Cosmic Chronometers ($H(z)$) | $\chi^2_\nu \approx 0.95$ |
+| `cosmic_chronometers_test.py` | Cosmic Chronometers ($H(z)$) | $\chi^2_\nu \approx 0.94$ |
 
 ### 5. Global Statistical Verdict
 *The final Bayesian evidence summary.*
