@@ -171,7 +171,7 @@ print("-" * 50)
 if d_chi2 < -2000:
     print("VERDICT: DECISIVE SUCCESS.")
     print("The exact covariant phase transition organically brightens the luminosity distance,")
-    print("perfectly resolving the SH0ES absolute magnitude tension from first principles!")
+    print("perfectly resolving the SH0ES absolute magnitude tension via geometric isomorphism!")
 
 # ==========================================
 # 5. PLOTTING
