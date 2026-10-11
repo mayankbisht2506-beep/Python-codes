@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import camb
 from scipy.interpolate import interp1d
 
-print("--- VED GEOMETRIC RESTORATION PROOF (AB INITIO) ---")
+print("--- VED GEOMETRIC RESTORATION PROOF (Zero-Parameter) ---")
 print("Objective: Demonstrate visual recovery of Planck 2018 Spectrum via Geometric Lock")
 print("-" * 65)
 
@@ -31,7 +31,7 @@ SCALING_RS = G_BOOST**(-0.5)                # ~0.9062
 
 print(f"Derived G_BOOST:    {G_BOOST:.4f}")
 print(f"Derived SCALING_RS: {SCALING_RS:.4f} (Horizon Contraction)")
-print(f"Ab Initio H_fast:   {H0_THEORY:.2f} km/s/Mpc")
+print(f"Theoretical H_fast:   {H0_THEORY:.2f} km/s/Mpc")
 
 # ==========================================
 # 2. SPECTRAL GENERATION
