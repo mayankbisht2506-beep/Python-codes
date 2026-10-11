@@ -1,127 +1,186 @@
 # Uncomment the line below if running in Google Colab / Jupyter
-# !pip install scipy numpy matplotlib
+# !pip install -q scipy numpy matplotlib
 
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
-from scipy.special import expit
 
-print("--- FULL RIGOROUS ISW STABILITY TEST ---")
-print("Objective: Calculate the True ISW Temperature Amplitude (A_ISW) with High-Precision Parameters")
+print("--- VED OBSERVATIONAL REALITY: CONVOLVED SUPERVOID ISW TEST ---")
+print("Objective: Compute the Survey-Convolved A_ISW across the Supervoid Window")
+print("Engine: Zero-Parameter Covariant Geometry (Width=0.084)")
+print("-" * 75)
 
 # ==========================================
-# 1. PARAMETERS (Updated High-Precision VED)
+# 1. PARAMETERS (Exact Topological Roots)
 # ==========================================
 OM_PRIMORDIAL = 0.3116  # Exact Bare Density (Gravity Source)
 OM_EFFECTIVE  = 0.3639  # Exact Macroscopic Inertial Load (Kinematic Drag)
-ZETA_FLOOR    = 0.15683  # Vacuum Saturation Viscosity (Frenkel limit)
+ZETA_FLOOR    = 0.15683 # Vacuum Saturation Viscosity (Frenkel limit)
 ZETA_PEAK     = 0.3116  # Percolation Jamming Limit (p_c)
 Z_TRANS       = 0.641   # Exact Topological Phase Transition Redshift
-WIDTH         = 0.084    # EXACT: Derived geometric Jacobian width
+WIDTH         = 0.084   # EXACT: Derived geometric Jacobian width
 
 # ==========================================
-# 2. RIGOROUS PHYSICS ENGINE (Eq. 98 & 99)
+# 2. PHYSICS ENGINE (Eq. 126)
 # ==========================================
+def get_sigmoid(z):
+    arg = np.clip((Z_TRANS - z) / WIDTH, -100.0, 100.0)
+    return 1.0 / (1.0 + np.exp(-arg))
+
 def get_viscosity(z):
-    """Calculates the dynamic lattice viscosity over time."""
-    arg = (z - Z_TRANS) / WIDTH
-    late_trigger = 1.0 - expit(arg)
+    late_trigger = get_sigmoid(z)
     base_viscosity = ZETA_FLOOR * late_trigger
-    # Transient spike during the exact moment of percolation jamming
-    spike = (ZETA_PEAK - ZETA_FLOOR) * np.exp(-0.5 * ((z - Z_TRANS)/0.15)**2)
+    spike_arg = np.clip(-0.5 * ((z - Z_TRANS) / WIDTH)**2, -100.0, 0.0)
+    spike = (ZETA_PEAK - ZETA_FLOOR) * np.exp(spike_arg)
     return base_viscosity + spike
 
 def growth_ode_rigorous(y, a, model='lcdm'):
-    """Integrates the growth of structure and gravitational potential."""
     delta, delta_prime = y
-    z = 1.0/a - 1.0
+    z = 1.0 / a - 1.0
     
-    # 1. Kinematic Expansion uses the Effective Viscous Density
     if model == 'viscous':
-        om_z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * (1.0 - expit((z - Z_TRANS) / WIDTH))
+        S_z = get_sigmoid(z)
+        om_z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * S_z
     else:
         om_z = OM_PRIMORDIAL
 
-    E = np.sqrt(om_z*(1+z)**3 + (1-om_z))
+    E = np.sqrt(om_z * (1+z)**3 + (1 - om_z))
     dE_da = -1.5 * om_z * (a**-4) / E
-    
-    # 2. Gravity Source uses strictly the Primordial Bare Density
     source = 1.5 * OM_PRIMORDIAL / (a**5 * E**2)
 
-    # 3. Exact Friction from Eq. 99
     if model == 'viscous':
         zeta = get_viscosity(z)
         friction_term = (1.0/a) + (dE_da/E) + (2.0/a) * (1.0 + zeta)**2.0
         return [delta_prime, -friction_term * delta_prime + source * delta]
 
-    # Standard LCDM Hubble Friction
     hubble_friction = 3.0/a + dE_da/E
     return [delta_prime, -hubble_friction * delta_prime + source * delta]
 
 # ==========================================
-# 3. RUN SIMULATION
+# 3. RUN SIMULATION & EXTRACT POTENTIALS
 # ==========================================
-a_grid = np.linspace(0.1, 1.0, 500)
+print("Solving Linear Perturbation ODEs...")
+a_grid = np.linspace(0.1, 1.0, 2000)
 y0 = [a_grid[0], 1.0]
 
-# Solve ODEs
 sol_lcdm = odeint(growth_ode_rigorous, y0, a_grid, args=('lcdm',))
 sol_visc = odeint(growth_ode_rigorous, y0, a_grid, args=('viscous',))
 
-# Phi ~ Omega_m * delta / a (Gravitational Potential)
+# Gravitational Potential Phi(a) ~ Omega_m * delta / a
 phi_lcdm = OM_PRIMORDIAL * sol_lcdm[:, 0] / a_grid
 phi_visc = OM_PRIMORDIAL * sol_visc[:, 0] / a_grid
 
-# Normalize at Early Time (CMB Emission)
+# Normalize at early matter-dominated regime (z=9) where Phi is constant
 norm_lcdm = phi_lcdm / phi_lcdm[0]
 norm_visc = phi_visc / phi_visc[0]
 
-# Calculate absolute decay rate near z=0 (dPhi / da)
-decay_lcdm = (norm_lcdm[-1] - norm_lcdm[-50]) / (a_grid[-1] - a_grid[-50])
-decay_visc = (norm_visc[-1] - norm_visc[-50]) / (a_grid[-1] - a_grid[-50])
-
-# ISW Amplitude is proportional to the decay rate of the potentials
-A_ISW = decay_visc / decay_lcdm
-
-# ==========================================
-# 4. ANALYSIS & VERDICT
-# ==========================================
-print("\n" + "-" * 40)
-print(f"Standard LCDM Decay Rate (dPhi/da): {decay_lcdm:.4f}")
-print(f"Vacuum Model Decay Rate (dPhi/da):  {decay_visc:.4f}")
-print(f"ISW Amplitude (A_ISW):              {A_ISW:.3f}x")
-print("-" * 40)
-
-print("\n--- SCIENTIFIC VERDICT ---")
-if 0.8 <= A_ISW <= 1.5:
-    print(f"[ PASS ] Perfect Alignment with Observations!")
-    print(f"The A_ISW = {A_ISW:.2f} prediction easily passes standard Planck CMB limits (A_ISW ~ 1.0 +/- 0.3).")
-    print("Crucially, it provides a natural physical mechanism to explain the 'Supervoid ISW Stacking Anomaly',")
-    print("where empirical studies consistently find higher-than-expected ISW signals that standard LCDM fails to explain.")
-else:
-    print("[ TENSION ] Check Parameters.")
-
-# ==========================================
-# 5. GENERATE PLOT
-# ==========================================
 z_grid = 1.0 / a_grid - 1.0
 
-plt.figure(figsize=(8, 5))
-plt.plot(z_grid, norm_lcdm, 'k--', linewidth=2, label=r'Standard $\Lambda$CDM ($\Phi$ Decay)')
-plt.plot(z_grid, norm_visc, 'r-', linewidth=2.5, label=r'Vacuum Elastodynamics ($\Phi$ Decay)')
+from scipy.integrate import odeint, trapezoid  # Modern, non-deprecated import
 
-plt.axvline(Z_TRANS, color='grey', linestyle=':', label=rf'Phase Transition ($z={Z_TRANS}$)')
-plt.xlim(3.0, 0.0) # Look back in time from right to left
-plt.ylim(0.5, 1.05)
+# ==========================================
+# 4. ASTROPHYSICAL OBSERVATIONAL CONVOLUTION
+# ==========================================
+# Flip arrays so redshift z is strictly ascending: 0.0 -> 9.0
+z_asc = np.flip(z_grid)
+norm_lcdm_asc = np.flip(norm_lcdm)
+norm_visc_asc = np.flip(norm_visc)
 
-plt.title(rf'ISW Gravitational Potential Decay ($A_{{ISW}} = {A_ISW:.2f}$)', fontsize=14)
-plt.xlabel('Redshift $z$', fontsize=12)
-plt.ylabel(r'Normalized Potential $\Phi(z) / \Phi_{early}$', fontsize=12)
-plt.legend(loc='lower left', fontsize=10)
-plt.grid(True, alpha=0.3)
+# Physical potential decay rate per unit redshift: |dPhi / dz|
+dphi_dz_lcdm = np.abs(np.gradient(norm_lcdm_asc, z_asc))
+dphi_dz_visc = np.abs(np.gradient(norm_visc_asc, z_asc))
+
+# Empirical Supervoid Stacking Survey Selection Window (Granett et al. / DES)
+Z_VOID_MEAN = 0.52
+Z_VOID_SIGMA = 0.18
+W_survey = np.exp(-0.5 * ((z_asc - Z_VOID_MEAN) / Z_VOID_SIGMA) ** 2)
+W_survey /= trapezoid(W_survey, z_asc)  # Strictly positive normalization
+
+# Evaluate the True Line-of-Sight Integrated ISW Signal
+signal_lcdm = trapezoid(W_survey * dphi_dz_lcdm, z_asc)
+signal_visc = trapezoid(W_survey * dphi_dz_visc, z_asc)
+
+A_ISW_convolved = signal_visc / signal_lcdm
+
+# Asymptotic endpoints for comparison
+mask_local = z_asc <= 0.10
+A_ISW_local = (norm_visc_asc[mask_local][0] - norm_visc_asc[mask_local][-1]) / (
+    norm_lcdm_asc[mask_local][0] - norm_lcdm_asc[mask_local][-1]
+)
+
+idx_trans = np.argmin(np.abs(z_asc - Z_TRANS))
+A_ISW_transition_peak = (norm_visc_asc[idx_trans] - norm_visc_asc[0]) / (
+    norm_lcdm_asc[idx_trans] - norm_lcdm_asc[0]
+)
+
+# ==========================================
+# 5. RESULTS & VERDICT
+# ==========================================
+print("\n" + "=" * 65)
+print("             ISW MULTI-SCALE RHEOLOGICAL AUDIT")
+print("=" * 65)
+print(f"1. Terminal Local Boundary (z <= 0.10):        {A_ISW_local:.3f}x")
+print(f"2. Transition Bound Cumulative Drop (z <= 0.64):{A_ISW_transition_peak:.3f}x")
+print("-" * 65)
+print(
+    f"3. TRUE OBSERVATIONAL REALITY (Convolved):      {A_ISW_convolved:.3f}x  <-- [TARGET]"
+)
+print("=" * 65)
+
+# ==========================================
+# 6. GENERATE PUBLICATION PLOT
+# ==========================================
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+ax1.set_xlabel("Redshift $z$", fontsize=12)
+ax1.set_ylabel(
+    r"Physical Potential Decay Rate $|d\Phi/dz|$", fontsize=12, color="black"
+)
+ax1.plot(
+    z_asc,
+    dphi_dz_lcdm,
+    "k--",
+    linewidth=2,
+    label=r"Standard $\Lambda$CDM ($|d\Phi/dz|$)",
+)
+ax1.plot(
+    z_asc,
+    dphi_dz_visc,
+    "r-",
+    linewidth=2.5,
+    label=r"Vacuum Elastodynamics ($|d\Phi/dz|$)",
+)
+ax1.set_xlim(1.2, 0.0)  # Look back in time: 1.2 -> 0.0
+ax1.set_ylim(0, np.max(dphi_dz_visc) * 1.2)
+ax1.axvline(
+    Z_TRANS, color="grey", linestyle=":", label=rf"Phase Transition ($z={Z_TRANS}$)"
+)
+ax1.grid(True, alpha=0.3)
+
+# Secondary axis showing the Survey Window Function
+ax2 = ax1.twinx()
+color = "tab:blue"
+ax2.set_ylabel(
+    r"Survey Selection Window $W(z)$ [Granett et al.]",
+    fontsize=12,
+    color=color,
+)
+ax2.fill_between(
+    z_asc, W_survey, color=color, alpha=0.15, label="Supervoid Catalog Window"
+)
+ax2.tick_params(axis="y", labelcolor=color)
+ax2.set_ylim(0, np.max(W_survey) * 1.3)  # Now strictly positive and clean!
+
+# Combined Legend
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=10)
+
+plt.title(
+    rf"Observational ISW Resolution: Convolved $A_{{ISW}} = {A_ISW_convolved:.2f}$",
+    fontsize=14,
+)
 plt.tight_layout()
-
-# Save and show
-plt.savefig('Figure_ISW_Decay_HighPrecision.png', dpi=300)
-print("\nSaved plot as 'Figure_ISW_Decay_HighPrecision.png'")
+plt.savefig("Figure_ISW_Convolved_Observational.pdf", dpi=300)
+print("\nPlot cleanly saved to 'Figure_ISW_Convolved_Observational.pdf'")
 plt.show()
