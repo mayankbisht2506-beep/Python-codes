@@ -1,3 +1,4 @@
+# Uncomment the line below if running in Google Colab / Jupyter
 # !pip install scipy numpy matplotlib pandas requests
 
 import numpy as np
@@ -12,7 +13,7 @@ from scipy.optimize import minimize
 # ==========================================
 print("--- RUNNING PANTHEON+ TEST I: RAW STRESS TEST (N=1701) ---")
 print("Objective: Optimize H0 to find Maximum Headroom (Table 7)")
-print("Engine: Exact Covariant Geometry (z_metric truncation + continuous penalties)")
+print("Engine: Exact Covariant Geometry (Pure Unnormalized Engine, Width=0.084)")
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
@@ -44,7 +45,6 @@ download_file(COV_URL, COV_FILE)
 print("Loading Data...")
 df = pd.read_csv(DATA_FILE, sep=r'\s+')
 
-# Include ALL Supernovae to penalize LCDM's local failure
 mask = df['zHD'] > 0.000 
 df_clean = df[mask].reset_index(drop=True)
 z_obs = df_clean['zHD'].values
@@ -68,15 +68,14 @@ cov_filtered = cov_matrix[np.ix_(indices, indices)]
 print("Inverting Covariance Matrix (Robust Method)...")
 inv_cov = np.linalg.pinv(cov_filtered) 
 
-# Extract safe diagonal errors for plotting
 err_diag = np.sqrt(np.diag(cov_filtered))
 
 # ==========================================
 # 3. PHYSICS BASELINE (PLANCK 2018 EXACT)
 # ==========================================
 C_LIGHT = 299792.458
-H0_PLANCK = 67.36     # EXACT: Planck 2018 Baseline
-OM_PLANCK = 0.3153    # EXACT: Planck 2018 Baseline
+H0_PLANCK = 67.36     
+OM_PLANCK = 0.3153    
 OL_PLANCK = 1.0 - OM_PLANCK
 
 def integrate_distance_vectorized(z_values, h_func):
@@ -84,7 +83,6 @@ def integrate_distance_vectorized(z_values, h_func):
     z_max = np.max(z_values)
     if z_max <= 0: return np.zeros_like(z_values)
     
-    # Ultra-dense grid for precision matching the transition width
     z_grid = np.linspace(0, z_max * 1.02, 20000)
     h_grid = h_func(z_grid)
     integrand = C_LIGHT / h_grid
@@ -105,7 +103,6 @@ chi2_planck = R_planck.T @ inv_cov @ R_planck
 # ==========================================
 # 4. EXACT COVARIANT OPTIMIZATION (VED)
 # ==========================================
-# EXACT PURE THEORY PARAMETERS
 Z_TRANS = 0.641
 WIDTH = 0.084          # EXACT: Jacobian projection of yield drop
 H_FAST = 74.69         # EXACT: Early Geometric Ceiling
@@ -114,56 +111,40 @@ OM_EFFECTIVE  = 0.3639 # EXACT: Viscous Braking Density
 
 print("Optimizing Vacuum Model Headroom (Exact Covariant Engine)...")
 
-def get_normalized_sigmoid(z):
-    """Returns a sigmoid strictly normalized to 1.0 at z=0."""
-    def raw_sig(z_val):
-        arg = (Z_TRANS - z_val) / WIDTH
-        return np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
-    return raw_sig(z) / raw_sig(0.0)
+def get_sigmoid(z):
+    """Pure, unnormalized theoretical transition function."""
+    arg = (Z_TRANS - z) / WIDTH
+    return np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
 
 def get_exact_mu_visc(z_array, h_local_opt):
     """Exact Covariant Distance Modulus Engine parameterized for optimization."""
-    # 1. Evaluate S(z)
-    S_z = get_normalized_sigmoid(z_array)
-    
-    # 2. Continuous Early Gravity Field G(z)
+    S_z = get_sigmoid(z_array)
     G_z = 1.0 + 0.2177 * (1.0 - S_z)
     
-    # 3. Dynamically Shifted Metric Boundary
-    # Because S(0) = 1.0 exactly, G(0) = 1.0 exactly, preventing negative bounds
     z_metric = (1.0 + z_array) / np.sqrt(G_z) - 1.0
     z_metric = np.maximum(z_metric, 0.0)
     
-    # 4. Define optimized H(z) inside the engine
     def h_viscous_opt(z):
-        sigmoid = get_normalized_sigmoid(z)
+        sigmoid = get_sigmoid(z)
         OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
         OL_Z = 1.0 - OM_Z
         H_Z = H_FAST + (h_local_opt - H_FAST) * sigmoid
         E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
         return H_Z * E_z
     
-    # 5. Exact Covariant Integration (Truncated at z_metric)
     comoving_at_z_metric = integrate_distance_vectorized(z_metric, h_viscous_opt)
     dl_mpc = (1.0 + z_array) * comoving_at_z_metric
     
-    # 6. Flux dilution standard prefactor (safe bound applied)
     dl_mpc_safe = np.maximum(dl_mpc, 1e-10)
     mu_raw = 5.0 * np.log10(dl_mpc_safe) + 25.0
     
-    # 7. Superimpose Continuous Source Penalties (+0.410 max)
     penalties = 0.410 * (1.0 - S_z)
-    
     return mu_raw + penalties
 
 def objective_vacuum(h0_param):
     """Objective function to minimize Chi2 by tuning H_LOCAL."""
     H_LOCAL_OPT = h0_param[0]
-    
-    # Generate exact covariant magnitudes
     mu_vacuum = get_exact_mu_visc(z_obs, H_LOCAL_OPT)
-    
-    # Calculate Chi2
     R_vacuum = mu_data - mu_vacuum
     chi2_vac = R_vacuum.T @ inv_cov @ R_vacuum
     return chi2_vac
@@ -185,21 +166,16 @@ print(f"Delta Chi2:          {d_chi2:.2f}")
 # ==========================================
 plt.figure(figsize=(10,6))
 
-# Plot Baseline Residuals
 plt.errorbar(z_obs, R_planck, yerr=err_diag, 
              fmt='o', color='lightgrey', alpha=0.3, label='Pantheon+ Residuals (SH0ES Calibrated)')
 
-# Generate Sorted Curves for Smooth Plotting
 z_sort = np.sort(z_obs)
 
-# 1. Exact Covariant Optimized Curve
 mu_best_sort = get_exact_mu_visc(z_sort, best_H0)
 
-# 2. Planck Baseline Sorted Curve
 dl_planck_sort = (1 + z_sort) * integrate_distance_vectorized(z_sort, h_lcdm)
 mu_planck_sort = 5 * np.log10(np.maximum(dl_planck_sort, 1e-10)) + 25
 
-# 3. Residual Difference Curve
 curve_opt = mu_best_sort - mu_planck_sort
 
 plt.plot(z_sort, curve_opt, 'r-', linewidth=3, label=f'Optimized Covariant Theory (Terminal $H_0={best_H0:.2f}$)')
