@@ -12,7 +12,7 @@ print("Engine: Continuous Parameter Interpolation (Matches Section 8.3.1)")
 # 1. PHYSICS PARAMETERS (High-Precision VED)
 # ==========================================
 Z_TRANS = 0.641
-WIDTH = 0.10
+WIDTH = 0.084        #    EXACT: Derived geometric Jacobian width
 
 # EARLY REGIME (z > 0.641) - Superfluid Epoch
 H_EARLY = 74.69
