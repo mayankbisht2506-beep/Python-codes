@@ -16,7 +16,7 @@ This repository contains the complete **"Steel Man" Validation Suite** for the V
 - 💻 **Source Code:** Hosted in this GitHub repository.
 
 These scripts demonstrate that the model simultaneously resolves:
-- **Hubble Tension** ($H_0 \approx 72.36$)
+- **Hubble Tension** ($H_0 \approx 72.82$)
 - **$S_8$ Tension** ($S_8 \approx 0.767$)
 - **Lithium Problem** (2.63x Depletion)
 
@@ -43,8 +43,8 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | :--- | :--- | :--- |
 | `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.69$ |
 | `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $S_8 \approx 0.767$ |
-| `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2 \approx -2475.72$ |
-| `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2492.58$ |
+| `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2 \approx -2546.75$ |
+| `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2548.34$ |
 
 ### 2. Microphysics & Fundamental Constants
 *Verifying the geometric derivation of constants and particle stability.*
@@ -68,7 +68,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.3$ |
 | `Universe_age.py` | Cosmic Age Calculation | $12.52$ Gyr |
 | `validate_ISW_stability.py` | Integrated Sachs-Wolfe (Supervoids) | Signal $\times 1.22$ |
-| `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +9.23$ |
+| `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +5.69$ |
 | `hubble_transition_model.py` | Phase Transition Smoothness | Smooth |
 
 ### 4. Observational Probes (BAO, Growth, Galaxies)
@@ -88,7 +88,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Result |
 | :--- | :--- | :--- |
 | `validate_global_stats.py` | Global Likelihood Sum (Net) | $\Delta\chi^2 \approx -2461.80$ |
-| `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.36 \pm 0.24$ |
+| `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.82 \pm 0.24$ |
 
 ---
 
