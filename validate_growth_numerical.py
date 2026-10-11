@@ -112,7 +112,7 @@ s8_true_wl = sig8_vac_bg[-1] * np.sqrt(OM_PRIMORDIAL / 0.3)
 # THE FIX: We use the frictionless ODE to find the instantaneous rate (f), 
 # but we apply it to the true, historically damped global background amplitude (sig8_vac_bg).
 f_vac_loc = (a_grid / delta_vac_loc) * d_delta_vac_loc
-fs8_vac_loc = f_vac_loc * sig8_vac_bg  # <- The critical correction
+fs8_vac_loc = f_vac_loc * sig8_vac_bg  
 
 # ==========================================
 # 4. RESULTS & CHI-SQUARED CHECK
