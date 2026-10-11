@@ -38,7 +38,7 @@ OM_EFFECTIVE  = 0.3639  # EXACT: Viscous Load (Drives Expansion Friction)
 ETA_FLOOR = 0.15683      # EXACT: Vacuum Saturation Viscosity
 ETA_PEAK  = 0.3116      # EXACT: Simple cubic percolation limit
 Z_TRANS   = 0.641       # EXACT: Percolation redshift
-WIDTH     = 0.10
+WIDTH     = 0.084       # EXACT: Derived geometric Jacobian width
 
 def get_viscosity(z):
     arg = (z - Z_TRANS) / WIDTH
