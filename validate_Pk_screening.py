@@ -57,8 +57,8 @@ print("-" * 65)
 
 if abs(shift_k_eq) < 1e-5 and shift_rs < -9.0:
     print("VERDICT: PASS")
-    print("The thermodynamic scaling natively yields the Mass-Gravity Cancellation.")
-    print("The macroscopic power spectrum shape (k_eq) remains strictly invariant,")
+    print("The thermodynamic scaling demonstrates the Mass-Gravity Cancellation.")
+    print("The macroscopic power spectrum shape (k_eq) remains invariant,")
     print("while the contracted sound horizon and viscous amplitude damping")
     print("resolve the cosmological tensions.")
 else:
