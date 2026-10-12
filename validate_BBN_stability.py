@@ -5,7 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 print("--- HELIUM-4 BBN STABILITY TEST ---")
-print("Objective: Verify the 'Cancellation Theorem' from Exact D4 Topology")
+print("Objective: Verify BBN invariance via thermodynamic scaling (Section 7.11.1)")
+print("-" * 60)
 
 # ==========================================
 # 1. PHYSICS CONSTANTS (Standard Model)
@@ -23,11 +24,10 @@ Yp_ERR = 0.003       # Error margin
 # ==========================================
 # 2. VACUUM ELASTODYNAMICS PARAMETERS
 # ==========================================
-# EXACT TOPOLOGICAL INPUTS
-CABIBBO_ANGLE = 0.225   # Standard Model Mixing Angle (sin theta_c)
-Y_MAX = 0.2055          # Macroscopic Yield Limit (derived from E8/D4 geometry)
+CABIBBO_ANGLE = 0.225   # Geometric projection (sin theta_c)
+Y_MAX = 0.2055          # Macroscopic Yield Limit
 
-# Derived Effective Stiffness (Section 7.3)
+# Derived Effective Stiffness 
 DELTA_EFF = CABIBBO_ANGLE * (1.0 - Y_MAX)
 
 # Derived Early Gravity Boost (G_early / G_0)
@@ -37,9 +37,7 @@ print(f"Derived delta_eff: {DELTA_EFF:.4f}")
 print(f"Derived G_early:   {G_BOOST:.4f} G_0")
 print("-" * 60)
 
-# Geometric Scaling Laws (Section 7.13.1)
-# The "Cancellation Theorem" relies on these coupled scalings:
-
+# Geometric Scaling Laws
 # 1. Mass Scales: m ~ G^-0.5
 MASS_FACTOR = G_BOOST**(-0.5)
 
@@ -108,10 +106,10 @@ print("="*60)
 print(f"Difference: {diff:.6f} ({percent_diff:.3f}%)")
 
 if abs(percent_diff) < 0.1:
-    print("VERDICT: PERFECT CANCELLATION (Pass).")
-    print("The Cabibbo Angle perfectly preserves Primordial Helium.")
+    print("VERDICT: PASS (Algebraic Cancellation Verified).")
+    print("The geometric scaling maintains the primordial Helium abundance.")
 else:
-    print(f"VERDICT: FAILURE. Check scaling laws. Error: {percent_diff}%")
+    print(f"VERDICT: FAIL. Check scaling laws. Error: {percent_diff}%")
 
 # ==========================================
 # 4. PLOTTING
@@ -133,11 +131,11 @@ for bar in bars:
 
 plt.ylim(0.20, 0.35)
 plt.ylabel(r'Primordial Helium Fraction ($Y_p$)', fontsize=12)
-plt.title(r'BBN Invariance: Derived purely from Cabibbo Angle ($0.225$)', fontsize=14)
+plt.title(r'BBN Invariance: Constant $Y_p$ via Geometric Scaling', fontsize=14)
 plt.legend(loc='lower right')
 plt.grid(axis='y', linestyle=':', alpha=0.5)
 
 plt.tight_layout()
 plt.savefig('validate_BBN_stability.png', dpi=300)
-print("Plot saved as 'validate_BBN_stability.png'")
+print("\nPlot saved as 'validate_BBN_stability.png'")
 plt.show()
