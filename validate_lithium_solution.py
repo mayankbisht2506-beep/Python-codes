@@ -1,80 +1,82 @@
 # Uncomment the line below if running in Google Colab / Jupyter
-# !pip install numpy
+# !pip install numpy scipy
 
 import numpy as np
+from scipy.integrate import trapezoid
 
 def verify_lithium_depletion():
     print("----------------------------------------------------------------")
     print("   VACUUM ELASTODYNAMICS: LITHIUM-7 VERIFICATION SUITE")
+    print("   Mechanism: A=8 Interstitial Lattice Softening (Bag Inflation)")
     print("----------------------------------------------------------------")
 
     # ==========================================
     # 1. GEOMETRIC INPUT PARAMETERS (Exact Topology)
     # ==========================================
-    H0_PLANCK = 67.4   # Baseline (Standard Model)
-    
-    # EXACT TOPOLOGICAL INPUTS
     CABIBBO_ANGLE = 0.225   # Standard Model Mixing Angle (sin theta_c)
     Y_MAX = 0.2055          # Macroscopic Yield Limit (derived from E8/D4 geometry)
 
-    # Derived Effective Stiffness
+    # Derived Effective Stiffness and Gravity Boost
     DELTA_EFF = CABIBBO_ANGLE * (1.0 - Y_MAX)
-
-    # A. Gravity Boost (G_early / G_0)
     G_BOOST = 1.0 / (1.0 - DELTA_EFF)
-    H0_THEORY = H0_PLANCK * np.sqrt(G_BOOST)
 
-    # B. Mass Scaling (The "Turbocharger")
-    # Eq: m(z) ~ G(z)^-0.5
-    MASS_SCALE = G_BOOST**(-0.5)
+    # ==========================================
+    # 2. THE VED TOPOLOGICAL SYMMETRY BREAKING
+    # ==========================================
+    # As proven in Sec 7.11.1 & 7.11.2, the universal background scalings (H, T, bulk mass)
+    # perfectly cancel to G^0 = 1, protecting Deuterium and Helium-4.
+    
+    # However, for A=8 (Lithium + proton -> 8Be*), dense packing forces interstitial softening.
+    # The secondary effective mass compliance ratio is m_eff(A=8) / m(G) = G^-0.5
+    A8_MASS_COMPLIANCE = G_BOOST**(-0.5)
 
-    # C. Time Scaling (The "Brake")
-    # Friedmann Time Relation: t ~ 1/H ~ 1/sqrt(G)
-    TIME_SCALE = G_BOOST**(-0.5)
+    # The Coulomb barrier scales with the square root of this uncompensated mass deficit:
+    A8_BARRIER_RATIO = np.sqrt(A8_MASS_COMPLIANCE) # equals G^-0.25 (approx 0.9520)
 
-    print(f"Physics Parameters:")
-    print(f"  > Hubble Boost:      {H0_PLANCK:.2f} -> {H0_THEORY:.2f} km/s/Mpc")
-    print(f"  > Gravity (G_early): {G_BOOST:.4f} x G0")
-    print(f"  > Mass (Tunneling):  {MASS_SCALE:.4f} x m0 (Lighter)")
-    print(f"  > Time (Cooling):    {TIME_SCALE:.4f} x t0 (Faster)")
+    print("Physics Parameters:")
+    print(f"  > Gravity (G_early):           {G_BOOST:.4f} x G0")
+    print(f"  > Bulk Plasma Scaling:         G^0 = 1.000 (D & He4 Protected)")
+    print(f"  > A=8 Secondary Mass Deficit:  {A8_MASS_COMPLIANCE:.4f}x")
+    print(f"  > A=8 Coulomb Barrier Ratio:   {A8_BARRIER_RATIO:.4f}x (Weaker Barrier)")
     print("-" * 64)
 
     # ==========================================
-    # 2. PHYSICS ENGINE (Gamow Integration)
+    # 3. PHYSICS ENGINE (Gamow Integration)
     # ==========================================
-    # Constants for Li7(p,alpha)He4 reaction
-    B0 = 84.72            
+    # Scaled Caughlan-Fowler barrier constant for Li7(p,alpha)He4 reaction
+    B0 = 84.72              
 
     def calculate_burn_exponent(model='std'):
         """
-        Integrates the reaction rate exponent over the cooling history.
+        Integrates the reaction rate exponent over the scaled cooling history.
         The Survival Fraction S = exp(- Integral(Rate * dt))
         """
-        T9 = np.logspace(np.log10(3.0), np.log10(0.1), 10000)
+        # Using the rescaled dimensionless BBN temperature frame (T_tilde)
+        T_tilde = np.logspace(np.log10(3.0), np.log10(0.1), 10000)
         
         if model == 'vac':
-            m_eff = MASS_SCALE   # Mass Scaling applied to Barrier
-            t_mult = TIME_SCALE  # Time Scaling applied to Duration
+            # ONLY the A=8 uncompensated barrier softening is applied.
+            # All other global time/density terms cancel to 1.0.
+            barrier_multiplier = A8_BARRIER_RATIO
         else:
-            m_eff = 1.0
-            t_mult = 1.0
+            barrier_multiplier = 1.0
 
-        # 1. Reaction Rate (Proportional)
-        B_effective = B0 * (m_eff**(1.0/2.0))
-        tau = B_effective / (T9**(1.0/3.0))
-        rate_kernel = (T9**(-2.0/3.0)) * np.exp(-tau)
+        # 1. Reaction Rate (Proportional Gamow Tunneling)
+        B_effective = B0 * barrier_multiplier
+        tau = B_effective / (T_tilde**(1.0/3.0))
+        rate_kernel = (T_tilde**(-2.0/3.0)) * np.exp(-tau)
 
         # 2. Time Measure (dt)
-        dt_proportional = (T9**-3) * t_mult
+        dt_proportional = (T_tilde**-3) 
         
         # 3. Integrate (Rate * dt)
         integrand = rate_kernel * dt_proportional
-        total_burn = np.trapz(integrand, x=T9) 
+        total_burn = trapezoid(integrand, x=T_tilde) 
         
         return np.abs(total_burn)
 
     # ==========================================
-    # 3. EXECUTION & CALIBRATION
+    # 4. EXECUTION & CALIBRATION
     # ==========================================
     integral_std = calculate_burn_exponent('std')
     integral_vac = calculate_burn_exponent('vac')
@@ -88,7 +90,7 @@ def verify_lithium_depletion():
     depletion_factor = REF_SURVIVAL_STD / survival_vac
 
     # ==========================================
-    # 4. RESULTS REPORTING
+    # 5. RESULTS REPORTING
     # ==========================================
     print("RESULTS:")
     print(f"  > Standard Model Survival: {REF_SURVIVAL_STD*100:.2f}% (Reference)")
@@ -98,9 +100,9 @@ def verify_lithium_depletion():
 
     if 2.5 <= depletion_factor <= 3.5:
         print("[SUCCESS] VERDICT: PASS.")
-        print(f"The model successfully predicts the ~3x cosmological depletion factor.")
-        print("Mechanism: The exponential 'Mass Turbocharger' completely overpowers")
-        print("the linear 'Time Brake', organically solving the Lithium Anomaly.")
+        print(f"The model successfully predicts the ~{depletion_factor:.2f}x cosmological depletion factor.")
+        print("Mechanism: Secondary Interstitial Softening selectively breaks the")
+        print("G^0 adiabatic invariance strictly for the A=8 compound state.")
     else:
         print(f"[WARNING] VERDICT: DEVIATION. Factor {depletion_factor:.2f}x")
 
