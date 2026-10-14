@@ -18,7 +18,7 @@ This repository contains the complete **"Steel Man" Validation Suite** for the V
 These scripts demonstrate that the model simultaneously resolves:
 - **Hubble Tension** ($H_0 \approx 72.82$)
 - **$S_8$ Tension** ($S_8 \approx 0.777$)
-- **Lithium Problem** (2.63x Depletion)
+- **Lithium Problem** (2.93x Depletion)
 
 ...while preserving $\Lambda$CDM successes in BBN, CMB, and Solar System gravity.
 
@@ -52,7 +52,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
 | `generate_Figure1_lattice_simulation.py` | Lepton Saturation Sum Rule | $98.58\%$ Efficiency |
-| `validate_lithium_solution.py` | Lithium-7 Depletion ($m \propto G^{-0.5}$) | $2.63\times$ Depletion |
+| `validate_lithium_solution.py` | Lithium-7 Depletion | $2.93\times$ Depletion |
 | `validate_deuterium_robust.py` | Deuterium/Helium Invariance | Invariant |
 | `validate_BBN_stability.py` | Helium-4 Freeze-out Check | $Y_p \Invariant |
 | `generate_Figure5_validate_vacuum_fracture.py` | Vacuum Fracture (Electron/Proton) | $0.9$ TeV |
