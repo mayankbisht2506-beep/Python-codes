@@ -7,27 +7,31 @@ import matplotlib.pyplot as plt
 
 # --- CONFIGURATION ---
 # Set seed for exact reproducibility of Table 1 and Section 5.1.1 stats.
-np.random.seed(42) 
+np.random.seed(42)
 
 # --- 1. PHYSICAL CONSTANTS & GEOMETRIC LIMITS ---
 
-# Source: Section 2.2.3, Eq. 2
+# Source: Section 2.2.3, Eq. 3 & Appendix G.1, Eq. 189
 # The microscopic yield strength of the lattice (Frenkel Sinusoidal Limit).
 GAMMA_CRIT = 1 / (2 * np.pi)  # approx 0.159155
 
-# Source: Section 5.1.2 (Radiative Safety Margin)
-SAFETY_MARGIN = 1 - (2 / 137) # exactly 0.985401...
+# Source: Section 5.1, Eq. 60 (Radiative Safety Margin)
+SAFETY_MARGIN = 1 - (2 / 137)  # exactly 0.985401...
+SIGMA_GAMMA_MAX = SAFETY_MARGIN * GAMMA_CRIT  # approx 0.15683 (Eq. 61)
 
-# Source: Appendix H.4 (Geometric Barut Ratios using bare alpha=137)
+# Source: Section 4.1.2, Eq. 44 (Unparameterized Bare Topological Strain)
+GAMMA_BARE = 1 / 480.0  # approx 0.0020833 (from E8 Kissing Number K=240 & 1/2 partition)
+
+# Source: Appendix H.4 (Geometric Barut Ratios using bare alpha_0^-1 = 137)
 RATIO_MU = 206.5
 RATIO_TAU = 3494.5
 RATIO_4TH = 20140.0  # Exact geometric ratio for 4th generation (n=3)
-BARUT_SUM = 1 + np.sqrt(RATIO_MU) + np.sqrt(RATIO_TAU) # approx 74.484
+BARUT_SUM = 1 + np.sqrt(RATIO_MU) + np.sqrt(RATIO_TAU)  # approx 74.484 (Eq. 62)
 
-# Source: Section 5.1 (Derivation of Dressed Strain)
-GAMMA_EFF = (SAFETY_MARGIN * GAMMA_CRIT) / BARUT_SUM # approx 0.0021055
+# Source: Section 5.1, Eq. 63 (Topological Saturation Ceiling Strain)
+GAMMA_CEILING = SIGMA_GAMMA_MAX / BARUT_SUM  # approx 0.0021055
 
-# Topological Saturation Ceilings derived ab initio (Section 4.2 & 5.1.1)
+# Topological Saturation Ceilings derived ab initio (Section 4.2 Eq. 52 & Section 5.1.1)
 M_e_CEILING = 0.520  # Topological Electron Saturation Ceiling (MeV)
 M_mu_CEILING = M_e_CEILING * RATIO_MU    # approx 107.4 MeV (Muon Ceiling)
 M_tau_CEILING = M_e_CEILING * RATIO_TAU  # approx 1817.1 MeV (Tau Ceiling)
@@ -35,16 +39,16 @@ M_4th_CEILING = M_e_CEILING * RATIO_4TH  # approx 10472.8 MeV (4th Gen Ceiling)
 
 # --- 2. HELPER FUNCTIONS ---
 
-def calculate_strain(mass, base_strain=GAMMA_EFF):
+def calculate_strain(mass, base_strain=GAMMA_CEILING):
     """
     Derives lattice shear strain from particle mass.
-    Physics: Elastic Potential Energy E ~ gamma^2 (Section 5.1.2)
+    Physics: Elastic Potential Energy E ~ gamma^2 (Section 5.1.1 & Appendix C.1)
     """
     return base_strain * np.sqrt(mass / M_e_CEILING)
 
 def restoring_stress(gamma):
     """
-    The nonlinear stress response: tau = (1/2pi) * sin(2*pi*gamma)
+    The nonlinear Frenkel stress response: tau = (1/2pi) * sin(2*pi*gamma)
     """
     return np.sin(2 * np.pi * gamma) / (2 * np.pi)
 
@@ -52,41 +56,40 @@ def restoring_stress(gamma):
 
 def run_hierarchy_search_ratios(n_samples=10000000):
     """
-    Method: 'Blind Search' of Mass Ratios + 4th Gen Fracture Test.
+    Method: 'Blind Search' of Multiplicative Mass Ratios + 4th Gen Fracture Test.
     Goal: Reproduce the exact statistics cited in Section 5.1.1.
     """
     print(f"\n=== SIMULATION A: MASS HIERARCHY SEARCH (Matches Paper Text) ===")
     print(f"Generating {n_samples:,} random physics models...")
 
-    # 1. Random Base Strains
-    g1 = np.abs(np.random.normal(GAMMA_EFF, 0.0005, n_samples))
+    # 1. Random Base Strains around the ground-state scale
+    g1 = np.abs(np.random.normal(GAMMA_CEILING, 0.0005, n_samples))
 
-    # 2. Random Mass Scalings (The "Blind" Parameter Space)
-    low_bound = np.sqrt(1)       
-    high_bound = np.sqrt(200000) 
-    
+    # 2. Random Monotonic Mass Step Scalings (m_n / m_{n-1} in [1, 200000])
+    low_bound = np.sqrt(1)
+    high_bound = np.sqrt(200000)
+
     scale_2 = np.random.uniform(low_bound, high_bound, n_samples)
     scale_3 = np.random.uniform(low_bound, high_bound, n_samples)
-    scale_4 = np.random.uniform(low_bound, high_bound, n_samples) # 4th Gen scale
-    
+    scale_4 = np.random.uniform(low_bound, high_bound, n_samples)  # 4th Gen scale
+
     g2 = g1 * scale_2
     g3 = g2 * scale_3
-    g4 = g3 * scale_4 # The hypothetical 4th generation
+    g4 = g3 * scale_4  # The hypothetical 4th generation (monotonic: g4 >= g3)
 
-    # 3. Filters (Stable 3-Gen & Saturated)
+    # 3. Filters (Stable 3-Gen & Saturated > 98% ofGAMMA_CRIT)
     total_3_strain = g1 + g2 + g3
     is_stable_3 = total_3_strain < GAMMA_CRIT
-    # We check if it falls within a realistic saturation window (e.g., > 98%)
-    is_saturated = total_3_strain > (0.98 * GAMMA_CRIT) 
-    
+    is_saturated = total_3_strain > (0.98 * GAMMA_CRIT)
+
     success_mask = is_stable_3 & is_saturated
     count_3_gen = np.sum(success_mask)
     percent_3_gen = (count_3_gen / n_samples) * 100
-    
+
     # 4. The 4th Generation Fracture Test
     total_4_strain = total_3_strain + g4
     fractured_4th_count = np.sum(total_4_strain[success_mask] > GAMMA_CRIT)
-    
+
     if count_3_gen > 0:
         fracture_rate = (fractured_4th_count / count_3_gen) * 100
     else:
@@ -94,12 +97,12 @@ def run_hierarchy_search_ratios(n_samples=10000000):
 
     overall_failure_rate = 100.0 - percent_3_gen
 
-    print(f"[-] Universes Generated: {n_samples:,}")
+    print(f"[-] Universes Generated:      {n_samples:,}")
     print(f"[-] Stable 3-Gen Hierarchies: {count_3_gen}")
-    print(f"[-] 3-Gen Success Probability: {percent_3_gen:.4f}% (TARGET: ~0.003%)")
-    print(f"[-] Overall Rejection Rate: {overall_failure_rate:.4f}% (TARGET: >99.99%)")
-    print(f"[-] 4th-Gen Fracture Rate: {fracture_rate:.2f}% (TARGET: 100%)")
-    
+    print(f"[-] 3-Gen Success Prob:       {percent_3_gen:.4f}% (TARGET: ~0.003%)")
+    print(f"[-] Overall Rejection Rate:   {overall_failure_rate:.4f}% (TARGET: >99.99%)")
+    print(f"[-] 4th-Gen Fracture Rate:    {fracture_rate:.2f}% (TARGET: 100%)")
+
     if 0.002 <= percent_3_gen <= 0.004 and fracture_rate == 100.0:
         print(">>> VALIDATION SUCCESSFUL: Perfect Alignment with Section 5.1.1. <<<")
     else:
@@ -109,65 +112,78 @@ def run_hierarchy_search_ratios(n_samples=10000000):
 
 def run_independent_uniqueness_check(n_trials=10000000):
     """
-    Method: Independent Random Variables (Log-Uniform).
-    Goal: Prove that even with pure random noise, accidental saturation is rare (p < 0.01).
+    Method: Independent Random Variables (Log-Uniform on [10^-4, 1.0]).
+    Goal: Prove that even with unconstrained log-uniform noise, saturation is rare (p < 0.01).
     """
     print(f"\n=== SIMULATION B: INDEPENDENT CHAOS CHECK (Robustness Test) ===")
     print(f"Testing {n_trials:,} completely random spectra...")
-    
+
     g1 = np.exp(np.random.uniform(np.log(0.0001), np.log(1.0), n_trials))
     g2 = np.exp(np.random.uniform(np.log(0.0001), np.log(1.0), n_trials))
     g3 = np.exp(np.random.uniform(np.log(0.0001), np.log(1.0), n_trials))
-    
+
     total_strain = g1 + g2 + g3
     stable = total_strain < GAMMA_CRIT
     saturated = total_strain > (0.98 * GAMMA_CRIT)
-    
+
     successes = np.sum(stable & saturated)
     p_value = successes / n_trials
-    
+
     print(f"[-] Random Successes: {successes}")
-    print(f"[-] P-Value: {p_value:.6f}")
-    
+    print(f"[-] P-Value:          {p_value:.6f}")
+
     if p_value < 0.01:
         print(">>> ROBUSTNESS VERIFIED: Random Chance is Statistically Rare (p < 0.01). <<<")
 
-# --- 5. SIMULATION C: LEPTON STABILITY PLOT (Figure 1 & Table 1) ---
+# --- 5. SIMULATION C: LEPTON STABILITY PLOT (Figure 1, Table 1 & Bare Floor Check) ---
 
 def run_lepton_stability_analysis():
-    print(f"\n=== SIMULATION C: Vacuum SATURATION PLOT (Figure 1 & Table 1) ===")
+    print(f"\n=== SIMULATION C: VACUUM SATURATION PLOT (Figure 1 & Table 1) ===")
     print(f"Applying Harmonic Superposition Scaling (M_n ~ Sum k^4)")
-    
-    # A. Calculate Strains
-    gamma_e = GAMMA_EFF
+
+    # A1. Non-Circular Ab Initio Bare Topological Check (Eqs. 64-67: gamma_bare = 1/480)
+    bare_e = GAMMA_BARE
+    bare_mu = bare_e * np.sqrt(RATIO_MU)
+    bare_tau = bare_e * np.sqrt(RATIO_TAU)
+    bare_total = bare_e + bare_mu + bare_tau
+    bare_saturation_pct = (bare_total / GAMMA_CRIT) * 100
+
+    # A2. Topological Saturation Ceiling Check (Table 1, Eqs. 61-63)
+    gamma_e = GAMMA_CEILING
     gamma_mu = calculate_strain(M_mu_CEILING, gamma_e)
     gamma_tau = calculate_strain(M_tau_CEILING, gamma_e)
-    gamma_4th = calculate_strain(M_4th_CEILING, gamma_e)  # USING EXACT GEOMETRY NOW
-    
-    # B. Saturation Check
+    gamma_4th = calculate_strain(M_4th_CEILING, gamma_e)
+
+    # B. Ceiling Saturation Check
     total_load = gamma_e + gamma_mu + gamma_tau
     saturation_pct = (total_load / GAMMA_CRIT) * 100
-    
+
     # C. Calculate Stability Index for 4th Gen (Table 1 Check)
     stability_4th = np.cos(2 * np.pi * gamma_4th)
 
-    print(f"Electron Strain: {gamma_e:.5f}")
-    print(f"Muon Strain:     {gamma_mu:.5f}")
-    print(f"Tau Strain:      {gamma_tau:.5f}")
-    print(f"Total Load:      {total_load:.5f}")
-    print(f"Frenkel Limit:   {GAMMA_CRIT:.5f} (Eq. 2)")
-    print(f"Saturation:      {saturation_pct:.2f}% (Matches '98.54%' claim)")
+    print(f"[Ab Initio Bare Floor Check - Eqs. 64-67]")
+    print(f"Bare Electron Strain (1/480): {bare_e:.6f}")
+    print(f"Bare 3-Gen Strain Sum:        {bare_total:.5f}")
+    print(f"Bare Load vs Frenkel Limit:   {bare_saturation_pct:.2f}% (Matches '97.50%' in Sec. 5.1)")
     print("-" * 40)
-    print(f"4th Gen Strain:    {gamma_4th:.5f}")
-    print(f"4th Gen Stability: {stability_4th:.2f} (Matches 'Unstable' in Table 1)")
-    
+    print(f"[Topological Saturation Ceiling - Table 1]")
+    print(f"Electron Ceiling Strain:      {gamma_e:.5f}")
+    print(f"Muon Ceiling Strain:          {gamma_mu:.5f}")
+    print(f"Tau Ceiling Strain:           {gamma_tau:.5f}")
+    print(f"Total Ceiling Load:           {total_load:.5f}")
+    print(f"Frenkel Limit:                {GAMMA_CRIT:.5f} (Eq. 3)")
+    print(f"Radiative Ceiling Saturation: {saturation_pct:.2f}% (Matches '98.54%' Eq. 60)")
+    print("-" * 40)
+    print(f"4th Gen Strain:               {gamma_4th:.5f}")
+    print(f"4th Gen Stability:            {stability_4th:.2f} (Matches 'Unstable (-0.30)' in Table 1)")
+
     # D. Plotting Figure 1
     gamma_range = np.linspace(0, 0.35, 200)
     stress_curve = restoring_stress(gamma_range)
-    
+
     plt.figure(figsize=(10, 6))
     plt.plot(gamma_range, stress_curve, 'b-', linewidth=2, label='Vacuum Stress Response')
-    
+
     particles = [('Electron', gamma_e, 'go'), ('Muon', gamma_mu, 'bo'), ('Tau', gamma_tau, 'yo')]
     for name, g, fmt in particles:
         plt.plot(g, restoring_stress(g), fmt, markersize=8, label=f'{name}')
@@ -175,12 +191,13 @@ def run_lepton_stability_analysis():
     # Plot 4th Gen Failure
     s_4th = restoring_stress(gamma_4th)
     plt.plot(gamma_4th, s_4th, 'rx', markersize=12, markeredgewidth=3, label='4th Gen (Failure)')
-    
-    plt.axvline(GAMMA_CRIT, color='r', linestyle='--', linewidth=1.5, label=rf'Frenkel Limit ($\gamma_{{crit}} \approx {GAMMA_CRIT:.3f}$)')
+
+    plt.axvline(GAMMA_CRIT, color='r', linestyle='--', linewidth=1.5,
+                label=rf'Frenkel Limit ($\gamma_{{crit}} \approx {GAMMA_CRIT:.3f}$)')
     plt.axhline(0, color='k', linewidth=0.5)
-    
-    plt.annotate(f'Saturation: {saturation_pct:.2f}%', 
-                 xy=(gamma_tau, restoring_stress(gamma_tau)), 
+
+    plt.annotate(f'Saturation: {saturation_pct:.2f}%',
+                 xy=(gamma_tau, restoring_stress(gamma_tau)),
                  xytext=(gamma_tau + 0.02, 0.05),
                  arrowprops=dict(facecolor='black', shrink=0.05))
 
@@ -191,12 +208,12 @@ def run_lepton_stability_analysis():
     plt.grid(True, alpha=0.3)
     plt.xlim(0, 0.35)
     plt.ylim(-0.05, 0.17)
-    
-    plt.savefig('Figure1_Lepton_Stability.png', dpi=300)
+
+    plt.savefig('Figure1_Lepton_Stability.png', dpi=300, bbox_inches='tight')
     print("Graph saved as 'Figure1_Lepton_Stability.png'")
 
 # --- MAIN EXECUTION ---
 if __name__ == "__main__":
-    run_hierarchy_search_ratios()       
-    run_independent_uniqueness_check()  
+    run_hierarchy_search_ratios()
+    run_independent_uniqueness_check()
     run_lepton_stability_analysis()
