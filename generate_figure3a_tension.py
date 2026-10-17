@@ -113,7 +113,7 @@ def integrate_distance_vectorized(z_values, h_func):
     z_max = np.max(z_values)
     if z_max <= 0:
         return np.zeros_like(z_values)
-    
+
     z_grid = np.linspace(0.0, z_max * 1.02, 20000)
     h_grid = h_func(z_grid)
     integrand = C_LIGHT / h_grid
@@ -144,19 +144,19 @@ def h_viscous(z):
 
 def get_exact_mu_visc(z_array):
     S_z = sigmoid_transition(z_array)
-    
+
     # 1. Dynamic Gravitational Coupling G(z)/G_0 (Sec. 7.2.1)
     G_z = 1.0 + G_BOOST_EARLY * (1.0 - S_z)
-    
+
     # 2. Atomic Clock Shifted Metric Bound z_metric (Sec. 7.3, Eq. 115)
     z_metric = (1.0 + z_array) / np.sqrt(G_z) - 1.0
     z_metric = np.maximum(z_metric, 0.0)
-    
+
     # 3. Exact Covariant Luminosity Distance Integration
     comoving_at_z_metric = integrate_distance_vectorized(z_metric, h_viscous)
     dl_mpc = (1.0 + z_array) * comoving_at_z_metric
     mu_raw = 5.0 * np.log10(np.maximum(dl_mpc, 1e-10)) + 25.0
-    
+
     # 4. Superimpose Constitutive Source Penalties (Eq. 116 - 118)
     penalties = TOTAL_SOURCE_PENALTY * (1.0 - S_z)
     return mu_raw + penalties
