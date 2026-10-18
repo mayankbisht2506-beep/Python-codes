@@ -4,7 +4,7 @@
 import numpy as np
 
 print("--- MATTER POWER SPECTRUM: MASS-GRAVITY CANCELLATION TEST ---")
-print("Objective: Verify k_eq invariance via thermodynamic scaling (Eqs. 122-124).")
+print("Objective: Verify k_eq invariance via thermodynamic scaling (Eqs. 125-127).")
 print("-" * 65)
 
 # ==========================================
@@ -19,20 +19,20 @@ SIGMA8_LCDM   = 0.8116   # Unsuppressed LCDM amplitude
 SIGMA8_VED    = 0.7624   # Viscously damped VED amplitude
 
 # ==========================================
-# 2. THERMODYNAMIC SCALING ENGINE (Eqs. 122-124)
+# 2. THERMODYNAMIC SCALING ENGINE (Eqs. 125-127)
 # ==========================================
-# Eq. 122: Nucleon mass scales as G^-0.5, proportionally lowering matter density.
+# Eq. 125: Nucleon mass scales as G^-0.5, proportionally lowering matter density.
 # This delays matter-radiation equality to a larger scale factor:
 a_eq_scaler = np.sqrt(G_EARLY_RATIO)
 
-# Eq. 123: Radiation density scales strictly as a^-4. 
+# Eq. 126: Radiation density scales strictly as a^-4. 
 # The delayed equality dilutes radiation density proportionally:
 rho_r_scaler = a_eq_scaler**(-4.0)
 
 # The expansion rate at equality depends on sqrt(G * rho_r):
 H_eq_scaler = np.sqrt(G_EARLY_RATIO * rho_r_scaler)
 
-# Eq. 124: The comoving turnover scale k_eq = a_eq * H_eq / c
+# Eq. 127: The comoving turnover scale k_eq = a_eq * H_eq / c
 k_eq_scaler = a_eq_scaler * H_eq_scaler
 
 # The physical sound horizon (rs) contracts inversely with early expansion H ~ sqrt(G)
