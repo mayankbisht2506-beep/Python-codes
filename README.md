@@ -87,7 +87,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 
 | Script Name | Objective | Result |
 | :--- | :--- | :--- |
-| `validate_global_stats.py` | Global Likelihood Sum (Net) | $\Delta\chi^2 \approx -2461.80$ |
+| `validate_global_stats.py` | Global Likelihood Sum (Net) | $\Delta\chi^2 \approx -7.62$ |
 | `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.82 \pm 0.24$ |
 
 ---
