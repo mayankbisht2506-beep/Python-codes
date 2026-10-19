@@ -14,7 +14,7 @@ def verify_lithium_depletion():
     # 1. GEOMETRIC INPUT PARAMETERS (Exact Topology)
     # ==========================================
     CABIBBO_ANGLE = 0.225   # Standard Model Mixing Angle (sin theta_c)
-    Y_MAX = 0.2055          # Macroscopic Yield Limit (derived from E8/D4 geometry)
+    Y_MAX = 0.2090          # EXACT: Updated Macroscopic Yield Limit (beta_p = 0.418)
 
     # Derived Effective Stiffness and Gravity Boost
     DELTA_EFF = CABIBBO_ANGLE * (1.0 - Y_MAX)
@@ -31,7 +31,7 @@ def verify_lithium_depletion():
     A8_MASS_COMPLIANCE = G_BOOST**(-0.5)
 
     # The Coulomb barrier scales with the square root of this uncompensated mass deficit:
-    A8_BARRIER_RATIO = np.sqrt(A8_MASS_COMPLIANCE) # equals G^-0.25 (approx 0.9520)
+    A8_BARRIER_RATIO = np.sqrt(A8_MASS_COMPLIANCE) # equals G^-0.25 (approx 0.952)
 
     print("Physics Parameters:")
     print(f"  > Gravity (G_early):           {G_BOOST:.4f} x G0")
