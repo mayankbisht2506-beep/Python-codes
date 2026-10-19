@@ -7,13 +7,14 @@ import matplotlib.pyplot as plt
 import requests
 import os
 from scipy.optimize import minimize
+from scipy.linalg import cho_factor, cho_solve
 
 # ==========================================
 # 1. SETUP & DATA
 # ==========================================
 print("--- RUNNING PANTHEON+ SHAPE CONSISTENCY TEST (KINEMATIC) ---")
 print("Objective: Verify Metric 2 (Test III: Shape Consistency, Section 8.3.5)")
-print("Engine: Exact Covariant Geometry (Pure Unnormalized Engine, Width=0.084)")
+print("Engine: Exact Covariant Geometry (Pure Unnormalized Engine, Width=0.082)")
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
@@ -52,7 +53,14 @@ else:
     cov_matrix = data.reshape((N, N))
 indices = np.where(mask)[0]
 cov_filtered = cov_matrix[np.ix_(indices, indices)]
-inv_cov = np.linalg.pinv(cov_filtered)
+
+# Robust Cholesky Inversion
+try:
+    cho_cov = cho_factor(cov_filtered, lower=True)
+    use_cholesky = True
+except np.linalg.LinAlgError:
+    inv_cov = np.linalg.pinv(cov_filtered)
+    use_cholesky = False
 
 # Extract safe diagonal errors for plotting
 err_diag = np.sqrt(np.diag(cov_filtered))
@@ -64,7 +72,7 @@ print(f"Loaded {len(df_clean)} Supernovae (z > 0.01 Bulk Flow).")
 # ==========================================
 C_LIGHT = 299792.458
 Z_TRANS = 0.641       # EXACT: Topological percolation redshift
-WIDTH = 0.084         # EXACT: Jacobian projection of yield drop
+WIDTH = 0.082         # EXACT: Updated Jacobian projection of yield drop
 
 # --- MODEL A: PLANCK LCDM (Baseline Control) ---
 H0_A = 67.36          
@@ -72,10 +80,10 @@ OM_A = 0.3153
 OL_A = 1.0 - OM_A
 
 # --- MODEL B: VACUUM ELASTODYNAMICS (Zero Continuous Parameters) ---
-H_FAST = 74.69         
-H_LOCAL = 72.71        
-OM_PRIMORDIAL = 0.3116 
-OM_EFFECTIVE = 0.3639  
+H_FAST = 74.65         # EXACT: Updated Early Geometric Ceiling
+H_LOCAL = 72.67        # EXACT: Updated Viscous Kinematic Baseline
+OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Density
+OM_EFFECTIVE = 0.3639  # EXACT: Viscous Braking Density
 
 def get_sigmoid(z):
     """Pure, unnormalized theoretical transition function."""
@@ -118,8 +126,8 @@ def get_exact_mu_visc(z_array):
     """Exact Covariant Distance Modulus including z_metric shift and source penalties."""
     S_z = get_sigmoid(z_array)
     
-    # Continuous Early Gravity Field G(z)
-    G_z = 1.0 + 0.2177 * (1.0 - S_z)
+    # Continuous Early Gravity Field G(z) (Updated)
+    G_z = 1.0 + 0.2165 * (1.0 - S_z)
     
     # Dynamically Shifted Metric Boundary (Atomic Drift limit)
     z_metric = (1.0 + z_array) / np.sqrt(G_z) - 1.0
@@ -132,8 +140,8 @@ def get_exact_mu_visc(z_array):
     # Flux dilution standard prefactor (safe bound applied)
     mu_raw = 5.0 * np.log10(np.maximum(dl_mpc, 1e-10)) + 25.0
     
-    # Superimpose Continuous Source Penalties (+0.410 max)
-    penalties = 0.410 * (1.0 - S_z)
+    # Superimpose Continuous Source Penalties (Updated +0.4141 max)
+    penalties = 0.4141 * (1.0 - S_z)
     
     return mu_raw + penalties
 
@@ -146,12 +154,14 @@ mu_visc = get_exact_mu_visc(df_clean['zHD'].values)
 print("Marginalizing over Absolute Calibration (Intercept)...")
 mu_data = df_clean['MU_SH0ES'].values
 
-def get_marginalized_chi2(mu_model, mu_data, inv_c):
+def get_marginalized_chi2(mu_model, mu_data):
     # Optimize a single shift parameter (delta_M) to minimize Chi2
     def objective(delta_M):
         shifted_model = mu_model + delta_M
         residuals = mu_data - shifted_model
-        return residuals.T @ inv_c @ residuals
+        if use_cholesky:
+            return float(residuals.T @ cho_solve(cho_cov, residuals))
+        return float(residuals.T @ inv_cov @ residuals)
     
     # Run optimizer
     res = minimize(objective, x0=[0.0], method='Nelder-Mead')
@@ -159,8 +169,8 @@ def get_marginalized_chi2(mu_model, mu_data, inv_c):
     best_chi2 = res.fun
     return best_chi2, best_shift
 
-chi2_lcdm, offset_lcdm = get_marginalized_chi2(mu_lcdm, mu_data, inv_cov)
-chi2_visc, offset_visc = get_marginalized_chi2(mu_visc, mu_data, inv_cov)
+chi2_lcdm, offset_lcdm = get_marginalized_chi2(mu_lcdm, mu_data)
+chi2_visc, offset_visc = get_marginalized_chi2(mu_visc, mu_data)
 d_chi2 = chi2_visc - chi2_lcdm
 
 print("\n" + "-" * 40)
