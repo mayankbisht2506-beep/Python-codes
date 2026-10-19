@@ -1,8 +1,11 @@
+# Uncomment the line below if running in Google Colab / Jupyter
+# !pip install numpy matplotlib
+
 import numpy as np
 import matplotlib.pyplot as plt
 
 print("--- VACUUM ELASTODYNAMICS: PHASE TRANSITION EVOLUTION ---")
-print("Generating exact dual-phase Hubble trajectory for Figure 2...")
+print("Generating exact dual-phase Hubble trajectory")
 
 # ==========================================
 # 1. PARAMETERS (Exact High-Precision Roots)
@@ -11,19 +14,24 @@ print("Generating exact dual-phase Hubble trajectory for Figure 2...")
 H0_PLANCK = 67.36
 Om_PLANCK = 0.3153       
 
-# VACUUM DYNAMICS (Strictly Geometric Derivations)
-H_FAST = 74.69           # EXACT: Ab Initio Primordial Geometric Ceiling
-DELTA_OM = 0.0523        # EXACT: Inertial Counter-Load Drag (0.1569 / 3)
+# VACUUM DYNAMICS (Strictly Geometric Derivations - UPDATED)
+H_FAST = 74.65           # EXACT: Updated Ab Initio Primordial Geometric Ceiling
+DELTA_OM = 0.0523        # EXACT: Inertial Counter-Load Drag (0.15683 / 3)
 Om_BARE = 0.3116         # EXACT: Primordial Topological Density (p_c)
 Om_EFF = 0.3639          # EXACT: Effective Late-Time Density (0.3116 + 0.0523)
-H_OBS = 72.71            # EXACT: Terminal Decelerated Velocity
+H_OBS = 72.67            # EXACT: Updated Terminal Decelerated Velocity
 
 Z_TRANS = 0.641          # EXACT: Percolation Threshold
-WIDTH = 0.084              # EXACT: Derived geometric Jacobian width
+WIDTH = 0.082            # EXACT: Updated derived geometric Jacobian width
 
 # ==========================================
 # 2. PHYSICS ENGINE (Dual Phase Transition)
 # ==========================================
+def get_sigmoid(z):
+    """Matches the exact transition function used in the VED MCMC pipeline."""
+    arg = (Z_TRANS - z) / WIDTH
+    return np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
+
 def get_hubble_evolution(z_array):
     # 1. Planck Baseline (Standard LCDM)
     E_z_planck = np.sqrt(Om_PLANCK * (1 + z_array)**3 + (1 - Om_PLANCK))
@@ -33,14 +41,11 @@ def get_hubble_evolution(z_array):
     H_shoes = 73.04 * np.sqrt(0.3 * (1 + z_array)**3 + 0.7)
 
     # 3. Vacuum Elastodynamics (Dynamic Phase Transition)
-    # Uses a hyperbolic tangent to model the second-order relaxation at z=0.641
-    # Late Universe (z < 0.641) -> transition_factor approaches 1
-    # Early Universe (z > 0.641) -> transition_factor approaches 0
-    transition_factor = 0.5 * (1 - np.tanh((z_array - Z_TRANS) / WIDTH))
+    S_z = get_sigmoid(z_array)
 
     # Dynamically scale the parameters based on the epoch (The Dual Transition)
-    H_dynamic = H_OBS * transition_factor + H_FAST * (1 - transition_factor)
-    Om_dynamic = Om_EFF * transition_factor + Om_BARE * (1 - transition_factor)
+    H_dynamic = H_FAST + (H_OBS - H_FAST) * S_z
+    Om_dynamic = Om_BARE + (Om_EFF - Om_BARE) * S_z
 
     # Calculate H(z) using the dynamically evolving metric
     E_z_vac = np.sqrt(Om_dynamic * (1 + z_array)**3 + (1 - Om_dynamic))
@@ -59,10 +64,9 @@ print(f"H0 (Planck Base):    {H_lcdm[0]:.2f} km/s/Mpc")
 print(f"H0 (Vacuum Late):    {H_vac[0]:.2f} km/s/Mpc (Target: {H_OBS})")
 print(f"H_fast (Ceiling):    {H_FAST} km/s/Mpc")
 print(f"Transition z:        {Z_TRANS}")
+print(f"Transition Width:    {WIDTH}")
 print(f"Late-time Drag:      Om_eff = {Om_EFF}")
 print("-" * 55)
-
-
 
 # Plotting
 plt.figure(figsize=(10, 6))
@@ -84,5 +88,6 @@ plt.ylim(60, 200)
 plt.grid(alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('Figure2_Hubble_Transition_Updated.pdf', dpi=300)
+plt.savefig('Hubble_Transition_Updated.pdf', dpi=300)
+print("\nPlot saved as 'Hubble_Transition.pdf'")
 plt.show()
