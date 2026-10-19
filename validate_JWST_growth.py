@@ -13,7 +13,7 @@ print("-" * 65)
 # ==========================================
 # 1. COSMOLOGICAL PARAMETERS (VED Bare Baseline)
 # ==========================================
-h = 0.7271       # VED Terminal Velocity (H_local)
+h = 0.7267       # EXACT: Updated VED Terminal Velocity (H_local)
 Om0 = 0.3116     # VED Bare Primordial Density
 Ol0 = 1.0 - Om0  # Exact Flat Spacetime Baseline
 Ob0 = 0.04959    # VED Geometric Baryon Density (p_c * gamma_crit)
@@ -22,7 +22,7 @@ rho_m_0 = Om0 * rho_crit_0
 fb = Ob0 / Om0   # Cosmic Baryon Fraction (~0.159)
 
 # VED PARAMETERS (For the Correction)
-G_RATIO = 1.218  # Exact G_early / G_0 topological derivation
+G_RATIO = 1.2165 # EXACT: Updated G_early / G_0 topological derivation
 
 # ==========================================
 # 2. PHYSICS ENGINE: EXACT GROWTH INTEGRATION
@@ -49,7 +49,7 @@ func_D = interp1d(1.0 / a_grid - 1.0, D_norm)
 # 3. HALO MASS FUNCTION (Sheth-Tormen)
 # ==========================================
 def get_abundance(M_halo, z):
-    sigma8 = 0.811
+    sigma8 = 0.812 # EXACT: Updated standard unsuppressed baseline
 
     # High-z effective spectral index scaling
     sigma_M = sigma8 * (M_halo / (6e14 / h))**(-0.13) * func_D(z)
@@ -77,7 +77,7 @@ jwst_data = [
 ALPHA_THOMSON = 4.0
 boost_factor = G_RATIO**ALPHA_THOMSON   
 
-print(f"VED High-G Factor: {G_RATIO:.3f}x")
+print(f"VED High-G Factor: {G_RATIO:.4f}x")
 print(f"Luminosity Boost (Thomson, alpha={ALPHA_THOMSON}): {boost_factor:.2f}x")
 print("-" * 65)
 
@@ -115,7 +115,7 @@ plt.errorbar(masses_obs, densities, yerr=[[1e-4, 2e-6], [1e-4, 2e-6]], fmt='ko',
 
 # 3. VED Corrected Data (Strict Thomson Limit)
 masses_corr = [m / boost_factor for m in masses_obs]
-plt.plot(masses_corr, densities, 'ro', markersize=8, label=r'VED Physical Stellar Mass ($M_{\text{true}} = M_{\text{obs}} / 2.2$)')
+plt.plot(masses_corr, densities, 'ro', markersize=8, label=r'VED Physical Stellar Mass ($M_{\text{true}} = M_{\text{obs}} / 2.19$)')
 
 # Draw Transition Vectors
 for i in range(len(masses_obs)):
