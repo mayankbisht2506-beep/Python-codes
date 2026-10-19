@@ -7,7 +7,7 @@ from scipy.integrate import odeint
 
 print("--- VED OBSERVATIONAL REALITY: CONVOLVED SUPERVOID ISW TEST ---")
 print("Objective: Compute the Survey-Convolved A_ISW across the Supervoid Window")
-print("Engine: Zero-Parameter Covariant Geometry (Width=0.084)")
+print("Engine: Zero-Parameter Covariant Geometry (Width=0.082)")
 print("-" * 75)
 
 # ==========================================
