@@ -25,7 +25,7 @@ Yp_ERR = 0.003       # Error margin
 # 2. VACUUM ELASTODYNAMICS PARAMETERS
 # ==========================================
 CABIBBO_ANGLE = 0.225   # Geometric projection (sin theta_c)
-Y_MAX = 0.2055          # Macroscopic Yield Limit
+Y_MAX = 0.2090          # Macroscopic Yield Limit
 
 # Derived Effective Stiffness 
 DELTA_EFF = CABIBBO_ANGLE * (1.0 - Y_MAX)
