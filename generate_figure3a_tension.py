@@ -86,8 +86,8 @@ err_diag = np.sqrt(np.diag(cov_filtered))
 # 3. EXACT COVARIANT PHYSICS ENGINE
 # ==========================================
 C_LIGHT = 299792.458
-Z_TRANS = 0.641        # EXACT: Topological percolation redshift (Sec. 2.4, Eq. 13)
-WIDTH = 0.084          # EXACT: Derived geometric Jacobian width (Sec. 8.3.2, Eq. 149)
+Z_TRANS = 0.641        # EXACT: Topological percolation redshift 
+WIDTH = 0.082          # EXACT: Derived geometric Jacobian width (Updated)
 
 # --- MODEL A: PLANCK LCDM (Baseline Control) ---
 H0_PLANCK = 67.36      # Planck 2018 Baseline (km s^-1 Mpc^-1)
@@ -96,17 +96,17 @@ OM_PLANCK = 0.3153     # Planck 2018 Matter Density
 OL_PLANCK = 1.0 - OM_PLANCK
 
 # --- MODEL B: VACUUM ELASTODYNAMICS (Zero Continuous Parameters) ---
-H_FAST = 74.69         # Primordial E8 Geometric Ceiling (Sec. 7.2.2, Eq. 106)
-H_LOCAL = 72.71        # Viscous Kinematic Baseline (Sec. 7.2.3, Eq. 111)
-SIGMA_VED = 0.02       # Theoretical uncertainty from CMB theta_* (Sec. 7.2.3)
-OM_PRIMORDIAL = 0.3116 # Bare Simple-Cubic Site Percolation Limit (Sec. 7.1.2, Eq. 97)
-OM_EFFECTIVE = 0.3639  # Late-Time Inertial Counter-Load (Sec. 7.2.3, Eq. 109)
+H_FAST = 74.65         # Primordial E8 Geometric Ceiling (Updated)
+H_LOCAL = 72.67        # Viscous Kinematic Baseline (Updated)
+SIGMA_VED = 0.02       # Theoretical uncertainty from CMB theta_* 
+OM_PRIMORDIAL = 0.3116 # Bare Simple-Cubic Site Percolation Limit 
+OM_EFFECTIVE = 0.3639  # Late-Time Inertial Counter-Load 
 
-# --- CONSTITUTIVE SOURCE EVOLUTION PARAMETERS (Sec. 7.2.1 & 7.3) ---
-G_BOOST_EARLY = 0.2177 # Fractional early gravity enhancement (G_early/G_0 - 1, Eq. 104)
-DELTA_M_LUM = 0.160    # Continuous luminosity dimming at high-z (mag, Eq. 116)
-DELTA_M_VISC = 0.250   # Yield-limited source strain penalty at high-z (mag, Eq. 117)
-TOTAL_SOURCE_PENALTY = DELTA_M_LUM + DELTA_M_VISC # +0.410 mag total (Sec. 7.3)
+# --- CONSTITUTIVE SOURCE EVOLUTION PARAMETERS ---
+G_BOOST_EARLY = 0.2165 # Fractional early gravity enhancement (Updated)
+DELTA_M_LUM = 0.1596   # Continuous luminosity dimming at high-z (Updated)
+DELTA_M_VISC = 0.2545  # Yield-limited source strain penalty at high-z (Updated)
+TOTAL_SOURCE_PENALTY = DELTA_M_LUM + DELTA_M_VISC # +0.4141 mag total (Updated)
 
 def integrate_distance_vectorized(z_values, h_func):
     """Vectorized trapezoidal Riemann integration (20,000 grid points)."""
@@ -205,7 +205,7 @@ if d_chi2_cal < -20.0:
     print("\nVERDICT: DECISIVE STATISTICAL RESOLUTION.")
     print(f"1. Fixed-Zero-Point Full Projection (N=1701): Delta Chi2 = {d_chi2_full:.2f}")
     print(f"2. Isolated Cepheid Calibration Prior (N=42): Delta Chi2 = {d_chi2_cal:.2f} ({sigma_viscous_cal:.2f} sigma)")
-    print("Both regimes confirm that the 74.69 -> 72.71 viscous braking engine resolves")
+    print(f"Both regimes confirm that the {H_FAST} -> {H_LOCAL} viscous braking engine resolves")
     print("the Hubble Tension from first principles with zero continuous free parameters.")
 
 # ==========================================
