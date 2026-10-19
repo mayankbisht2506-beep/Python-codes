@@ -29,23 +29,23 @@ bao_data = [
 # ==========================================
 C_LIGHT = 299792.458
 RD_FIDUCIAL = 147.78
-Z_TRANS = 0.641       # EXACT: Topological percolation redshift
-WIDTH = 0.084          # EXACT: Derived geometric Jacobian width
+Z_TRANS = 0.641        # EXACT: Topological percolation redshift
+WIDTH = 0.082          # EXACT: Updated derived geometric Jacobian width (beta_p = 0.418)
 
 # --- MODEL A: EXACT Planck 2018 (Baseline) ---
-H0_PLANCK = 67.36     # EXACT: High-Precision Baseline
-OM_PLANCK = 0.3153    # EXACT: High-Precision Baseline
+H0_PLANCK = 67.36      # EXACT: High-Precision Baseline
+OM_PLANCK = 0.3153     # EXACT: High-Precision Baseline
 RD_PLANCK = 147.09
 
 # --- MODEL B: Vacuum Elastodynamics (Metric Scaling) ---
-H_FAST = 74.69         # EXACT: High-Precision Geometric Ceiling
-H_TERMINAL = 72.71     # EXACT: High-Precision Terminal Velocity
+H_FAST = 74.65         # EXACT: Updated High-Precision Geometric Ceiling
+H_TERMINAL = 72.67     # EXACT: Updated High-Precision Terminal Velocity
 OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Mass
 OM_EFFECTIVE = 0.3639  # EXACT: High-Precision Viscous Load
 
 # EXACT GEOMETRIC CONTRACTION OF THE SOUND HORIZON:
-# Dictated strictly by the E8 topological gravity boost (~1.2177)
-G_BOOST = 1.21767
+# Dictated strictly by the E8 topological gravity boost (~1.2165)
+G_BOOST = 1.2165
 RD_VAC = RD_PLANCK / np.sqrt(G_BOOST)
 
 # ==========================================
@@ -152,8 +152,6 @@ for z_plot in z_grid:
     ratio_std_list.append(vec_p['DM'] / RD_PLANCK)
     ratio_vac_list.append(vec_v['DM'] / RD_VAC)
 
-
-
 plt.figure(figsize=(10, 6))
 
 plt.errorbar(plot_data_z, plot_data_val, yerr=plot_data_err, fmt='o', color='black', 
@@ -161,7 +159,7 @@ plt.errorbar(plot_data_z, plot_data_val, yerr=plot_data_err, fmt='o', color='bla
 
 plt.plot(z_grid, ratio_std_list, 'k--', linewidth=2, label=rf'Standard $\Lambda$CDM ($H_0={H0_PLANCK}$)')
 plt.plot(z_grid, ratio_vac_list, 'r-', linewidth=3, 
-         label=rf'Theoretical Model ($H_{{fast}} \rightarrow H_{{local}}$)' + '\n' + rf'w/ Contraction ($r_d={RD_VAC:.1f}$ Mpc)')
+         label=rf'Theoretical Model ($H_{{fast}} \rightarrow H_{{local}}$)' + '\n' + rf'w/ Contraction ($r_d={RD_VAC:.2f}$ Mpc)')
 
 plt.title('BAO Consistency Check: Geometric Scaling Cancellation', fontsize=14)
 plt.xlabel('Redshift $z$', fontsize=12)
