@@ -16,9 +16,9 @@ This repository contains the complete **"Steel Man" Validation Suite** for the V
 - 💻 **Source Code:** Hosted in this GitHub repository.
 
 These scripts demonstrate that the model simultaneously resolves:
-- **Hubble Tension** ($H_0 \approx 72.82$)
+- **Hubble Tension** ($H_0 \approx 72.84$)
 - **$S_8$ Tension** ($S_8 \approx 0.777$)
-- **Lithium Problem** (2.93x Depletion)
+- **Lithium Problem** (2.88x Depletion)
 
 ...while preserving $\Lambda$CDM successes in BBN, CMB, and Solar System gravity.
 
@@ -41,10 +41,10 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
-| `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.69$ |
+| `Gravity_Boost.py` | Verify H₀ shift via Early Gravity Boost | $H_{fast} \approx 74.65$ |
 | `S8_KiDS_DES.py` | Verify S₈ suppression via Viscosity | $S_8 \approx 0.777$ |
-| `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2_{cal} \approx -27.50$ |
-| `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2548.34$ |
+| `generate_Figure3a_tension.py` | Hubble tension significance check | $\Delta\chi^2_{cal} \approx -27.47$ |
+| `validate_vacuum_tension_resolution.py` | Pantheon+ Stress Test (Raw $\chi^2$) | $\Delta\chi^2 \approx -2551.77$ |
 
 ### 2. Microphysics & Fundamental Constants
 *Verifying the geometric derivation of constants and particle stability.*
@@ -52,7 +52,7 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
 | `generate_Figure1_lattice_simulation.py` | Lepton Saturation Sum Rule | $98.58\%$ Efficiency |
-| `validate_lithium_solution.py` | Lithium-7 Depletion | $2.93\times$ Depletion |
+| `validate_lithium_solution.py` | Lithium-7 Depletion | $2.88\times$ Depletion |
 | `validate_deuterium_robust.py` | Deuterium/Helium Invariance | Invariant |
 | `validate_BBN_stability.py` | Helium-4 Freeze-out Check | $Y_p \Invariant |
 | `generate_Figure5_validate_vacuum_fracture.py` | Vacuum Fracture (Electron/Proton) | $0.9$ TeV |
@@ -65,10 +65,10 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | `verify_CMB_geometric_scaling.py` | CMB Spectrum Restoration (CAMB) | Peaks Aligned |
 | `hyperuniform_screening_check.py` | Cassini (Solar System) Screening | Range $< 100$m |
 | `validate_CMB_invariance.py` | Acoustic Scale Stability ($\theta_*$) | Error $< 0.01\%$ |
-| `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.42$ |
-| `Universe_age.py` | Cosmic Age Calculation | $12.525$ Gyr |
+| `validate_jerk_stability.py` | Kinematic Singularity Check | $j_{max} \approx 1.44$ |
+| `Universe_age.py` | Cosmic Age Calculation | $12.532$ Gyr |
 | `validate_ISW_stability.py` | Integrated Sachs-Wolfe (Supervoids) | Convolved Signal $\times 1.29$ (Local $\times 1.20$) |
-| `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +5.69$ |
+| `generate_Figure3b_validate_shape.py` | Expansion History Shape Test | $\Delta\chi^2 \approx +5.14$ |
 | `hubble_transition_model.py` | Phase Transition Smoothness | Smooth |
 
 ### 4. Observational Probes (BAO, Growth, Galaxies)
@@ -77,8 +77,8 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 | Script Name | Objective | Key Result (Paper) |
 | :--- | :--- | :--- |
 | `validate_Pk_screening.py` | Matter Power Spectrum Shape | $0.00\%$ Deviation |
-| `validate_BAO_ladder.py` | BAO Distance Ladder (8-Point) | $∆χ2≈ 1.60$ |
-| `validate_growth_numerical.py` | Linear Growth Rate ($f\sigma_8$) | $∆χ2 ≈ −1.78$ |
+| `validate_BAO_ladder.py` | BAO Distance Ladder (8-Point) | $∆χ2≈ 1.63$ |
+| `validate_growth_numerical.py` | Linear Growth Rate ($f\sigma_8$) | $∆χ2 ≈ −1.76$ |
 | `validate_JWST_growth.py` | JWST "Impossible Galaxies" | Luminosity Boost |
 | `cosmic_chronometers_test.py` | Cosmic Chronometers ($H(z)$) | $\chi^2_\nu \approx 0.94$ |
 
@@ -87,8 +87,8 @@ pip install numpy scipy pandas matplotlib requests emcee corner uproot awkward c
 
 | Script Name | Objective | Result |
 | :--- | :--- | :--- |
-| `validate_global_stats.py` | Global Likelihood Sum (Net) | $\Delta\chi^2 \approx -7.62$ |
-| `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.82 \pm 0.24$ |
+| `validate_global_stats.py` | Global Likelihood Sum (Net) | $\Delta\chi^2 \approx -8.29$ |
+| `generate_Figure4_MCMC_validation.py` | Blind MCMC Parameter Recovery | $H_0 = 72.84 \pm 0.24$ |
 
 ---
 
@@ -99,7 +99,7 @@ Running `src/validate_global_stats.py` reproduces the main conclusion:
 > **The Unified Vacuum Model is globally preferred by >5σ over ΛCDM.**
 
 ### Summary Scorecard
-*   **Supernovae:** $H_0 \approx 72.82$ km/s/Mpc (Matches SH0ES)
+*   **Supernovae:** $H_0 \approx 72.84$ km/s/Mpc (Matches SH0ES)
 *   **Structure Growth:** $S_8 \approx 0.777$ (Matches Weak Lensing)
 *   **BBN:** Lithium-7 Solved, D/He Preserved
 *   **CMB:** Acoustic Scale Locked ($\theta_*$ invariant)
@@ -112,7 +112,6 @@ Running `src/validate_global_stats.py` reproduces the main conclusion:
 
 ```
 /src/       # Validation scripts (25 files)
-/figures/   # Generated plots (Figures 1-5)
 /data/      # Cached datasets (Pantheon+, Chronometers)
 ```
 
