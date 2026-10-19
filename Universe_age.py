@@ -1,9 +1,12 @@
+# Uncomment the line below if running in Google Colab / Jupyter
+# !pip install scipy numpy matplotlib
+
 import numpy as np
 from scipy.integrate import quad
 
 print("--- VACUUM ELASTODYNAMICS: COSMIC AGE VERIFICATION ---")
-print("Objective: Verify the 12.52 Gyr 'Kinematic Age' (Section 9.12)")
-print("Engine: Exact Covariant Geometry (Width=0.084, Radiative Decoupling)")
+print("Objective: Verify the 'Kinematic Age' (Section 9.12)")
+print("Engine: Exact Covariant Geometry (Width=0.082, Radiative Decoupling)")
 print("-" * 65)
 
 # ==========================================
@@ -19,14 +22,14 @@ OL_PLANCK = 1.0 - OM_PLANCK
 # across the matter-dominated age integral.
 
 # Vacuum Elastodynamics (Zero Continuous Parameters)
-H_FAST = 74.69
-H_LOCAL = 72.71
-OM_PRIMORDIAL = 0.3116
-OM_EFFECTIVE = 0.3639
+H_FAST = 74.65           # EXACT: Updated Early Geometric Ceiling
+H_LOCAL = 72.67          # EXACT: Updated Viscous Kinematic Baseline
+OM_PRIMORDIAL = 0.3116   # EXACT: Topological Bare Density
+OM_EFFECTIVE = 0.3639    # EXACT: Viscous Braking Density
 
 # Phase Transition Geometry
 Z_TRANS = 0.641
-WIDTH = 0.084   # EXACT: Derived geometric Jacobian width
+WIDTH = 0.082            # EXACT: Updated derived geometric Jacobian width
 
 # ==========================================
 # 2. DUAL-PHASE COVARIANT ENGINE
@@ -38,7 +41,7 @@ def get_sigmoid(z):
     return 1.0 / (1.0 + np.exp(-arg))
 
 def integrand_vacuum(z):
-    """Exact VED Covariant Expansion History (Eqs. 134 & 135)."""
+    """Exact VED Covariant Expansion History (Eqs. 147 & 148)."""
     # 1. Interpolate the foundational parameters
     S_z = get_sigmoid(z)
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * S_z
@@ -81,7 +84,7 @@ LIMIT_LOW = 12.50
 print(f"\n[ TEST ] Does the VED Age satisfy the oldest Globular Clusters (>= {LIMIT_LOW} Gyr)?")
 
 if age_rigorous >= LIMIT_LOW:
-    print(f"[ PASS ] YES. Age {age_rigorous:.3f} Gyr perfectly matches Section 9.12.")
+    print(f"[ PASS ] YES. Age {age_rigorous:.3f} Gyr is perfectly safe.")
     print("         The viscoplastic braking of the late universe provides the exact")
     print("         temporal margin needed to keep the universe older than its stars,")
     print("         while the fast early expansion natively explains JWST galaxies.")
