@@ -26,8 +26,8 @@ err_cc = cc_data[:, 2]
 # ==========================================
 # 2. UNIFIED PHYSICS ENGINE (Pure Theory)
 # ==========================================
-Z_TRANS = 0.641      # EXACT: Topological percolation redshift
-WIDTH = 0.084 # EXACT: Derived geometric Jacobian width         
+Z_TRANS = 0.641         # EXACT: Topological percolation redshift
+WIDTH = 0.082           # EXACT: Updated geometric Jacobian width         
 
 # --- MODEL A: PLANCK LCDM (Precision Baseline) ---
 H0_PLANCK = 67.36
@@ -35,8 +35,8 @@ OM_PLANCK = 0.3153
 OL_PLANCK = 1.0 - OM_PLANCK
 
 # --- MODEL B: VACUUM ELASTODYNAMICS (Zero-Parameter Prediction) ---
-H_FAST = 74.69          # EXACT: Early Geometric Ceiling
-H_TERMINAL = 72.71      # EXACT: Theoretically Derived Terminal Velocity
+H_FAST = 74.65          # EXACT: Updated Early Geometric Ceiling
+H_TERMINAL = 72.67      # EXACT: Updated Viscous Terminal Velocity
 OM_PRIMORDIAL = 0.3116  # EXACT: Topological Bare Mass
 OM_EFFECTIVE = 0.3639   # EXACT: Theoretically Derived Viscous Load
 
@@ -52,7 +52,7 @@ def h_viscous(z):
     OM_Z = OM_PRIMORDIAL + (OM_EFFECTIVE - OM_PRIMORDIAL) * sigmoid
     OL_Z = 1.0 - OM_Z
     
-    # Braking from 74.69 down to 72.71
+    # Braking from 74.65 down to 72.67
     H_Z = H_FAST + (H_TERMINAL - H_FAST) * sigmoid
     
     return H_Z * np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
@@ -96,8 +96,8 @@ plt.plot(z_grid, h_viscous(z_grid), 'r-', linewidth=2.5,
          label=rf'Theoretical Model ($H_{{fast}}={H_FAST} \rightarrow H_{{local}}={H_TERMINAL}$)' + '\n' + rf'with Viscous Drag ($\Omega_m \rightarrow {OM_EFFECTIVE}$)')
 
 plt.axvline(x=Z_TRANS, color='gray', linestyle=':', label=rf'Topological Phase Transition $z={Z_TRANS}$')
-plt.xlabel('Redshift z', fontsize=12)
-plt.ylabel('H(z) [km/s/Mpc]', fontsize=12)
+plt.xlabel('Redshift $z$', fontsize=12)
+plt.ylabel('$H(z)$ [km/s/Mpc]', fontsize=12)
 plt.title(rf'Cosmic Chronometer Consistency Check' + '\n' + rf'Zero-Parameter Prediction $\chi^2_\nu \approx {rchi2_vacuum:.2f}$', fontsize=14)
 plt.legend(fontsize=10)
 plt.grid(True, alpha=0.3)
