@@ -97,9 +97,9 @@ except np.linalg.LinAlgError:
 # ==========================================
 c_light = 299792.458
 Z_TRANS = 0.641        # Theoretically derived phase boundary (Sec. 2.4, Eq. 13)
-WIDTH = 0.084          # EXACT: Derived geometric Jacobian width (Sec. 8.3.2, Eq. 149)
+WIDTH = 0.082          # EXACT: Derived geometric Jacobian width (Updated for 0.418)
 OM_PRIMORDIAL = 0.3116 # Exact Frictionless Baseline (Sec. 7.1.2, Eq. 97)
-H_FAST = 74.69         # Strict early-universe expansion ceiling (Sec. 7.2.2, Eq. 106)
+H_FAST = 74.65         # Strict early-universe expansion ceiling (Updated for 0.418)
 
 # --- Precomputed Static Redshift Arrays (Bitwise Identical Math, 3x Faster) ---
 # 1. Cosmic Chronometers (N=31)
@@ -111,9 +111,9 @@ CUBED_CC = (1.0 + z_cc)**3
 # 2. Pantheon+ Observational Redshifts (N=1701)
 arg_obs_sn = (Z_TRANS - z_sn) / WIDTH
 SIGMOID_OBS_SN = np.where(arg_obs_sn > 100.0, 1.0, np.where(arg_obs_sn < -100.0, 0.0, 1.0 / (1.0 + np.exp(-arg_obs_sn))))
-G_Z_SN = 1.0 + 0.2177 * (1.0 - SIGMOID_OBS_SN)
+G_Z_SN = 1.0 + 0.2165 * (1.0 - SIGMOID_OBS_SN) # Updated G_boost for 0.418
 Z_METRIC_SN = np.maximum((1.0 + z_sn) / np.sqrt(G_Z_SN) - 1.0, 0.0)
-PENALTIES_SN = 0.410 * (1.0 - SIGMOID_OBS_SN)
+PENALTIES_SN = 0.4141 * (1.0 - SIGMOID_OBS_SN) # Updated Source Penalty for 0.418
 
 # 3. 20,000-Point Trapezoidal Integration Grid
 Z_MAX_INT = np.max(Z_METRIC_SN) * 1.01
@@ -208,7 +208,7 @@ for i in range(ndim):
     print(f"{labels[i]}: {mcmc[1]:.3f}  +{np.diff(mcmc)[1]:.3f} / -{np.diff(mcmc)[0]:.3f}")
 
 # --- Plotting (Exact Match to Figure 4 in Manuscript) ---
-H_OBS_THEORY = 72.71
+H_OBS_THEORY = 72.67   # EXACT: Updated theoretical prediction for plotting
 OM_EFF_THEORY = 0.3639
 
 fig = corner.corner(
@@ -222,5 +222,5 @@ fig = corner.corner(
 )
 plt.suptitle("Vacuum Elastodynamics: Exact Covariant Joint MCMC", fontsize=16, y=1.06)
 plt.savefig("Joint_MCMC_Exact_Covariant.pdf", bbox_inches='tight', dpi=300)
-print("Saved Exact Covariant MCMC corner plot as PDF.")
+print("\nSaved Exact Covariant MCMC corner plot as 'Joint_MCMC_Exact_Covariant.pdf'.")
 plt.show()
