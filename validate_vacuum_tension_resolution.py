@@ -13,7 +13,7 @@ from scipy.optimize import minimize
 # ==========================================
 print("--- RUNNING PANTHEON+ TEST I: RAW STRESS TEST (N=1701) ---")
 print("Objective: Optimize H0 to find Maximum Headroom (Table 7)")
-print("Engine: Exact Covariant Geometry (Pure Unnormalized Engine, Width=0.084)")
+print("Engine: Exact Covariant Geometry (Pure Unnormalized Engine, Width=0.082)")
 
 DATA_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES.dat"
 COV_URL = "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data/4_DISTANCES_AND_COVAR/Pantheon%2BSH0ES_STAT%2BSYS.cov"
@@ -104,8 +104,8 @@ chi2_planck = R_planck.T @ inv_cov @ R_planck
 # 4. EXACT COVARIANT OPTIMIZATION (VED)
 # ==========================================
 Z_TRANS = 0.641
-WIDTH = 0.084          # EXACT: Jacobian projection of yield drop
-H_FAST = 74.69         # EXACT: Early Geometric Ceiling
+WIDTH = 0.082          # EXACT: Updated Jacobian projection
+H_FAST = 74.65         # EXACT: Updated Early Geometric Ceiling
 OM_PRIMORDIAL = 0.3116 # EXACT: Topological Bare Density
 OM_EFFECTIVE  = 0.3639 # EXACT: Viscous Braking Density
 
@@ -119,7 +119,8 @@ def get_sigmoid(z):
 def get_exact_mu_visc(z_array, h_local_opt):
     """Exact Covariant Distance Modulus Engine parameterized for optimization."""
     S_z = get_sigmoid(z_array)
-    G_z = 1.0 + 0.2177 * (1.0 - S_z)
+    # Updated fractional early gravity boost
+    G_z = 1.0 + 0.2165 * (1.0 - S_z)  
     
     z_metric = (1.0 + z_array) / np.sqrt(G_z) - 1.0
     z_metric = np.maximum(z_metric, 0.0)
@@ -138,7 +139,8 @@ def get_exact_mu_visc(z_array, h_local_opt):
     dl_mpc_safe = np.maximum(dl_mpc, 1e-10)
     mu_raw = 5.0 * np.log10(dl_mpc_safe) + 25.0
     
-    penalties = 0.410 * (1.0 - S_z)
+    # Updated Total Source Penalties
+    penalties = 0.4141 * (1.0 - S_z)
     return mu_raw + penalties
 
 def objective_vacuum(h0_param):
