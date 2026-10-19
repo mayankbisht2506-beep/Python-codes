@@ -21,17 +21,17 @@ PARAMS_PLANCK = {
 
 # EXACT TOPOLOGICAL INPUTS (Pure Vacuum Elastodynamics)
 CABIBBO_ANGLE = 0.225   # Standard Model Mixing Angle (sin theta_c)
-Y_MAX = 0.2055          # Macroscopic Yield Limit (derived from E8/D4 geometry)
-H0_THEORY = 74.69       # EXACT: Primordial Geometric Ceiling
+Y_MAX = 0.2090          # EXACT: Updated Macroscopic Yield Limit (beta_p = 0.418)
+H0_THEORY = 74.65       # EXACT: Updated Primordial Geometric Ceiling
 
 # Derived Gravity Boost & Horizon Contraction
 DELTA_EFF = CABIBBO_ANGLE * (1.0 - Y_MAX)
-G_BOOST = 1.0 / (1.0 - DELTA_EFF)           # ~1.2177
-SCALING_RS = G_BOOST**(-0.5)                # ~0.9062
+G_BOOST = 1.0 / (1.0 - DELTA_EFF)           # ~1.2165
+SCALING_RS = G_BOOST**(-0.5)                # ~0.9067
 
 print(f"Derived G_BOOST:    {G_BOOST:.4f}")
 print(f"Derived SCALING_RS: {SCALING_RS:.4f} (Horizon Contraction)")
-print(f"Theoretical H_fast:   {H0_THEORY:.2f} km/s/Mpc")
+print(f"Theoretical H_fast: {H0_THEORY:.2f} km/s/Mpc")
 
 # ==========================================
 # 2. SPECTRAL GENERATION
@@ -72,7 +72,7 @@ print(f"-> Multipole Expansion Factor: {shift_factor:.4f}")
 # The primordial plasma is strictly scale invariant (r_silk / r_s = 1).
 # The A_L anomaly is derived entirely from the enhanced early gravity acting
 # on the high-z lensing kernel prior to the z=0.641 jamming transition.
-A_L_lensing_boost = (G_BOOST)**0.25  # Evaluates to ~1.0504
+A_L_lensing_boost = (G_BOOST)**0.25  # Evaluates to ~1.0503
 
 mask_start = 800
 transition = np.clip((l_vacuum - mask_start) / 1000, 0, 1)
@@ -136,4 +136,4 @@ print("\nCONCLUSION: The primordial plasma remains strictly scale-invariant.")
 print("The VED framework flawlessly restores the CMB via the Geometric Lock and")
 print("resolves the A_L anomaly via Intermediate-Epoch Lensing.")
 print(f"The amplified gravitational lensing kernel of the enhanced early gravity")
-print(f"(G_early ≈ {G_BOOST:.3f} G_0) operates strictly prior to the z ≈ 0.641 jamming transition.")
+print(f"(G_early ≈ {G_BOOST:.4f} G_0) operates strictly prior to the z ≈ 0.641 jamming transition.")
