@@ -18,7 +18,7 @@ OM_EFFECTIVE  = 0.3639  # Exact Macroscopic Inertial Load (Kinematic Drag)
 ZETA_FLOOR    = 0.15683 # Vacuum Saturation Viscosity (Frenkel limit)
 ZETA_PEAK     = 0.3116  # Percolation Jamming Limit (p_c)
 Z_TRANS       = 0.641   # Exact Topological Phase Transition Redshift
-WIDTH         = 0.084   # EXACT: Derived geometric Jacobian width
+WIDTH         = 0.082   # EXACT: Derived geometric Jacobian width
 
 # ==========================================
 # 2. PHYSICS ENGINE (Eq. 126)
