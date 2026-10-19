@@ -7,6 +7,7 @@ from scipy.integrate import odeint
 
 print("--- VACUUM ELASTODYNAMICS: S8 CLUSTERING RESOLUTION TEST ---")
 print("Mechanism: Pure Theoretical Viscous Damping vs Frictionless Extrapolation")
+print("Engine: Exact Covariant Geometry (Width=0.082)")
 print("-" * 65)
 
 # ==========================================
@@ -22,7 +23,7 @@ OM_EFFECTIVE  = 0.3639  # EXACT: Kinematic Viscous Load (Drives Expansion)
 ZETA_FLOOR    = 0.15683 # EXACT: Vacuum Saturation Viscosity (zeta_sat)
 ZETA_PEAK     = 0.3116  # EXACT: Jamming/Percolation Threshold (zeta_peak)
 Z_TRANS       = 0.641   # EXACT: Topological Phase Transition Redshift
-WIDTH         = 0.084   # EXACT: Derived geometric Jacobian width
+WIDTH         = 0.082   # EXACT: Updated derived geometric Jacobian width
 
 # Weak Lensing Targets (DES Y3 Consensus)
 S8_TARGET_MEAN = 0.776
@@ -43,7 +44,7 @@ def get_viscosity(z):
     """
     Calculates the macroscopic bulk viscosity of the vacuum lattice.
     Both the background transition and the critical jamming spike are
-    strictly governed by the derived geometric width WIDTH = 0.084.
+    strictly governed by the derived geometric width WIDTH = 0.082.
     """
     late_trigger = get_sigmoid(z)
     base_viscosity = ZETA_FLOOR * late_trigger
@@ -159,6 +160,6 @@ plt.grid(axis='y', alpha=0.3)
 plt.legend(loc='upper right')
 
 plt.tight_layout()
-plt.savefig('S8_Resolution_Proof.pdf', dpi=300)
-print("\nPlot saved as 'S8_Resolution_Proof.pdf'")
+plt.savefig('S8_Resolution_Proof_Updated.pdf', dpi=300)
+print("\nPlot saved as 'S8_Resolution_Proof_Updated.pdf'")
 plt.show()
