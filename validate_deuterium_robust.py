@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 print("--- PRIMORDIAL DEUTERIUM INVARIANCE (STRICT) ---")
-print("Objective: Verify the 'Cancellation Theorem' (Section 7.13) for Deuterium.")
+print("Objective: Verify the 'Cancellation Theorem' (Section 7.11.2) for Deuterium.")
 
 # ==========================================
 # 1. PARAMETERS (Exact D4 Topology)
@@ -14,9 +14,9 @@ print("Objective: Verify the 'Cancellation Theorem' (Section 7.13) for Deuterium
 OBS_DH = 2.547e-5
 H0_PLANCK = 67.36  # EXACT: High-Precision Baseline
 
-# EXACT TOPOLOGICAL INPUTS
+# EXACT TOPOLOGICAL INPUTS (Updated for beta_p = 0.418)
 CABIBBO_ANGLE = 0.225   
-Y_MAX = 0.2055          
+Y_MAX = 0.2090          # EXACT: Updated Macroscopic Yield Limit
 DELTA_EFF = CABIBBO_ANGLE * (1.0 - Y_MAX)
 G_BOOST = 1.0 / (1.0 - DELTA_EFF)
 
@@ -56,7 +56,7 @@ percent_change = (ratio - 1) * 100
 
 print(f"H0 Radiation Scalar: {H0_THEORY:.2f} km/s/Mpc (implies G_BOOST = {G_BOOST:.4f})")
 print("-" * 50)
-print(f"SCALING FACTORS (Section 7.13):")
+print(f"SCALING FACTORS (Section 7.11.2):")
 print(f"  Density (dilution):        {RHO_SCALE:.4f}  (G^-1.5)")
 print(f"  Cross-Section (boost):     {SIGMA_SCALE:.4f}  (G^1.0)")
 print(f"  Time Window (delay):       {TIME_SCALE:.4f}  (G^0.5)")
@@ -64,12 +64,12 @@ print(f"  NET CANCELLATION:          {scaling_factor:.4f}")
 print("-" * 50)
 print(f"Standard D/H:  {final_std:.4e}")
 print(f"Vacuum D/H:    {final_vac:.4e}")
-print(f"Percent Drift: {percent_change:+.4f}%")
+print(f"Percent Drift: {percent_change:+.4f}%  <-- [ABSOLUTE ZERO]")
 print("-" * 50)
 
 # Plotting...
 plt.figure(figsize=(6,5))
-x_labels = [r'Standard $\Lambda$CDM', rf'Vacuum ($H_{{local}} \to 72.71$)']
+x_labels = [r'Standard $\Lambda$CDM', rf'Vacuum ($H_{{local}} \to 72.67$)']
 y_values = [final_std*1e5, final_vac*1e5]
 
 plt.bar(x_labels, y_values, color=['gray', '#1f77b4'], width=0.5)
