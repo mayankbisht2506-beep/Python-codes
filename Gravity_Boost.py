@@ -18,7 +18,7 @@ C_LIGHT = 299792.458
 # 2. THEORETICAL INPUTS (Strictly from E8 Topology)
 # ==========================================
 CABIBBO_ANGLE = 0.2250      # D4 Triality projection
-Y_MAX = 0.2055              # Geometric Yield Coefficient
+Y_MAX = 0.2090              # Geometric Yield Coefficient
 OM_BARE = 0.3116            # Topological Percolation Density
 ZETA_SAT = 0.1569           # Lepton Saturation Viscosity
 
