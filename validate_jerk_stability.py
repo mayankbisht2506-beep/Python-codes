@@ -12,32 +12,28 @@ print("Engine: Continuous Parameter Interpolation (Matches Section 8.3.1)")
 # 1. PHYSICS PARAMETERS (High-Precision VED)
 # ==========================================
 Z_TRANS = 0.641
-WIDTH = 0.084        #    EXACT: Derived geometric Jacobian width
+WIDTH = 0.082     # EXACT: Updated geometric Jacobian width
 
 # EARLY REGIME (z > 0.641) - Superfluid Epoch
-H_EARLY = 74.69
-OM_EARLY = 0.3116
+H_EARLY = 74.65   # EXACT: Updated Primordial Ceiling
+OM_EARLY = 0.3116 # EXACT: Topological Bare Mass
 
 # LATE REGIME (z < 0.641) - Viscous Epoch
-H_LATE = 72.71
-OM_LATE = 0.3639  # Includes Macroscopic Inertial Counter-Load
+H_LATE = 72.67    # EXACT: Updated Viscous Terminal Velocity
+OM_LATE = 0.3639  # EXACT: Macroscopic Inertial Counter-Load
 
 # ==========================================
 # 2. RIGOROUS DUAL-TRANSITION ENGINE
 # ==========================================
 def get_hubble_vac(z):
     """Continuous expansion history exactly as defined in Section 8.3.1"""
-    # 1. Evaluate S(z) for the transition
-    # 1 locally (z ~ 0), 0 in the early universe (z > 0.641)
     arg = (Z_TRANS - z) / WIDTH
     S_z = np.where(arg > 100, 1.0, np.where(arg < -100, 0.0, 1.0 / (1.0 + np.exp(-arg))))
     
-    # 2. Interpolate Constitutive Parameters
     OM_Z = OM_EARLY + (OM_LATE - OM_EARLY) * S_z
     OL_Z = 1.0 - OM_Z
     H_Z  = H_EARLY + (H_LATE - H_EARLY) * S_z
     
-    # 3. Calculate dynamic Hubble parameter
     E_z = np.sqrt(OM_Z * (1 + z)**3 + OL_Z)
     return H_Z * E_z
 
@@ -64,7 +60,7 @@ j_std = q_std * (2 * q_std + 1) + (1 + z_grid) * dqdz_std
 # ==========================================
 # 4. ANALYSIS & VERDICT
 # ==========================================
-# Slice off the first and last 10 points to remove np.gradient boundary artifacts
+# Slice off boundary artifacts
 max_j_vac = np.max(np.abs(j_vac[10:-10]))
 max_j_std = np.max(np.abs(j_std[10:-10]))
 
@@ -91,10 +87,10 @@ plt.axvline(Z_TRANS, color='gray', linestyle=':', label=rf'Phase Transition ($z=
 plt.xlabel('Redshift $z$', fontsize=12)
 plt.ylabel('Jerk Parameter $j(z)$', fontsize=12)
 plt.title('Kinematic Stability: Adiabatic Smoothness of the Vacuum Transition', fontsize=14)
-plt.ylim(0, 1.5)
+plt.ylim(0, 1.6)
 plt.legend(loc='lower right', fontsize=11)
 plt.grid(True, alpha=0.3)
-plt.gca().invert_xaxis() # Standard cosmological convention (past to present)
+plt.gca().invert_xaxis() 
 
 plt.tight_layout()
 plt.savefig('Jerk_Stability_Test.png', dpi=300)
