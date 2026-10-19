@@ -30,15 +30,15 @@ data_rsd = np.array([
 # ==========================================
 H0_LCDM       = 67.36   # EXACT: Planck 2018 Baseline
 OM_PLANCK     = 0.3153  # EXACT: Planck 2018 Baseline
-SIGMA8_0_LCDM = 0.8116  # Derived PlancK Baseline
+SIGMA8_0_LCDM = 0.8116  # Derived Planck Baseline
 
 OM_PRIMORDIAL = 0.3116  # EXACT: Frictionless Bare Density (Drives Gravity)
 OM_EFFECTIVE  = 0.3639  # EXACT: Viscous Load (Drives Expansion Friction)
 
-ETA_FLOOR = 0.15683      # EXACT: Vacuum Saturation Viscosity
+ETA_FLOOR = 0.15683     # EXACT: Vacuum Saturation Viscosity
 ETA_PEAK  = 0.3116      # EXACT: Simple cubic percolation limit
 Z_TRANS   = 0.641       # EXACT: Percolation redshift
-WIDTH     = 0.084       # EXACT: Derived geometric Jacobian width
+WIDTH     = 0.082       # EXACT: Updated geometric Jacobian width (beta_p=0.418)
 
 def get_viscosity(z):
     arg = (z - Z_TRANS) / WIDTH
@@ -158,7 +158,7 @@ plt.plot(z_axis, fs8_vac_bg, 'r-', linewidth=2, alpha=0.5, label=r'Vacuum Backgr
 
 plt.errorbar(data_rsd[:,0], data_rsd[:,1], yerr=data_rsd[:,2], fmt='o', color='black', label='RSD Data (Bound Halos)', capsize=3)
 plt.xlim(0, 1.6)
-plt.xlabel('Redshift z', fontsize=12)
+plt.xlabel('Redshift $z$', fontsize=12)
 plt.ylabel(r'Growth Rate $f\sigma_8(z)$', fontsize=12)
 plt.title('Rheological Separation: Local Galaxies vs Global Background', fontsize=14)
 plt.legend()
