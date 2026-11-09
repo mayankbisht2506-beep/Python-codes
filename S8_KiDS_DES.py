@@ -68,7 +68,7 @@ def growth_ode_rigorous(y, a, model='lcdm'):
         # The background metric feels the viscous load
         S_z = get_sigmoid(z)
         om_expansion = OM_BARE + (OM_EFFECTIVE - OM_BARE) * S_z
-        # Gravity ONLY feels the bare topological mass (Eq. 126)
+        # Gravity ONLY feels the bare topological mass (Eq. 132)
         om_gravity = OM_BARE
     else:
         om_expansion = OM_PLANCK
